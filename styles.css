@@ -208,7 +208,7 @@ a {
 /* 첫 번째 줄: 작품명 볼드 */
 .fav-block .title {
   font-weight: bold;
-  font-size: 1.1em;
+  font-size: 1em;
   margin-bottom: 4px;
 }
 
