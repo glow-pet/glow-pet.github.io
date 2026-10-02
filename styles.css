@@ -189,9 +189,15 @@ a {
 
 /* style.css */
 .fav-container {
+  /* 상하 40px, 좌우 24px 여백 추가 (필요에 따라 숫자 조절 가능) */
+  padding: 40px 24px;
+  /* 화면이 너무 넓어질 때 텍스트가 좌측에 쏠리지 않도록 폭 및 중앙 정렬 지정 */
+  max-width: 800px;
+  margin: 0 auto;
   line-height: 1.8;
   font-size: 15px;
   color: #111;
+  box-sizing: border-box;
 }
 
 /* 각 작품 단(블록) 간격 설정 */
