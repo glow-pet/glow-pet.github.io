@@ -57,10 +57,10 @@ a {
 }
 
 .nav-links a {
-  font-size: 0.95rem;
+  text-decoration: none;
   color: #666;
   padding: 0 1rem; /* 카테고리 글자와 수직선 사이의 간격 */
-  transition: color 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 /* 마지막 항목을 제외한 각 항목 오른쪽에 수직 구분선 추가 */
@@ -73,9 +73,14 @@ a {
 }
 
 .nav-links a:hover,
+/* 현재 선택된 메뉴 항목 (.active) */
 .nav-links a.active {
-  color: #000;
-  font-weight: 600;
+  font-weight: bold;
+  color: #000000;
+  /* 검은색 글로우(발광) 효과 */
+  text-shadow: 
+    0 0 4px rgba(0, 0, 0, 0.4),
+    0 0 10px rgba(0, 0, 0, 0.25);
 }
 
 /* 레이아웃 컨테이너 */
