@@ -187,6 +187,30 @@ a {
   .detail-grid { column-count: 1; }
 }
 
+/* style.css */
+.fav-container {
+  line-height: 1.8;
+  font-size: 15px;
+  color: #111;
+}
+
+/* 각 작품 단(블록) 간격 설정 */
+.fav-block {
+  margin-bottom: 3rem; /* 단 사이를 넉넉하게 떨어뜨림 (필요시 값 조절) */
+}
+
+/* 첫 번째 줄: 작품명 볼드 */
+.fav-block .title {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 4px;
+}
+
+/* 내용 줄 */
+.fav-block .line {
+  white-space: pre-wrap;
+}
+
 footer {
   text-align: center;
   padding: 2rem;
