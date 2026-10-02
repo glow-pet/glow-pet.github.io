@@ -5,146 +5,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2차창작</title>
+    <title>2차 창작</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="navbar.js" defer></script>
+    <script src="common.js" defer></script>
 </head>
 
 <body>
 
-    <!-- 네비게이션 바 -->
-    <common-navbar></common-navbar>
+    <common-layout>
     
-    <!-- 갤러리 메인 섹션 -->
-    <main class="container">
+        <!-- 갤러리 메인 섹션 -->
+        <main class="container">
 
-        <header class="category-header">
-            <h1>그림 모음</h1>
-            <p>
-                최근 것부터<br>
-                가벼운 선정성·폭력성 포함 가능<br>
-                성인물은 외부 링크로 <br>
-                AxB: 커플링 / A+B: 논커플링
-            </p>
-        </header>
-    
-        <div class="gallery-grid">
-
-            <!-- 카드-이그죽-레이 (detail-03.html) -->
-            <a href="detail-03.html" class="art-card-link">
-                <article class="art-card">
-                    <div class="image-wrapper">
-                        <img src="https://lh3.google.com/u/5/d/1CXVRHLG-phj_hW-vCejr7G2BwImZI5It=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
-                    </div>
-                    <div class="art-info">
-                        <div class="notion-properties">
-                            <div class="property-row">
-                                <span class="property-value">이거 그리고 죽어
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-value">레이
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-label">아이x레이
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </article> 
-            </a>
-    
-            <!-- 카드-레뷰-나나 (detail-01.html) -->
-            <a href="detail-01.html" class="art-card-link">
-                <article class="art-card">
-                    <div class="image-wrapper">
-                        <img src="https://lh3.google.com/u/5/d/1sEPHa47oPTOOH4dnTOOtS_nQ6UJc06V1=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
-                    </div>
-                    <div class="art-info">
-                        <div class="notion-properties">
-                            <div class="property-row">
-                                <span class="property-value">소녀★가극 레뷰 스타라이트
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-value">나나
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-label">나나+쥰나
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-            </a>
-
-            <!-- 카드-라라-리사 (detail-02.html) -->
-            <a href="detail-02.html" class="art-card-link">
-                <article class="art-card">
-                    <div class="image-wrapper">
-                        <img src="https://lh3.google.com/u/5/d/17G_ZfJfIue0kyChcEo1luwiP9bWlTJ0N=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
-                    </div>
-                    <div class="art-info">
-                        <div class="notion-properties">
-                            <div class="property-row">
-                                <span class="property-value">
-                                    안녕, 라라
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-value">
-                                    리사
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-label">
-                                    -
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </article> 
-            </a>
-
-            <!-- 카드-라라-마리 (detail-02.html) -->
-            <a href="detail-02.html" class="art-card-link">
-                <article class="art-card">
-                    <div class="image-wrapper">
-                        <img src="https://lh3.google.com/u/5/d/1QKzkyCwz28DHSO8K_lEtiDWmu3WaJ13U=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
-                    </div>
-                    <div class="art-info">
-                        <div class="notion-properties">
-                            <div class="property-row">
-                                <span class="property-value">안녕, 라라
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-value">마리
-                                </span>
-                            </div>
-                            <div class="property-row">
-                                <span class="property-label">라라x마리
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </article> 
-            </a>
+            <header class="category-header">
+                <h1>그림 모음</h1>
+                <p>
+                    최근 것부터<br>
+                    가벼운 선정성·폭력성 포함 가능<br>
+                    성인물은 외부 링크로 <br>
+                    AxB: 커플링 / A+B: 논커플링
+                </p>
+            </header>
         
-        </div>
+            <div class="main-grid">
 
-    </main>
+                <!-- 카드-이그죽-레이 -->
+                <a href="detail-igeujuk-rei.html" class="main-card-link">
+                    <article class="main-card">
+                        <div class="main-card-thumb">
+                            <img src="images/bafkreig7stisjxuoosg45rimj3te2uraa6folmjbnnphfsp47gs66cyce4.webp" alt="작품 제목 1" loading="lazy">
+                        </div>
+                        <div class="main-card-info">
+                            <div class="notion-properties">
+                                <div class="property-row">
+                                    <span class="property-value">이거 그리고 죽어
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-value">레이
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-label">아이x레이
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article> 
+                </a>
+        
+                <!-- 카드-레뷰-나나 (detail-01.html) -->
+                <a href="detail-01.html" class="main-card-link">
+                    <article class="main-card">
+                        <div class="main-card-thumb">
+                            <img src="images/bafkreia4m4bq6lwmpa2zvn7evaat4t72cpz4eoisfuyqnfzsdw5ckr23ze.webp" alt="작품 제목 1" loading="lazy">
+                        </div>
+                        <div class="main-card-info">
+                            <div class="notion-properties">
+                                <div class="property-row">
+                                    <span class="property-value">소녀★가극 레뷰 스타라이트
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-value">나나
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-label">나나+쥰나
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </a>
 
-    <footer>
+                <!-- 카드-라라-리사 (detail-02.html) -->
+                <a href="detail-02.html" class="main-card-link">
+                    <article class="main-card">
+                        <div class="main-card-thumb">
+                            <img src="images/bafkreifevvd6kaufhh6mjxstjikqiwcinpxlcccogppyqyykktr3c5lduy.webp" alt="작품 제목 1" loading="lazy">
+                        </div>
+                        <div class="main-card-info">
+                            <div class="notion-properties">
+                                <div class="property-row">
+                                    <span class="property-value">
+                                        안녕, 라라
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-value">
+                                        리사
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-label">
+                                        -
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article> 
+                </a>
 
-        <p>
-            &copy; 2026. All rights reserved.
-        </p>
+                <!-- 카드-라라-마리 (detail-02.html) -->
+                <a href="detail-02.html" class="main-card-link">
+                    <article class="main-card">
+                        <div class="main-card-thumb">
+                            <img src="images/bafkreidiaxi2x6a2lbxkht4qdvx4y4g3lhkj3zg5eeu5kevdrlibvsugbu.webp" alt="작품 제목 1" loading="lazy">
+                        </div>
+                        <div class="main-card-info">
+                            <div class="notion-properties">
+                                <div class="property-row">
+                                    <span class="property-value">안녕, 라라
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-value">마리
+                                    </span>
+                                </div>
+                                <div class="property-row">
+                                    <span class="property-label">라라x마리
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article> 
+                </a>
+            
+            </div>
 
-    </footer>
+        </main>
+
+    </common-layout>
 
 </body>
+
 
 </html>
