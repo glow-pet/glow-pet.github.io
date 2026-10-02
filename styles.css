@@ -1,0 +1,142 @@
+/* 기본 리셋 및 폰트 설정 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #222;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 네비게이션 */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo a {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  font-size: 0.95rem;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #000;
+  font-weight: 600;
+}
+
+/* 레이아웃 컨테이너 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.category-header {
+  margin-bottom: 2.5rem;
+}
+
+.category-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.category-header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* 반응형 갤러리 그리드 */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.art-card {
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.art-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.image-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3; /* 이미지 비율 설정 (자유롭게 변경 가능) */
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.art-info {
+  padding: 1.2rem;
+}
+
+.art-info h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.art-info .date {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 0.6rem;
+}
+
+.art-info .description {
+  font-size: 0.88rem;
+  color: #444;
+  word-break: keep-all;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-size: 0.8rem;
+  border-top: 1px solid #eee;
+  margin-top: 4rem;
+}

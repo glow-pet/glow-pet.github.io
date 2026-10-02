@@ -1,91 +1,150 @@
 <!DOCTYPE html>
+
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 프로토타입 웹사이트</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* 기본 레이아웃 스타일 */
-        body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        
-        /* [1] 좌측 상단 사이트명 (헤더) */
-        header { flex-shrink: 0; }
-
-        /* [2] 메인 컨텐츠 영역 (사이드바 + 게시글) */
-        .main-container { display: flex; flex: 1; overflow: hidden; }
-
-        /* [2] 사이드바 (카테고리) */
-        .sidebar { width: 250px; flex-shrink: 0; background-color: #f8f9fa; border-right: 1px solid #dee2e6; overflow-y: auto; padding: 1rem; }
-        .sidebar .nav-link { border-radius: 5px; margin-bottom: 5px; }
-        .sidebar .nav-link.active { background-color: #e2e6ea; color: #333; font-weight: bold; }
-
-        /* [3] 게시글 영역 */
-        .content-feed { flex: 1; overflow-y: auto; padding: 2rem; background-color: #fff; }
-        
-        /* 게시글 카드 스타일 */
-        .post-card { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 2rem; padding: 1.5rem; background: white; }
-        .post-image-placeholder { width: 100px; height: 100px; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #6c757d; font-weight: bold; flex-shrink: 0; }
-        .post-meta { font-size: 0.85rem; color: #6c757d; }
-    </style>
+    <title>2차창작</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="navbar.js" defer></script>
 </head>
+
 <body>
 
-    <header class="p-3 bg-white border-bottom">
-        <div class="container-fluid">
-            <h3 class="m-0 fw-bold text-primary">프로토타입</h3>
-        </div>
-    </header>
+    <!-- 네비게이션 바 -->
+    <common-navbar></common-navbar>
+    
+    <!-- 갤러리 메인 섹션 -->
+    <main class="container">
 
-    <div class="main-container">
+        <header class="category-header">
+            <h1>그림 모음</h1>
+            <p>
+                최근 것부터<br>
+                가벼운 선정성·폭력성 포함 가능<br>
+                성인물은 외부 링크로 <br>
+                AxB: 커플링 / A+B: 논커플링
+            </p>
+        </header>
+    
+        <div class="gallery-grid">
+
+            <!-- 카드-이그죽-레이 (detail-03.html) -->
+            <a href="detail-03.html" class="art-card-link">
+                <article class="art-card">
+                    <div class="image-wrapper">
+                        <img src="https://lh3.google.com/u/5/d/1CXVRHLG-phj_hW-vCejr7G2BwImZI5It=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
+                    </div>
+                    <div class="art-info">
+                        <div class="notion-properties">
+                            <div class="property-row">
+                                <span class="property-value">이거 그리고 죽어
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-value">레이
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-label">아이x레이
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article> 
+            </a>
+    
+            <!-- 카드-레뷰-나나 (detail-01.html) -->
+            <a href="detail-01.html" class="art-card-link">
+                <article class="art-card">
+                    <div class="image-wrapper">
+                        <img src="https://lh3.google.com/u/5/d/1sEPHa47oPTOOH4dnTOOtS_nQ6UJc06V1=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
+                    </div>
+                    <div class="art-info">
+                        <div class="notion-properties">
+                            <div class="property-row">
+                                <span class="property-value">소녀★가극 레뷰 스타라이트
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-value">나나
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-label">나나+쥰나
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </a>
+
+            <!-- 카드-라라-리사 (detail-02.html) -->
+            <a href="detail-02.html" class="art-card-link">
+                <article class="art-card">
+                    <div class="image-wrapper">
+                        <img src="https://lh3.google.com/u/5/d/17G_ZfJfIue0kyChcEo1luwiP9bWlTJ0N=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
+                    </div>
+                    <div class="art-info">
+                        <div class="notion-properties">
+                            <div class="property-row">
+                                <span class="property-value">
+                                    안녕, 라라
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-value">
+                                    리사
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-label">
+                                    -
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article> 
+            </a>
+
+            <!-- 카드-라라-마리 (detail-02.html) -->
+            <a href="detail-02.html" class="art-card-link">
+                <article class="art-card">
+                    <div class="image-wrapper">
+                        <img src="https://lh3.google.com/u/5/d/1QKzkyCwz28DHSO8K_lEtiDWmu3WaJ13U=w1862-h942-iv1?auditContext=forDisplay" alt="작품 제목 1" loading="lazy">
+                    </div>
+                    <div class="art-info">
+                        <div class="notion-properties">
+                            <div class="property-row">
+                                <span class="property-value">안녕, 라라
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-value">마리
+                                </span>
+                            </div>
+                            <div class="property-row">
+                                <span class="property-label">라라x마리
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article> 
+            </a>
         
-        <nav class="sidebar">
-            <h6 class="sidebar-heading text-muted px-2 mb-3 mt-1">카테고리</h6>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="#" class="nav-link active">전체보기</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-dark">개발</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-dark">디자인</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-dark">기획</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-dark">일상</a></li>
-            </ul>
-        </nav>
+        </div>
 
-        <main class="content-feed">
-            <div class="feed-header mb-4">
-                <h4 class="fw-bold">최신 게시글</h4>
-                <p class="text-muted">게시 시점별로 나열된 콘텐츠입니다.</p>
-            </div>
+    </main>
 
-            <div class="post-card d-flex gap-4 align-items-start">
-                <div class="post-image-placeholder">IMG</div>
-                
-                <div class="post-text-content">
-                    <h5 class="post-title fw-bold">첫 번째 프로토타입 게시글 제목</h5>
-                    <p class="post-excerpt text-muted mb-2">이것은 프로토타입 사이트의 게시글 예시입니다. 텍스트와 이미지가 수직으로 나열되는 레이아웃을 확인하세요. 부트스트랩을 활용하여 빠르게 구성했습니다.</p>
-                    <div class="post-meta">게시일: 2026.06.08</div>
-                </div>
-            </div>
+    <footer>
 
-            <div class="post-card d-flex gap-4 align-items-start">
-                <div class="post-image-placeholder">IMG</div>
-                <div class="post-text-content">
-                    <h5 class="post-title fw-bold">카테고리를 클릭하면 내용이 바뀝니다</h5>
-                    <p class="post-excerpt text-muted mb-2">현재는 프로토타입이므로 좌측 사이드바를 클릭해도 실제 동작하지 않습니다. 추후 JavaScript나 백엔드를 붙여 기능을 구현할 수 있습니다.</p>
-                    <div class="post-meta">게시일: 2026.06.07</div>
-                </div>
-            </div>
+        <p>
+            &copy; 2026. All rights reserved.
+        </p>
 
-            <div class="post-card d-flex gap-4 align-items-start">
-                <div class="post-image-placeholder">IMG</div>
-                <div class="post-text-content">
-                    <h5 class="post-title fw-bold">반응형 레이아웃 구성</h5>
-                    <p class="post-excerpt text-muted mb-2">PC 화면에서는 이 레이아웃으로 보이지만, 모바일에서는 스크롤이 어떻게 동작할지 고려하여 CSS를 구성했습니다.</p>
-                    <div class="post-meta">게시일: 2026.06.06</div>
-                </div>
-            </div>
-
-        </main>
-    </div>
+    </footer>
 
 </body>
+
 </html>
