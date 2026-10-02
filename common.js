@@ -21,6 +21,21 @@ class CommonLayout extends HTMLElement {
         <p>© 2026. All rights reserved.</p>
       </footer>
     `;
+    // 현재 URL 경로를 파악하여 링크 강조 (.active 부여)
+    this.setActiveNav();
+  }
+
+  setActiveNav() {
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = this.querySelectorAll('.nav-links a');
+
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      // 링크의 href와 현재 경로가 동일하면 active 클래스 추가
+      if (href === currentPath) {
+        link.classList.add('active');
+      }
+    });
   }
 }
 
