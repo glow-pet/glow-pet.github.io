@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 
 <head>
@@ -7,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2차 창작</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- 스크립트 의존성 순서대로 로드 (defer로 비동기 파싱 및 순차 실행) -->
     <script src="common.js" defer></script>
     <script src="data.js" defer></script>
     <script src="script.js" defer></script>
@@ -16,10 +17,11 @@
 
     <common-layout>
 
-       <div id="fav-container" class="fav-container"></div>
+        <!-- div 대신 main 시맨틱 태그 사용 -->
+        <main id="fav-container" class="fav-container"></main>
 
     </common-layout>
-    
+
 </body>
 
 </html>
