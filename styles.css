@@ -77,10 +77,6 @@ a {
 .nav-links a.active {
   font-weight: bold;
   color: #000000;
-  /* 검은색 글로우(발광) 효과 */
-  text-shadow: 
-    0 0 4px rgba(0, 0, 0, 0.4),
-    0 0 10px rgba(0, 0, 0, 0.25);
 }
 
 /* 레이아웃 컨테이너 */
