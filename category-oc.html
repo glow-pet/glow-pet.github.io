@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <script src="common.js" defer></script>
+    <script src="data.js" defer></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <common-layout>
+
+        <div class="container">
+
+            <header class="category-header">
+                <h1>OC</h1>
+                <p>
+                  최근 것부터
+                </p>
+            </header>
+            
+            <!-- 카드가 동적으로 생성될 영역 -->
+            <div class="gallery-grid oc-grid"></div>
+
+        </div>
+        
+    </common-layout>
+
+    <script>
+      const ocgalleryData = [
+        {
+          link: "#",
+          imgSrc: "",
+          infos: ["탁 진", "20대 후반", "여성", "형사"]
+        },
+        {
+          link: "#",
+          imgSrc: "",
+          infos: ["고든 서터", "20대 중반", "남성", "세차장 직원"]
+        },
+        {
+          link: "#",
+          imgSrc: "",
+          infos: ["몬테 블랑카", "30대 중반", "여성", "상점 주인"]
+        },
+        {
+          link: "#",
+          imgSrc: "",
+          infos: ["관 이란", "40대 초반", "여성", "군인"]
+        },
+        {
+          link: "#",
+          imgSrc: "", // 비워두면 임시 색상 출력
+          infos: ["프레데리케", "20대 중반", "여성", ""]
+        }
+      ];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        renderGalleryCards(ocgalleryData);
+      });
+    </script>
+
+</body>
+
+</html>

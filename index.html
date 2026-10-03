@@ -6,120 +6,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <script src="common.js" defer></script>
+    <script src="script.js" defer></script>
 </head>
 
 <body>
 
     <common-layout>
-        
-        <!-- 갤러리 메인 섹션 -->
-        <main class="container">
+        <div class="container">
 
             <header class="category-header">
                 <h1>그림 모음</h1>
                 <p>
                     최근 것부터<br>
-                    가벼운 선정성·폭력성 포함 가능<br>
+                    성인물 이하의 민감한 소재 포함 가능<br>
                     성인물은 외부 링크로<br>
                     AxB: 커플링 / A+B: 논커플링
                 </p>
             </header>
         
-            <div class="main-grid">
+            <!-- 카드가 동적으로 생성될 영역 -->
+            <div class="gallery-grid main-grid"></div>
 
-                <!-- 카드-이그죽-레이 -->
-                <article class="main-card">
-                    <a href="detail-igeujuk-rei.html" class="main-card-link">
-                        <div class="main-card-thumb">
-                            <img src="images/bafkreig7stisjxuoosg45rimj3te2uraa6folmjbnnphfsp47gs66cyce4.webp" alt="이거 그리고 죽어 - 레이" loading="lazy">
-                        </div>
-                        <div class="main-card-info">
-                            <div class="notion-properties">
-                                <div class="property-row">
-                                    <span class="property-value">이거 그리고 죽어</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-value">레이</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-label">아이x레이</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </article> 
-        
-                <!-- 카드-레뷰-나나 -->
-                <article class="main-card">
-                    <a href="detail-rebyu-nana.html" class="main-card-link">
-                        <div class="main-card-thumb">
-                            <img src="images/bafkreia4m4bq6lwmpa2zvn7evaat4t72cpz4eoisfuyqnfzsdw5ckr23ze.webp" alt="소녀★가극 레뷰 스타라이트 - 나나" loading="lazy">
-                        </div>
-                        <div class="main-card-info">
-                            <div class="notion-properties">
-                                <div class="property-row">
-                                    <span class="property-value">소녀★가극 레뷰 스타라이트</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-value">나나</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-label">나나+쥰나</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </article>
-
-                <!-- 카드-라라-리사 -->
-                <article class="main-card">
-                    <a href="detail-rara-risa.html" class="main-card-link">
-                        <div class="main-card-thumb">
-                            <img src="images/bafkreifevvd6kaufhh6mjxstjikqiwcinpxlcccogppyqyykktr3c5lduy.webp" alt="안녕, 라라 - 리사" loading="lazy">
-                        </div>
-                        <div class="main-card-info">
-                            <div class="notion-properties">
-                                <div class="property-row">
-                                    <span class="property-value">안녕, 라라</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-value">리사</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-label">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </article> 
-
-                <!-- 카드-라라-마리 -->
-                <article class="main-card">
-                    <a href="detail-rara-mari.html" class="main-card-link">
-                        <div class="main-card-thumb">
-                            <img src="images/bafkreifhiydljk7fsgiyqepkxvvxwv4r5fm4ytud3r35loh4cwcypwhwmq.webp" alt="안녕, 라라 - 마리" loading="lazy">
-                        </div>
-                        <div class="main-card-info">
-                            <div class="notion-properties">
-                                <div class="property-row">
-                                    <span class="property-value">안녕, 라라</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-value">마리</span>
-                                </div>
-                                <div class="property-row">
-                                    <span class="property-label">라라x마리</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </article> 
-            
-            </div>
-
-        </main>
-
+        </div>
     </common-layout>
+
+    <script>
+      const galleryData = [
+        {
+          link: "detail-igeujuk-rei.html",
+          imgSrc: "images/bafkreig7stisjxuoosg45rimj3te2uraa6folmjbnnphfsp47gs66cyce4.webp",
+          title: "이거 그리고 죽어",
+          character: "레이",
+          tag: "아이x레이"
+        },
+        {
+          link: "detail-rebyu-nana.html",
+          imgSrc: "images/bafkreia4m4bq6lwmpa2zvn7evaat4t72cpz4eoisfuyqnfzsdw5ckr23ze.webp",
+          title: "소녀★가극 레뷰 스타라이트",
+          character: "나나",
+          tag: "나나+쥰나"
+        },
+        {
+          link: "detail-rara-risa.html",
+          imgSrc: "images/bafkreifevvd6kaufhh6mjxstjikqiwcinpxlcccogppyqyykktr3c5lduy.webp",
+          title: "안녕, 라라",
+          character: "리사",
+          tag: "-"
+        },
+        {
+          link: "detail-rara-mari.html",
+          imgSrc: "images/bafkreifhiydljk7fsgiyqepkxvvxwv4r5fm4ytud3r35loh4cwcypwhwmq.webp",
+          title: "안녕, 라라",
+          character: "마리",
+          tag: "라라x마리"
+        }
+      ];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        renderGalleryCards(galleryData);
+      });
+    </script>
 
 </body>
 </html>

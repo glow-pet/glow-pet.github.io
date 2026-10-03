@@ -1,3 +1,8 @@
+/* 1. 스크롤바 위치 고정 (레이아웃 쏠림 방지) */
+html {
+  overflow-y: scroll;
+}
+
 /* 기본 리셋 및 폰트 설정 */
 * {
   box-sizing: border-box;
@@ -6,10 +11,12 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif; 
   background-color: #f9f9f9;
-  color: #222;
-  line-height: 1.6;
+  color: #4a4a4a;
+  line-height: 1.75;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
 }
 
 a {
@@ -20,9 +27,9 @@ a {
 /* 네비게이션 */
 .navbar {
   display: grid;
-  grid-template-columns: 1fr auto 1fr; /* [왼쪽(로고)] [가운데(카테고리)] [오른쪽 빈공간] */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  padding: 1.25rem 2rem;
+  padding: 1rem 2rem;
   background-color: #ffffff;
   border-bottom: 1px solid #eee;
   position: sticky;
@@ -44,11 +51,10 @@ a {
   display: flex;
   align-items: center;
   list-style: none;
-  justify-self: center; /* auto margin 대신 grid 내 중앙 정렬 */
+  justify-self: center;
 }
 
 .nav-links li {
-  position: relative;
   display: flex;
   align-items: center;
 }
@@ -59,7 +65,6 @@ a {
   transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
-/* 수직 구분선 */
 .nav-links li:not(:last-child)::after {
   content: "";
   display: inline-block;
@@ -70,34 +75,59 @@ a {
 
 .nav-links a:hover,
 .nav-links a.active {
-  color: #000000;
-  /* 글자 두께 변경 시 레이아웃 덜컥거림 방지를 위한 그림자 처리 */
+  color: #000;
   text-shadow: 0 0 0.5px #000; 
 }
 
 /* 레이아웃 컨테이너 */
 .container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 3rem 1.5rem;
+  padding: 2.5rem 2rem;
 }
 
 .category-header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 4rem;
 }
 
 .category-header h1 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .category-header p {
   color: #666;
   font-size: 0.95rem;
+  line-height: 1.7;
 }
 
-/* 카드 공통 스타일 (중복 제거) */
+/* ==========================================
+   갤러리 그리드 공통 및 특화 스타일
+   ========================================== */
+.gallery-grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* 메인 갤러리 (4열 기반) */
+.gallery-grid.main-grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/* OC 갤러리 (5열 기반) */
+.gallery-grid.oc-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 1200px) {
+  .gallery-grid.oc-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* 카드 공통 스타일 */
 .main-card,
 .detail-card {
   background: #ffffff;
@@ -113,25 +143,16 @@ a {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* 반응형 갤러리 그리드 (메인) */
-.main-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-}
-
 .main-card-link {
   display: block;
   width: 100%;
-  cursor: pointer;
 }
 
 .main-card-thumb {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   background-color: #f0f0f0;
   overflow: hidden;
-  pointer-events: none;
 }
 
 .main-card-thumb img {
@@ -141,9 +162,23 @@ a {
   display: block;
 }
 
+/* 카드 세부정보 컨테이너 */
 .main-card-info {
-  padding: 1.2rem;
-  pointer-events: none;
+  border-top: 1px solid #eaeaea;
+  padding: 1rem 1.25rem 1.5rem;
+  line-height: 1.5;
+}
+
+/* 카드 내 모든 정보 항목 (위계 및 차등 제거) */
+.main-card-info .card-info-item {
+  font-size: 0.9rem;       /* 모든 항목 동일한 크기 */
+  font-weight: 400;        /* 모든 항목 동일한 일반 굵기 */
+  color: #4a4a4a;          /* 모든 항목 동일한 색상 */
+  margin-top: 0.2rem;
+}
+
+.main-card-info .card-info-item:first-child {
+  margin-top: 0;           /* 첫 번째 항목 상단 여백 제거 */
 }
 
 /* 핀터레스트 형태 멀티 컬럼 (상세) */
@@ -153,7 +188,7 @@ a {
 }
 
 .detail-card {
-  break-inside: avoid; /* 단 사이 끊김 방지 */
+  break-inside: avoid;
   margin-bottom: 20px;
 }
 
@@ -163,7 +198,6 @@ a {
   display: block;
 }
 
-/* 화면 크기에 따른 컬럼 수 조정 */
 @media (max-width: 1024px) {
   .detail-grid { column-count: 2; }
 }
@@ -171,31 +205,53 @@ a {
   .detail-grid { column-count: 1; }
 }
 
-/* 상세 텍스트 컨테이너 */
-.fav-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px;
-  line-height: 1.8;
-  font-size: 15px;
-  color: #111;
+/* ==========================================
+   Category-B 내역 (3열 그리드 & 테두리/구분선/색상 차이 제거)
+   ========================================== */
+#fav-list {
+  display: flex;
+  flex-direction: column; /* 다시 1열 세로 배치로 변경 */
+  gap: 3rem;              /* 각 작품 항목 간 간격 */
 }
 
 .fav-block {
-  margin-bottom: 3rem;
+  margin-bottom: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
+/* 제목: 검은색 / 어두운 회색 */
 .fav-block .title {
-  font-weight: bold;
-  font-size: 1em;
-  margin-bottom: 4px;
+  font-size: 1rem;
+  font-weight: 400;        /* 굵기 차이 없음 */
+  color: #111111;          /* 진한 검은색 (어두운 회색: #222222 도 가능) */
+  margin-bottom: 0.35rem;
+  border-bottom: none;
 }
 
+/* 세부정보: 상대적으로 밝은 회색 */
 .fav-block .line {
+  font-size: 1rem;         /* 크기 차이 없음 */
+  font-weight: 400;        /* 굵기 차이 없음 */
+  color: #777777;          /* 상대적으로 밝은 회색 */
   white-space: pre-wrap;
+  line-height: 1.6;
 }
 
-footer {
+@media (max-width: 900px) {
+  #fav-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  #fav-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer {
   text-align: center;
   padding: 2rem;
   color: #999;
