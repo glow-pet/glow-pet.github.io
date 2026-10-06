@@ -1,0 +1,300 @@
+/* 1. 스크롤바 위치 고정 (레이아웃 쏠림 방지) */
+html {
+  overflow-y: scroll;
+}
+
+/* 기본 리셋 및 폰트 설정 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif; 
+  background-color: #f9f9f9;
+  color: #4a4a4a;
+  line-height: 1.75;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 네비게이션 */
+.navbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  justify-self: start;
+}
+
+.logo a {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  justify-self: center;
+}
+
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a {
+  color: #666;
+  padding: 0 1rem;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.nav-links li:not(:last-child)::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background-color: #ddd;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #000;
+  text-shadow: 0 0 0.5px #000; 
+}
+
+/* 레이아웃 컨테이너 */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+.header {
+  margin-bottom: 4rem;       /* 구분선 하단 간격 조절 */
+  padding-bottom: 2rem;      /* 헤더 내용과 구분선 사이 간격 */
+  border-bottom: 1px solid #eaeaea; /* 은은한 회색 구분선 추가 */
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.header p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   갤러리 그리드 공통 및 특화 스타일
+   ========================================== */
+.gallery-grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* 메인 갤러리 (4열 기반) */
+.gallery-grid.main-grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/* OC 갤러리 (최소 2열 유지) */
+.gallery-grid.oc-grid {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 360px) {
+  .gallery-grid.oc-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .gallery-grid.oc-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* 카드 공통 스타일 */
+.main-card,
+.fanworks-card {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.main-card:hover,
+.fanworks-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.main-card-link {
+  display: block;
+  width: 100%;
+}
+
+.main-card-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.main-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 카드 세부정보 컨테이너 */
+.main-card-info {
+  border-top: 1px solid #eaeaea;
+  padding: 1rem 1.25rem 1.5rem;
+  line-height: 1.5;
+}
+
+/* 카드 내 모든 정보 항목 */
+.main-card-info .card-info-item {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #4a4a4a;
+  margin-top: 0.2rem;
+}
+
+.main-card-info .card-info-item:first-child {
+  margin-top: 0;
+}
+
+/* 핀터레스트 형태 멀티 컬럼 (상세) */
+.fanworks-grid {
+  column-count: 3;
+  column-gap: 20px;
+}
+
+.fanworks-card {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+.fanworks-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .fanworks-grid { column-count: 2; }
+}
+@media (max-width: 600px) {
+  .fanworks-grid { column-count: 1; }
+}
+
+/* ==========================================
+   이미지 크게 보기 (라이트박스 모달)
+   ========================================== */
+
+.image-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  cursor: zoom-out;
+}
+
+.image-modal.active {
+  display: flex;
+}
+
+.image-modal-content {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+.fanworks-grid img {
+  cursor: zoom-in;
+}
+
+#fav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.fav-block {
+  margin-bottom: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.fav-block .title {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #111111;
+  margin-bottom: 0.35rem;
+  border-bottom: none;
+}
+
+.fav-block .line {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #777777;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  #fav-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  #fav-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer {
+  text-align: center;
+  padding: 1rem;
+  color: #999;
+  font-size: 0.8rem;
+  border-top: 1px solid #eee;
+  margin-top: 5rem;
+}
