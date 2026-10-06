@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # 사용할 브랜치 이름 (master일 경우 master로 변경)
+      - main
 
 permissions:
   contents: read
@@ -30,7 +30,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # 루트 폴더 전체(이미지, HTML/CSS 등) 배포
+          path: '.'
 
       - name: Deploy to GitHub Pages
         id: deployment
