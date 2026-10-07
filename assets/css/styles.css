@@ -3,11 +3,12 @@ html {
   overflow-y: scroll;
 }
 
-/* 기본 리셋 및 폰트 설정 */
+/* 2. 기본 리셋 및 폰트/글자 커서 설정 */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  caret-color: transparent !important; /* 수직선(Caret) 커서만 투명화 */
 }
 
 body {
@@ -24,7 +25,7 @@ a {
   color: inherit;
 }
 
-/* 네비게이션 */
+/* 3. 네비게이션 */
 .navbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -79,7 +80,7 @@ a {
   text-shadow: 0 0 0.5px #000; 
 }
 
-/* 레이아웃 컨테이너 */
+/* 4. 레이아웃 컨테이너 & 헤더 */
 .container {
   max-width: 1000px;
   margin: 0 auto;
@@ -87,9 +88,9 @@ a {
 }
 
 .header {
-  margin-bottom: 4rem;       /* 구분선 하단 간격 조절 */
-  padding-bottom: 2rem;      /* 헤더 내용과 구분선 사이 간격 */
-  border-bottom: 1px solid #eaeaea; /* 은은한 회색 구분선 추가 */
+  margin-bottom: 4rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eaeaea;
 }
 
 .header h1 {
@@ -104,9 +105,7 @@ a {
   line-height: 1.7;
 }
 
-/* ==========================================
-   갤러리 그리드 공통 및 특화 스타일
-   ========================================== */
+/* 5. 갤러리 그리드 공통 및 규격 */
 .gallery-grid {
   display: grid;
   gap: 20px;
@@ -136,7 +135,7 @@ a {
   }
 }
 
-/* 카드 공통 스타일 */
+/* 6. 카드 디자인 (메인 & 서브 공통) */
 .main-card,
 .fanworks-card {
   background: #ffffff;
@@ -144,6 +143,7 @@ a {
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
 
 .main-card:hover,
@@ -171,14 +171,13 @@ a {
   display: block;
 }
 
-/* 카드 세부정보 컨테이너 */
+/* 카드 세부정보 & 날짜 */
 .main-card-info {
   border-top: 1px solid #eaeaea;
   padding: 1rem 1.25rem 1.2rem;
   line-height: 1.5;
 }
 
-/* 카드 내 모든 정보 항목 */
 .main-card-info .card-info-item {
   font-size: 0.9rem;
   font-weight: 400;
@@ -190,14 +189,13 @@ a {
   margin-top: 0;
 }
 
-/* 카드 하단 날짜 스타일 */
 .main-card-info .card-date {
   font-size: 0.85rem;
   color: #6a6a6a;
   margin-top: 0.85rem;
 }
 
-/* 핀터레스트 형태 멀티 컬럼 (상세) */
+/* 7. 서브페이지 (핀터레스트 3열 그리드 & 캡션) */
 .fanworks-grid {
   column-count: 3;
   column-gap: 20px;
@@ -212,6 +210,17 @@ a {
   width: 100%;
   height: auto;
   display: block;
+  cursor: zoom-in;
+}
+
+.fanworks-card-caption {
+  border-top: 1px solid #eaeaea;
+  padding: 0.7rem 0.9rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6a6a6a;
+  line-height: 1.5;
+  background-color: #ffffff;
 }
 
 @media (max-width: 1024px) {
@@ -221,10 +230,27 @@ a {
   .fanworks-grid { column-count: 1; }
 }
 
-/* ==========================================
-   이미지 크게 보기 (라이트박스 모달)
-   ========================================== */
+/* 8. 스켈레톤 로딩 (정지된 회색 영역) */
+.skeleton {
+  background-color: #ededed
+}
 
+.fanworks-card.skeleton {
+  min-height: 150px;
+}
+
+.main-card-thumb img,
+.fanworks-card img {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.main-card-thumb img.loaded,
+.fanworks-card img.loaded {
+  opacity: 1;
+}
+
+/* 9. 이미지 크게 보기 (라이트박스 모달) */
 .image-modal {
   display: none;
   position: fixed;
@@ -252,14 +278,11 @@ a {
   cursor: default;
 }
 
-.fanworks-grid img {
-  cursor: zoom-in;
-}
-
+/* history.html (내역 페이지) 전용 스타일 */
 #fav-list {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 2.3rem; /* 세션 간 간격 확대 */
 }
 
 .fav-block {
@@ -269,34 +292,25 @@ a {
   padding: 0;
 }
 
+/* 제목 (도시전설 해체센터, 소녀 가극 레뷰 스타라이트 등) */
 .fav-block .title {
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: 600;
   color: #111111;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.4rem; /* 제목과 내용 사이 간격 */
   border-bottom: none;
 }
 
+/* 내용 텍스트 (게임, 재스민, 한빛x재스민 등) */
 .fav-block .line {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 400;
   color: #777777;
   white-space: pre-wrap;
-  line-height: 1.6;
+  line-height: 1.6; /* 줄간격을 넉넉하게 띄워 정갈함 유지 */
 }
 
-@media (max-width: 900px) {
-  #fav-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  #fav-list {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* 10. 푸터 */
 .footer {
   text-align: center;
   padding: 1rem;
@@ -305,19 +319,3 @@ a {
   border-top: 1px solid #eee;
   margin-top: 5rem;
 }
-
-/* 기본 커서 모양 및 드래그 방지 */
-.main-card, 
-.fanworks-card, 
-.gallery-grid img {
-  cursor: pointer;              /* 손가락 모양 커서 (또는 default) */
-  user-select: none;            /* 텍스트 드래그/선택 방지 */
-  -webkit-user-select: none;    /* 사파리/크롬 대응 */
-  -moz-user-select: none;       /* 파이어폭스 대응 */
-}
-
-/* 모든 요소에서 글자 사이 수직선(Caret) 깜빡임 숨기기 */
-* {
-  caret-color: transparent !important;
-}
-

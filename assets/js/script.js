@@ -20,6 +20,7 @@ function renderGallery() {
     return;
   }
 
+  // date 기준 최신순(내림차순) 정렬
   dataList.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const isPagesFolder = window.location.pathname.includes('/pages/');
@@ -46,8 +47,8 @@ function renderGallery() {
     return `
       <article class="main-card">
         <a href="${linkSrc}" class="main-card-link">
-          <div class="main-card-thumb">
-            <img src="${encodeURI(imgSrc)}" alt="${item.infos[0] || ''}" loading="lazy">
+          <div class="main-card-thumb skeleton">
+            <img src="${encodeURI(imgSrc)}" alt="${item.infos[0] || ''}" loading="lazy" onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
           </div>
           <div class="main-card-info">
             ${infoHTML}
@@ -61,53 +62,63 @@ function renderGallery() {
   container.innerHTML = html;
 }
 
-// 3. ★ 서브페이지 상세 이미지 카드 자동 생성 (새로 추가된 부분) ★
+// 3. 서브페이지 상세 이미지 및 캡션 자동 생성 (공백 제거 & 경로 안전 보장)
 function renderFanworksDetail() {
   const container = document.querySelector('.fanworks-grid');
-  const images = window.fanworksImages || [];
-  if (!container || images.length === 0) return;
+  const items = window.fanworksImages || [];
+  if (!container || items.length === 0) return;
 
-  const html = images.map(imgSrc => `
-    <div class="fanworks-card">
-      <img src="${encodeURI(imgSrc)}" alt="상세 이미지" loading="lazy">
-    </div>
-  `).join('');
+  const html = items.map(item => {
+    let imgSrc = typeof item === 'string' ? item : item.src;
+    const caption = typeof item === 'object' && item.caption ? item.caption : '';
+
+    const captionHTML = caption 
+      ? `<div class="fanworks-card-caption">${caption}</div>` 
+      : '';
+
+    return `
+      <div class="fanworks-card skeleton">
+        <img src="${encodeURI(imgSrc)}" alt="${caption || '상세 이미지'}" loading="lazy" onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
+        ${captionHTML}
+      </div>
+    `;
+  }).join('');
 
   container.innerHTML = html;
 }
 
-// 4. 서브페이지 이미지 크게 보기 (라이트박스)
+// 4. 서브페이지 이미지 크게 보기 (라이트박스 모달)
 function initLightbox() {
-  const detailContainer = document.querySelector(".fanworks-grid");
+  const detailContainer = document.querySelector('.fanworks-grid');
   if (!detailContainer) return;
 
-  const modal = document.createElement("div");
-  modal.className = "image-modal";
+  const modal = document.createElement('div');
+  modal.className = 'image-modal';
   
-  const modalImg = document.createElement("img");
-  modalImg.className = "image-modal-content";
+  const modalImg = document.createElement('img');
+  modalImg.className = 'image-modal-content';
   
   modal.appendChild(modalImg);
   document.body.appendChild(modal);
 
-  detailContainer.addEventListener("click", (e) => {
-    if (e.target.tagName === "IMG") {
+  detailContainer.addEventListener('click', (e) => {
+    if (e.target.tagName === 'IMG') {
       modalImg.src = e.target.src;
-      modalImg.alt = e.target.alt || "";
-      modal.classList.add("active");
-      document.body.style.overflow = "hidden";
+      modalImg.alt = e.target.alt || '';
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
   });
 
-  modal.addEventListener("click", () => {
-    modal.classList.remove("active");
-    document.body.style.overflow = "";
+  modal.addEventListener('click', () => {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
   });
 
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("active")) {
-      modal.classList.remove("active");
-      document.body.style.overflow = "";
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
     }
   });
 }
@@ -116,7 +127,7 @@ function initLightbox() {
 function init() {
   renderHeader();
   renderGallery();
-  renderFanworksDetail(); // 상세 이미지 카드 생성 실행
+  renderFanworksDetail();
   initLightbox();
 }
 
