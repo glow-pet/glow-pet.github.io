@@ -282,7 +282,7 @@ a {
 #fav-list {
   display: flex;
   flex-direction: column;
-  gap: 2.3rem; /* 세션 간 간격 확대 */
+  gap: 2.5rem; /* 세션 간 간격 확대 */
 }
 
 .fav-block {
@@ -303,7 +303,7 @@ a {
 
 /* 내용 텍스트 (게임, 재스민, 한빛x재스민 등) */
 .fav-block .line {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 400;
   color: #777777;
   white-space: pre-wrap;
