@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 
 <head>
@@ -13,33 +12,22 @@
 <body>
 
     <common-layout>
-    
         <main class="container">
-        
-            <div class="fanworks-grid">
-
-                <div class="fanworks-card">
-                    <img src="../assets/images/bafkreidiaxi2x6a2lbxkht4qdvx4y4g3lhkj3zg5eeu5kevdrlibvsugbu.webp" alt="상세 이미지 1">
-                </div>
-
-                <div class="fanworks-card">
-                    <img src="../assets/images/bafkreifhiydljk7fsgiyqepkxvvxwv4r5fm4ytud3r35loh4cwcypwhwmq.webp" alt="상세 이미지 2">
-                </div>
-
-                <div class="fanworks-card">
-                    <img src="../assets/images/bafkreifiaaaax2mu7q2m5kj42fsajqmmhibzpyikep7co7g5m7ldkx3vze.webp" alt="상세 이미지 2">
-                </div>
-
-                <div class="fanworks-card">
-                    <img src="../assets/images/bafkreifpd47u3i6cu5wwq7laxirddm5vscnhuxcua5o6j2gnd4mte223du.webp" alt="상세 이미지 2">
-                </div>
-
-            </div>
-
+            <!-- 자바스크립트가 이미지 카드를 생성해 넣을 공간 -->
+            <div class="fanworks-grid"></div>
         </main> 
-
     </common-layout>
 
-</body>
+    <!-- 이 페이지에서 보여줄 이미지 목록 -->
+    <script>
+        window.fanworksImages = [
+            "../assets/images/fanworks/rara-mari/bafkreidiaxi2x6a2lbxkht4qdvx4y4g3lhkj3zg5eeu5kevdrlibvsugbu.webp",
+            "../assets/images/fanworks/rara-mari/bafkreifhiydljk7fsgiyqepkxvvxwv4r5fm4ytud3r35loh4cwcypwhwmq.webp",
+            "../assets/images/fanworks/rara-mari/bafkreifiaaaax2mu7q2m5kj42fsajqmmhibzpyikep7co7g5m7ldkx3vze.webp",
+            "../assets/images/fanworks/rara-mari/bafkreifpd47u3i6cu5wwq7laxirddm5vscnhuxcua5o6j2gnd4mte223du.webp",
+            "../assets/images/fanworks/rara-mari/bafkreiarmaxgkexn6v7d2kotkoej2qwk54wduvmvtk336rn42fjscepkgu.webp"
+        ];
+    </script>
 
+</body>
 </html>

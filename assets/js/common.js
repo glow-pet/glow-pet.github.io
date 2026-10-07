@@ -27,7 +27,6 @@ class CommonLayout extends HTMLElement {
         const originalChildren = Array.from(this.childNodes);
         const isPagesFolder = window.location.pathname.includes('/pages/');
 
-        // 페이지 위치(메인 vs pages 폴더 내)에 따라 상대 경로 자동 조정
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
         const historyPath = isPagesFolder ? 'history.html' : 'pages/history.html';
@@ -57,6 +56,11 @@ class CommonLayout extends HTMLElement {
 
         this.updateTitle();
         this.setActiveNav();
+
+        // ★ 레이아웃 조립이 완전히 끝난 직후 갤러리를 렌더링하도록 호출 ★
+        if (typeof window.loadGallery === 'function') {
+            window.loadGallery();
+        }
     }
 
     updateTitle() {

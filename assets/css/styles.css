@@ -174,7 +174,7 @@ a {
 /* 카드 세부정보 컨테이너 */
 .main-card-info {
   border-top: 1px solid #eaeaea;
-  padding: 1rem 1.25rem 1.5rem;
+  padding: 1rem 1.25rem 1.2rem;
   line-height: 1.5;
 }
 
@@ -192,11 +192,9 @@ a {
 
 /* 카드 하단 날짜 스타일 */
 .main-card-info .card-date {
-  font-size: 0.8rem;
-  color: #a0a0a0;
-  margin-top: 0.6rem;
-  padding-top: 0.4rem;
-  border-top: 1px dashed #f0f0f0;
+  font-size: 0.85rem;
+  color: #6a6a6a;
+  margin-top: 0.85rem;
 }
 
 /* 핀터레스트 형태 멀티 컬럼 (상세) */
@@ -307,3 +305,19 @@ a {
   border-top: 1px solid #eee;
   margin-top: 5rem;
 }
+
+/* 기본 커서 모양 및 드래그 방지 */
+.main-card, 
+.fanworks-card, 
+.gallery-grid img {
+  cursor: pointer;              /* 손가락 모양 커서 (또는 default) */
+  user-select: none;            /* 텍스트 드래그/선택 방지 */
+  -webkit-user-select: none;    /* 사파리/크롬 대응 */
+  -moz-user-select: none;       /* 파이어폭스 대응 */
+}
+
+/* 모든 요소에서 글자 사이 수직선(Caret) 깜빡임 숨기기 */
+* {
+  caret-color: transparent !important;
+}
+

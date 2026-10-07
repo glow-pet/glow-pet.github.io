@@ -1,30 +1,57 @@
 // assets/js/script.js
 
-// 1. 메인 갤러리 카드 렌더링
-function renderMainGallery(dataList) {
-  const container = document.querySelector('.gallery-grid.main-grid');
-  if (!container || !dataList) return;
+// 1. 헤더 설명 렌더링
+function renderHeader() {
+  const headerDescEl = document.querySelector('.header-desc');
+  const headerInfos = window.headerInfos || [];
+  if (!headerDescEl || headerInfos.length === 0) return;
 
-  const html = dataList.map((item) => {
-    const thumbContent = item.imgSrc 
-      ? `<img src="${item.imgSrc}" alt="${item.infos[0] || '카드 이미지'}" loading="lazy">`
-      : `<div class="color-placeholder" style="background-color: #c9c9c9; width: 100%; height: 100%;"></div>`;
+  headerDescEl.innerHTML = headerInfos.join('<br>');
+}
 
-    const infoHTML = (item.infos || []).map((info, idx) => `
-      <p class="card-info-item info-${idx + 1}">${info}</p>
-    `).join('');
+// 2. 갤러리 카드 렌더링 (메인 & OC)
+function renderGallery() {
+  const container = document.querySelector('.gallery-grid');
+  let dataList = window.galleryData || [];
+  if (!container) return;
 
-    const dateHTML = item.date ? `<p class="card-date">${item.date}</p>` : '';
+  if (dataList.length === 0) {
+    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 2rem 0;">등록된 데이터가 없습니다.</p>';
+    return;
+  }
+
+  dataList.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const isPagesFolder = window.location.pathname.includes('/pages/');
+
+  const html = dataList.map(item => {
+    let imgSrc = item.img;
+    let linkSrc = item.link;
+
+    if (isPagesFolder) {
+      if (!imgSrc.startsWith('../') && !imgSrc.startsWith('http')) {
+        imgSrc = '../' + imgSrc;
+      }
+      if (linkSrc.startsWith('pages/')) {
+        linkSrc = linkSrc.replace('pages/', '');
+      } else if (!linkSrc.startsWith('../') && !linkSrc.startsWith('http')) {
+        linkSrc = '../' + linkSrc;
+      }
+    }
+
+    const infoHTML = item.infos.map((info, idx) => 
+      `<p class="card-info-item info-${idx + 1}">${info}</p>`
+    ).join('');
 
     return `
       <article class="main-card">
-        <a href="${item.link || '#'}" class="main-card-link">
+        <a href="${linkSrc}" class="main-card-link">
           <div class="main-card-thumb">
-            ${thumbContent}
+            <img src="${encodeURI(imgSrc)}" alt="${item.infos[0] || ''}" loading="lazy">
           </div>
           <div class="main-card-info">
             ${infoHTML}
-            ${dateHTML}
+            <p class="card-date">${item.date}</p>
           </div>
         </a>
       </article>
@@ -34,49 +61,23 @@ function renderMainGallery(dataList) {
   container.innerHTML = html;
 }
 
-// 2. 서브페이지 본문 이미지 렌더링
-function renderDetailGallery(detailsData) {
-  const detailContainer = document.querySelector('.fanworks-grid[data-page-id]');
-  if (!detailContainer || !detailsData) return;
-
-  const pageId = detailContainer.getAttribute('data-page-id');
-  const images = detailsData[pageId] || [];
-
-  if (images.length === 0) {
-    detailContainer.innerHTML = '<p>등록된 이미지가 없습니다.</p>';
-    return;
-  }
+// 3. ★ 서브페이지 상세 이미지 카드 자동 생성 (새로 추가된 부분) ★
+function renderFanworksDetail() {
+  const container = document.querySelector('.fanworks-grid');
+  const images = window.fanworksImages || [];
+  if (!container || images.length === 0) return;
 
   const html = images.map(imgSrc => `
     <div class="fanworks-card">
-      <img src="${imgSrc}" alt="상세 이미지">
+      <img src="${encodeURI(imgSrc)}" alt="상세 이미지" loading="lazy">
     </div>
   `).join('');
 
-  detailContainer.innerHTML = html;
+  container.innerHTML = html;
 }
 
-// 3. JSON 데이터 불러오기 및 통합 로드
-async function loadGallery() {
-  const isPagesFolder = window.location.pathname.includes('/pages/');
-  const jsonPath = isPagesFolder ? '../assets/js/galleryData.json' : 'assets/js/galleryData.json';
-
-  try {
-    const response = await fetch(jsonPath);
-    if (!response.ok) throw new Error('galleryData.json 로드 실패');
-    const data = await response.json();
-
-    renderMainGallery(data.mainCards);
-    renderDetailGallery(data.details);
-  } catch (err) {
-    console.warn('갤러리 데이터를 불러오는 중 오류가 발생했거나 파일이 없습니다.', err);
-  }
-}
-
-// 4. 라이트박스 팝업 이벤트
-document.addEventListener("DOMContentLoaded", () => {
-  loadGallery();
-
+// 4. 서브페이지 이미지 크게 보기 (라이트박스)
+function initLightbox() {
   const detailContainer = document.querySelector(".fanworks-grid");
   if (!detailContainer) return;
 
@@ -109,4 +110,18 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.style.overflow = "";
     }
   });
-});
+}
+
+// 초기화 실행
+function init() {
+  renderHeader();
+  renderGallery();
+  renderFanworksDetail(); // 상세 이미지 카드 생성 실행
+  initLightbox();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

@@ -6,62 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../assets/css/styles.css">
     <script src="../assets/js/common.js" defer></script>
-    <!-- 미사용 data.js 참조 제거 및 경로 수정 -->
     <script src="../assets/js/script.js" defer></script>
 </head>
 
 <body>
 
     <common-layout>
-
-        <main class="container">
+        <div class="container">
 
             <header class="header">
                 <h1>OC</h1>
                 <p>최근 것부터</p>
             </header>
-            
-            <!-- 카드가 동적으로 생성될 영역 -->
+        
+            <!-- OC 전용 그리드 -->
             <div class="gallery-grid oc-grid"></div>
 
-        </main>
-        
+        </div>
     </common-layout>
 
+    <!-- ocs.html 전용 카드 데이터 -->
     <script>
-      const ocgalleryData = [
-        {
-          link: "#",
-          imgSrc: "../assets/images/bafkreiax3jfdqonio2xn3c4a5fgddivhkgnjkmaqbm4a2rdhcqilbuacne.webp",
-          infos: ["탁 진", "20대 후반", "F", "형사", "205"]
-        },
-        {
-          link: "#",
-          imgSrc: "",
-          infos: ["고든 서터", "20대 중반", " M", "세차장 직원", "175"]
-        },
-        {
-          link: "#",
-          imgSrc: "",
-          infos: ["몬테 블랑카", "30대 중반", "F", "상점 주인", "173"]
-        },
-        {
-          link: "#",
-          imgSrc: "",
-          infos: ["관 이란", "40대 초반", "F", "군인", "163"]
-        },
-        {
-          link: "#",
-          imgSrc: "",
-          infos: ["프레데리케", "20대 중반", "X", "-", "178"] // 항목 개수 통일
-        }
-      ];
-
-      document.addEventListener("DOMContentLoaded", () => {
-        renderGalleryCards(ocgalleryData);
-      });
+        window.galleryData = [
+            /*
+            {
+                link: "pages/oc-detail.html",
+                img: "assets/images/oc/sample.webp",
+                infos: ["캐릭터 이름", "세계관", "기타 정보"],
+                date: "2026-10-03"
+            }
+            */
+        ];
     </script>
 
 </body>
-
 </html>

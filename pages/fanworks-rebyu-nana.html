@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 
 <head>
@@ -13,29 +12,20 @@
 <body>
 
     <common-layout>
-    
         <main class="container">
-        
-            <div class="fanworks-grid">
-
-                <div class="fanworks-card">
-                    <img src="../assets/images/bafkreigzbxbacujxivz6deb6hg2l4nl4unb4kwwovcxd7brt4bqmwavhhi.webp" alt="상세 이미지 1">
-                </div>
-
-                <div class="fanworks-card">
-                    <img src="../assets/images/bafkreia4m4bq6lwmpa2zvn7evaat4t72cpz4eoisfuyqnfzsdw5ckr23ze.webp" alt="상세 이미지 2">
-                </div>
-
-                <div class="fanworks-card">
-                    <img src="../assets/images/bafkreif44oevkpshsqlk7sk6pxeevrvayn2c64dagfshbgd44gtuzjae6u.webp" alt="상세 이미지 2">
-                </div>
-
-            </div>
-
+            <!-- 자바스크립트가 이미지 카드를 생성해 넣을 공간 -->
+            <div class="fanworks-grid"></div>
         </main> 
-
     </common-layout>
 
-</body>
+    <!-- 이 페이지에서 보여줄 이미지 목록 -->
+    <script>
+        window.fanworksImages = [
+            "../assets/images/fanworks/rebyu-nana/bafkreigzbxbacujxivz6deb6hg2l4nl4unb4kwwovcxd7brt4bqmwavhhi.webp",
+            "../assets/images/fanworks/rebyu-nana/bafkreia4m4bq6lwmpa2zvn7evaat4t72cpz4eoisfuyqnfzsdw5ckr23ze.webp",
+            "../assets/images/fanworks/rebyu-nana/bafkreif44oevkpshsqlk7sk6pxeevrvayn2c64dagfshbgd44gtuzjae6u.webp",
+        ];
+    </script>
 
+</body>
 </html>
