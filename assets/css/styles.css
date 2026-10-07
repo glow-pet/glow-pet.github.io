@@ -190,6 +190,15 @@ a {
   margin-top: 0;
 }
 
+/* 카드 하단 날짜 스타일 */
+.main-card-info .card-date {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  margin-top: 0.6rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed #f0f0f0;
+}
+
 /* 핀터레스트 형태 멀티 컬럼 (상세) */
 .fanworks-grid {
   column-count: 3;
