@@ -24,40 +24,11 @@
                 </p>
             </header>
         
-            <!-- 메인 전용 4열 그리드 -->
+            <!-- 메인 전용 4열 그리드 (script.js가 카드를 자동으로 채웁니다) -->
             <div class="gallery-grid main-grid"></div>
 
         </div>
     </common-layout>
-
-    <script>
-      const galleryData = [
-        {
-          link: "pages/fanworks-igeujuk-rei.html",
-          imgSrc: "assets/images/bafkreig7stisjxuoosg45rimj3te2uraa6folmjbnnphfsp47gs66cyce4.webp",
-          infos: ["이거 그리고 죽어", "레이", "아이x레이"]
-        },
-        {
-          link: "pages/fanworks-rebyu-nana.html",
-          imgSrc: "assets/images/bafkreia4m4bq6lwmpa2zvn7evaat4t72cpz4eoisfuyqnfzsdw5ckr23ze.webp",
-          infos: ["소녀★가극 레뷰 스타라이트", "나나", "나나+쥰나"]
-        },
-        {
-          link: "pages/fanworks-rara-risa.html",
-          imgSrc: "assets/images/bafkreifevvd6kaufhh6mjxstjikqiwcinpxlcccogppyqyykktr3c5lduy.webp",
-          infos: ["안녕, 라라", "리사", "드림주+리사, 코타x리사"]
-        },
-        {
-          link: "pages/fanworks-rara-mari.html",
-          imgSrc: "assets/images/bafkreifhiydljk7fsgiyqepkxvvxwv4r5fm4ytud3r35loh4cwcypwhwmq.webp",
-          infos: ["안녕, 라라", "마리", "라라x마리"]
-        }
-      ];
-
-      document.addEventListener("DOMContentLoaded", () => {
-        renderGalleryCards(galleryData);
-      });
-    </script>
 
 </body>
 </html>
