@@ -1,6 +1,10 @@
 // history.js
 const historyRawText = `
 
+메기도72
+게임
+오세
+
 도시전설 해체센터
 게임
 재스민

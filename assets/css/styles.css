@@ -174,7 +174,7 @@ a {
 /* 카드 세부정보 & 날짜 */
 .main-card-info {
   border-top: 1px solid #eaeaea;
-  padding: 1rem 1.25rem 1.2rem;
+  padding: 1rem 1.25rem 1.25rem;
   line-height: 1.5;
 }
 
@@ -230,25 +230,6 @@ a {
   .fanworks-grid { column-count: 1; }
 }
 
-/* 8. 스켈레톤 로딩 (정지된 회색 영역) */
-.skeleton {
-  background-color: #ededed
-}
-
-.fanworks-card.skeleton {
-  min-height: 180px
-}
-
-.main-card-thumb img,
-.fanworks-card img {
-  opacity: 0;
-}
-
-.main-card-thumb img.loaded,
-.fanworks-card img.loaded {
-  opacity: 1;
-}
-
 /* 9. 이미지 크게 보기 (라이트박스 모달) */
 .image-modal {
   display: none;
@@ -296,7 +277,7 @@ a {
   font-size: 1rem;
   font-weight: 600;
   color: #111111;
-  margin-bottom: 0.4rem; /* 제목과 내용 사이 간격 */
+  margin-bottom: 0.3rem; /* 제목과 내용 사이 간격 */
   border-bottom: none;
 }
 

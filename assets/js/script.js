@@ -12,16 +12,13 @@ function renderHeader() {
 // 2. 갤러리 카드 렌더링 (메인 & OC)
 function renderGallery() {
   const container = document.querySelector('.gallery-grid');
-  let dataList = window.galleryData || [];
+  const dataList = window.galleryData || [];
   if (!container) return;
 
   if (dataList.length === 0) {
     container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 2rem 0;">등록된 데이터가 없습니다.</p>';
     return;
   }
-
-  // date 기준 최신순(내림차순) 정렬
-  dataList.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const isPagesFolder = window.location.pathname.includes('/pages/');
 
@@ -47,12 +44,14 @@ function renderGallery() {
     return `
       <article class="main-card">
         <a href="${linkSrc}" class="main-card-link">
-          <div class="main-card-thumb skeleton">
-            <img src="${encodeURI(imgSrc)}" alt="${item.infos[0] || ''}" loading="lazy" onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
+          <div class="main-card-thumb">
+            <img src="${encodeURI(imgSrc)}" 
+                 alt="${item.infos[0] || ''}" 
+                 loading="lazy" 
+                 onerror="this.style.display='none';">
           </div>
           <div class="main-card-info">
             ${infoHTML}
-            <p class="card-date">${item.date}</p>
           </div>
         </a>
       </article>
@@ -62,7 +61,7 @@ function renderGallery() {
   container.innerHTML = html;
 }
 
-// 3. 서브페이지 상세 이미지 및 캡션 자동 생성 (공백 제거 & 경로 안전 보장)
+// 3. 서브페이지 상세 이미지 및 캡션 자동 생성
 function renderFanworksDetail() {
   const container = document.querySelector('.fanworks-grid');
   const items = window.fanworksImages || [];
@@ -77,8 +76,11 @@ function renderFanworksDetail() {
       : '';
 
     return `
-      <div class="fanworks-card skeleton">
-        <img src="${encodeURI(imgSrc)}" alt="${caption || '상세 이미지'}" loading="lazy" onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
+      <div class="fanworks-card">
+        <img src="${encodeURI(imgSrc)}" 
+             alt="${caption || '상세 이미지'}" 
+             loading="lazy" 
+             onerror="this.style.display='none';">
         ${captionHTML}
       </div>
     `;
@@ -130,6 +132,8 @@ function init() {
   renderFanworksDetail();
   initLightbox();
 }
+
+window.loadGallery = init;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
