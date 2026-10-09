@@ -13,7 +13,7 @@ const historyRawText = `
 소녀 가극 레뷰 스타라이트
 극장판 / TVA
 나나
-쥰나+나나
+나나x카렌 / 나나+쥰나
 
 천막의 자두가르
 TVA
@@ -291,7 +291,7 @@ TVA
 
 // history.js
 function renderHistoryData() {
-  const container = document.getElementById('fav-list');
+  const container = document.getElementById('history-list');
   if (!container) return;
 
   if (typeof historyRawText === 'undefined') {
@@ -310,7 +310,7 @@ function renderHistoryData() {
     const content = lines.slice(1).map(line => line.trim()).join('<br>');
 
     return `
-      <article class="fav-block">
+      <article class="history-block">
         <h2 class="title">${title}</h2>
         <p class="line">${content}</p>
       </article>

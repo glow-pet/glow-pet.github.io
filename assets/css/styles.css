@@ -1,14 +1,15 @@
-/* 1. 스크롤바 위치 고정 (레이아웃 쏠림 방지) */
+/* ==========================================================================
+   1. 기본 리셋 및 전역 스타일
+   ========================================================================== */
 html {
-  overflow-y: scroll;
+  overflow-y: scroll; /* 스크롤바 위치 고정 (레이아웃 쏠림 방지) */
 }
 
-/* 2. 기본 리셋 및 폰트/글자 커서 설정 */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  caret-color: transparent !important; /* 수직선(Caret) 커서만 투명화 */
+  caret-color: transparent !important; /* 수직선(Caret) 커서 투명화 */
 }
 
 body {
@@ -25,7 +26,10 @@ a {
   color: inherit;
 }
 
-/* 3. 네비게이션 */
+
+/* ==========================================================================
+   2. 공통 레이아웃 (네비게이션, 컨테이너, 헤더, 푸터)
+   ========================================================================== */
 .navbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -80,7 +84,6 @@ a {
   text-shadow: 0 0 0.5px #000; 
 }
 
-/* 4. 레이아웃 컨테이너 & 헤더 */
 .container {
   max-width: 1000px;
   margin: 0 auto;
@@ -97,47 +100,102 @@ a {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
+  color: #333;
 }
 
 .header p {
   color: #666;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.7;
 }
 
-/* 5. 갤러리 그리드 공통 및 규격 */
-.gallery-grid {
+.footer {
+  text-align: center;
+  padding: 1rem;
+  color: #999;
+  font-size: 0.8rem;
+  border-top: 1px solid #eee;
+  margin-top: 5rem;
+}
+
+.grid {
+  width: 100%;
   display: grid;
-  gap: 20px;
 }
 
-/* 메인 갤러리 (4열 기반) */
-.gallery-grid.main-grid {
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-}
-
-/* OC 갤러리 (최소 2열 유지) */
-.gallery-grid.oc-grid {
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+/* [메인] 모바일 2열 / 600px 이상 반응형 4열 기반 */
+.grid-main {
   gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
 }
 
-@media (max-width: 360px) {
-  .gallery-grid.oc-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+@media (min-width: 600px) {
+  .grid-main {
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* [OC] 모바일 3열 / 480px 이상 반응형 / 1200px 이상 5열 */
+.grid-oc {
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (min-width: 480px) {
+  .grid-oc {
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
 
 @media (min-width: 1200px) {
-  .gallery-grid.oc-grid {
+  .grid-oc {
     grid-template-columns: repeat(5, 1fr);
   }
 }
 
-/* 6. 카드 디자인 (메인 & 서브 공통) */
-.main-card,
-.fanworks-card {
+/* [서브페이지] 핀터레스트 다단 레이아웃 (기본 3열 / 1024px 이하 2열) */
+.grid-fanworks {
+  display: block; /* 다단(Column) 레이아웃 적용을 위해 display 초기화 */
+  column-count: 3;
+  column-gap: 20px;
+}
+
+.grid-fanworks .card {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+.grid-fanworks .card-thumb img {
+  height: auto;
+  cursor: zoom-in;
+}
+
+@media (max-width: 1024px) {
+  .grid-fanworks {
+    column-count: 2;
+    column-gap: 16px;
+  }
+  .grid-fanworks .card {
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-fanworks {
+    column-gap: 12px;
+  }
+  .grid-fanworks .card {
+    margin-bottom: 12px;
+  }
+}
+
+
+/* ==========================================================================
+   4. 공통 카드 스타일 (.card)
+   ========================================================================== */
+.card {
   background: #ffffff;
   border: 1px solid #eaeaea;
   border-radius: 8px;
@@ -146,91 +204,57 @@ a {
   cursor: pointer;
 }
 
-.main-card:hover,
-.fanworks-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-.main-card-link {
+.card-link {
   display: block;
   width: 100%;
 }
 
-.main-card-thumb {
+.card-thumb {
   width: 100%;
-  aspect-ratio: 1 / 1;
-  background-color: #f0f0f0;
+  background-color: #ededed; /* 이미지 로드 실패/지연 시 단색 유지 */
   overflow: hidden;
+  min-height: 100px;
 }
 
-.main-card-thumb img {
+.card-thumb img {
   width: 100%;
+  display: block;
+  opacity: 1 !important;
+}
+
+/* 정사각형 크롭 옵션 (메인 & OC 그리드용) */
+.crop-square .card-thumb {
+  aspect-ratio: 1 / 1;
+}
+
+.crop-square .card-thumb img {
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-/* 카드 세부정보 & 날짜 */
-.main-card-info {
+/* 카드 텍스트 정보 (info 및 캡션 공통) */
+.card-info {
   border-top: 1px solid #eaeaea;
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 0.8rem 1.1rem 1.1rem;
   line-height: 1.5;
+  background-color: #ffffff;
 }
 
-.main-card-info .card-info-item {
+.card-info-item {
   font-size: 0.9rem;
   font-weight: 400;
   color: #4a4a4a;
   margin-top: 0.2rem;
 }
 
-.main-card-info .card-info-item:first-child {
+.card-info-item:first-child {
   margin-top: 0;
 }
 
-.main-card-info .card-date {
-  font-size: 0.85rem;
-  color: #6a6a6a;
-  margin-top: 0.85rem;
-}
 
-/* 7. 서브페이지 (핀터레스트 3열 그리드 & 캡션) */
-.fanworks-grid {
-  column-count: 3;
-  column-gap: 20px;
-}
-
-.fanworks-card {
-  break-inside: avoid;
-  margin-bottom: 20px;
-}
-
-.fanworks-card img {
-  width: 100%;
-  height: auto;
-  display: block;
-  cursor: zoom-in;
-}
-
-.fanworks-card-caption {
-  border-top: 1px solid #eaeaea;
-  padding: 0.7rem 0.9rem 0.9rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #6a6a6a;
-  line-height: 1.5;
-  background-color: #ffffff;
-}
-
-@media (max-width: 1024px) {
-  .fanworks-grid { column-count: 2; }
-}
-@media (max-width: 600px) {
-  .fanworks-grid { column-count: 1; }
-}
-
-/* 9. 이미지 크게 보기 (라이트박스 모달) */
+/* ==========================================================================
+   5. 라이트박스 모달
+   ========================================================================== */
 .image-modal {
   display: none;
   position: fixed;
@@ -258,44 +282,34 @@ a {
   cursor: default;
 }
 
-/* history.html (내역 페이지) 전용 스타일 */
-#fav-list {
+
+/* ==========================================================================
+   6. 내역 페이지 전용 (history.html)
+   ========================================================================== */
+#history-list {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem; /* 세션 간 간격 확대 */
+  gap: 2.5rem;
 }
 
-.fav-block {
+.history-block {
   margin-bottom: 0;
   background: transparent;
   border: none;
   padding: 0;
 }
 
-/* 제목 (도시전설 해체센터, 소녀 가극 레뷰 스타라이트 등) */
-.fav-block .title {
-  font-size: 1rem;
+.history-block .title {
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #111111;
-  margin-bottom: 0.3rem; /* 제목과 내용 사이 간격 */
+  color: #111;
   border-bottom: none;
 }
 
-/* 내용 텍스트 (게임, 재스민, 한빛x재스민 등) */
-.fav-block .line {
+.history-block .line {
   font-size: 0.9rem;
   font-weight: 400;
-  color: #777777;
+  color: #666;
   white-space: pre-wrap;
-  line-height: 1.6; /* 줄간격을 넉넉하게 띄워 정갈함 유지 */
-}
-
-/* 10. 푸터 */
-.footer {
-  text-align: center;
-  padding: 1rem;
-  color: #999;
-  font-size: 0.8rem;
-  border-top: 1px solid #eee;
-  margin-top: 5rem;
+  line-height: 1.7;
 }

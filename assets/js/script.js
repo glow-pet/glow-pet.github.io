@@ -9,9 +9,9 @@ function renderHeader() {
   headerDescEl.innerHTML = headerInfos.join('<br>');
 }
 
-// 2. 갤러리 카드 렌더링 (메인 & OC)
+// 2. 갤러리 카드 렌더링 (메인 & OC 공통)
 function renderGallery() {
-  const container = document.querySelector('.gallery-grid');
+  const container = document.querySelector('.grid-main, .grid-oc');
   const dataList = window.galleryData || [];
   if (!container) return;
 
@@ -19,6 +19,9 @@ function renderGallery() {
     container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 2rem 0;">등록된 데이터가 없습니다.</p>';
     return;
   }
+
+  // 1:1 크롭 적용을 위한 클래스 추가
+  container.classList.add('crop-square');
 
   const isPagesFolder = window.location.pathname.includes('/pages/');
 
@@ -42,15 +45,15 @@ function renderGallery() {
     ).join('');
 
     return `
-      <article class="main-card">
-        <a href="${linkSrc}" class="main-card-link">
-          <div class="main-card-thumb">
+      <article class="card">
+        <a href="${linkSrc}" class="card-link">
+          <div class="card-thumb">
             <img src="${encodeURI(imgSrc)}" 
                  alt="${item.infos[0] || ''}" 
                  loading="lazy" 
                  onerror="this.style.display='none';">
           </div>
-          <div class="main-card-info">
+          <div class="card-info">
             ${infoHTML}
           </div>
         </a>
@@ -63,7 +66,7 @@ function renderGallery() {
 
 // 3. 서브페이지 상세 이미지 및 캡션 자동 생성
 function renderFanworksDetail() {
-  const container = document.querySelector('.fanworks-grid');
+  const container = document.querySelector('.grid-fanworks');
   const items = window.fanworksImages || [];
   if (!container || items.length === 0) return;
 
@@ -72,15 +75,17 @@ function renderFanworksDetail() {
     const caption = typeof item === 'object' && item.caption ? item.caption : '';
 
     const captionHTML = caption 
-      ? `<div class="fanworks-card-caption">${caption}</div>` 
+      ? `<div class="card-info"><p class="card-info-item">${caption}</p></div>` 
       : '';
 
     return `
-      <div class="fanworks-card">
-        <img src="${encodeURI(imgSrc)}" 
-             alt="${caption || '상세 이미지'}" 
-             loading="lazy" 
-             onerror="this.style.display='none';">
+      <div class="card">
+        <div class="card-thumb">
+          <img src="${encodeURI(imgSrc)}" 
+               alt="${caption || '상세 이미지'}" 
+               loading="lazy" 
+               onerror="this.style.display='none';">
+        </div>
         ${captionHTML}
       </div>
     `;
@@ -89,9 +94,9 @@ function renderFanworksDetail() {
   container.innerHTML = html;
 }
 
-// 4. 서브페이지 이미지 크게 보기 (라이트박스 모달)
+// 4. 서브페이지 라이트박스 모달
 function initLightbox() {
-  const detailContainer = document.querySelector('.fanworks-grid');
+  const detailContainer = document.querySelector('.grid-fanworks');
   if (!detailContainer) return;
 
   const modal = document.createElement('div');
