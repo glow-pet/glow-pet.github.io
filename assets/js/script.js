@@ -20,14 +20,14 @@ function renderGallery() {
     return;
   }
 
-  // 1:1 크롭 적용을 위한 클래스 추가
   container.classList.add('crop-square');
 
   const isPagesFolder = window.location.pathname.includes('/pages/');
 
   const html = dataList.map(item => {
-    let imgSrc = item.img;
-    let linkSrc = item.link;
+    let imgSrc = item.image || item.src || item.img || '';
+    let linkSrc = item.link || '#';
+    const caption = item.caption || '';
 
     if (isPagesFolder) {
       if (!imgSrc.startsWith('../') && !imgSrc.startsWith('http')) {
@@ -40,22 +40,20 @@ function renderGallery() {
       }
     }
 
-    const infoHTML = item.infos.map((info, idx) => 
-      `<p class="card-info-item info-${idx + 1}">${info}</p>`
-    ).join('');
+    const captionHTML = caption 
+      ? `<div class="card-info"><p class="card-info-item">${caption}</p></div>` 
+      : '';
 
     return `
       <article class="card">
         <a href="${linkSrc}" class="card-link">
           <div class="card-thumb">
             <img src="${encodeURI(imgSrc)}" 
-                 alt="${item.infos[0] || ''}" 
+                 alt="${caption.split('\n')[0] || ''}" 
                  loading="lazy" 
                  onerror="this.style.display='none';">
           </div>
-          <div class="card-info">
-            ${infoHTML}
-          </div>
+          ${captionHTML}
         </a>
       </article>
     `;
@@ -71,7 +69,7 @@ function renderFanworksDetail() {
   if (!container || items.length === 0) return;
 
   const html = items.map(item => {
-    let imgSrc = typeof item === 'string' ? item : item.src;
+    let imgSrc = typeof item === 'string' ? item : (item.image || item.src || '');
     const caption = typeof item === 'object' && item.caption ? item.caption : '';
 
     const captionHTML = caption 
@@ -82,7 +80,7 @@ function renderFanworksDetail() {
       <div class="card">
         <div class="card-thumb">
           <img src="${encodeURI(imgSrc)}" 
-               alt="${caption || '상세 이미지'}" 
+               alt="${caption.split('\n')[0] || '상세 이미지'}" 
                loading="lazy" 
                onerror="this.style.display='none';">
         </div>
