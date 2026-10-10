@@ -108,6 +108,7 @@ function setupPagination(totalItems) {
       if (currentPage > 1) {
         currentPage--;
         executeRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // 추가
       }
     });
 
@@ -117,6 +118,7 @@ function setupPagination(totalItems) {
       if (currentPage < maxPages) {
         currentPage++;
         executeRender();
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // 추가
       }
     });
   }

@@ -289,7 +289,62 @@ TVA
 
 `;
 
-// history.js
+// assets/js/history.js
+
+let currentHistoryPage = 1;
+const historyItemsPerPage = 12; // 내역 페이지당 아이템 수
+
+function setupHistoryPagination(totalItems) {
+  let paginationEl = document.querySelector('.floating-pagination');
+  const totalPages = Math.ceil(totalItems / historyItemsPerPage) || 1;
+
+  if (currentHistoryPage > totalPages) currentHistoryPage = totalPages;
+  if (currentHistoryPage < 1) currentHistoryPage = 1;
+
+  if (!paginationEl) {
+    paginationEl = document.createElement('nav');
+    paginationEl.className = 'floating-pagination';
+    paginationEl.setAttribute('aria-label', '내역 페이지 네비게이션');
+    paginationEl.innerHTML = `
+      <button id="prev-btn" class="page-btn arrow-btn" aria-label="이전 페이지">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="page-indicator" aria-live="polite">
+        <span id="current-page">1</span>/<span id="total-pages">1</span>
+      </div>
+      <button id="next-btn" class="page-btn arrow-btn" aria-label="다음 페이지">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    `;
+    document.body.appendChild(paginationEl);
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      if (currentHistoryPage > 1) {
+        currentHistoryPage--;
+        renderHistoryData();
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // 상단으로 스크롤 이동
+      }
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      const cleanText = (typeof historyRawText !== 'undefined' ? historyRawText : '').replace(/\r/g, '');
+      const blocks = cleanText.split(/\n\s*\n/).filter(block => block.trim() !== '');
+      const maxPages = Math.ceil(blocks.length / historyItemsPerPage) || 1;
+      
+      if (currentHistoryPage < maxPages) {
+        currentHistoryPage++;
+        renderHistoryData();
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // 상단으로 스크롤 이동
+      }
+    });
+  }
+
+  document.getElementById('current-page').textContent = currentHistoryPage;
+  document.getElementById('total-pages').textContent = totalPages;
+  document.getElementById('prev-btn').disabled = (currentHistoryPage === 1);
+  document.getElementById('next-btn').disabled = (currentHistoryPage >= totalPages);
+}
+
 function renderHistoryData() {
   const container = document.getElementById('history-list');
   if (!container) return;
@@ -300,11 +355,14 @@ function renderHistoryData() {
   }
 
   const cleanText = historyRawText.replace(/\r/g, '');
-
-  // 연속된 빈 줄 기준으로 분리 후 빈 블록 제거
   const blocks = cleanText.split(/\n\s*\n/).filter(block => block.trim() !== '');
 
-  const html = blocks.map(block => {
+  // 현재 페이지에 해당하는 블록만 잘라내기 (12개 단위)
+  const startIndex = (currentHistoryPage - 1) * historyItemsPerPage;
+  const endIndex = startIndex * 1 + historyItemsPerPage * 1;
+  const paginatedBlocks = blocks.slice(startIndex, endIndex);
+
+  const html = paginatedBlocks.map(block => {
     const lines = block.trim().split('\n');
     const title = lines[0] || '';
     const content = lines.slice(1).map(line => line.trim()).join('<br>');
@@ -318,6 +376,7 @@ function renderHistoryData() {
   }).join('');
 
   container.innerHTML = html;
+  setupHistoryPagination(blocks.length);
 }
 
 document.addEventListener("DOMContentLoaded", renderHistoryData);
