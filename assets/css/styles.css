@@ -87,12 +87,12 @@ a {
 .container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2.5rem 2rem;
+  padding: 2rem 2.5rem;
 }
 
 .header {
-  margin-bottom: 4rem;
-  padding-bottom: 2rem;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid #eaeaea;
 }
 
@@ -127,45 +127,36 @@ a {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 9999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  background: transparent; /* 배경 및 글래스모피즘 제거 */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
   z-index: 1000;
 }
 
-/* 화살표 버튼 (네거티브 디자인: 원형 + 어두운 배경) */
+/* 1. 화살표 버튼 (네거티브 디자인: 원형 + 어두운 배경 유지) */
 .floating-pagination .arrow-btn {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background-color: #222;
+  background-color: #444;
   color: #fff;
   border: none;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.floating-pagination .arrow-btn:hover:not(:disabled) {
-  background-color: #000;
-  transform: scale(1.05);
-}
-
-/* 끝에 도달하여 비활성화된 경우 */
 .floating-pagination .arrow-btn:disabled {
-  background-color: #e0e0e0;
-  color: #aaa;
+  background-color: #eee;
+  color: #ccc;
   cursor: default;
-  transform: none;
 }
 
-/* 페이지 번호 표시부 (포지티브 디자인: 둥근 사각형 + 밝은 배경) */
+/* 2. 페이지 번호 표시부 (포지티브 디자인: 둥근 사각형 + 밝은 배경 유지) */
 .floating-pagination .page-indicator {
   padding: 6px 14px;
   background-color: #ffffff;
@@ -173,9 +164,8 @@ a {
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.05em;
-  border-radius: 8px;
   border: 1px solid #eaeaea;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  border-radius: 5px;
   min-width: 60px;
   text-align: center;
 }
@@ -184,7 +174,6 @@ a {
 @media (max-width: 480px) {
   .floating-pagination {
     bottom: 16px;
-    padding: 6px 12px;
     gap: 8px;
   }
   .floating-pagination .arrow-btn {
@@ -314,7 +303,7 @@ a {
   color: #fff;
   font-size: 1rem;
   letter-spacing: 0.05em;
-  aspect-ratio: 2.5 / 1; /* 기존 메인/OC 카드 정사각형 비율 유지 */
+  aspect-ratio: 2 / 1; /* 기존 메인/OC 카드 정사각형 비율 유지 */
 }
 
 /* 정사각형 크롭 옵션 (메인 & OC 그리드용) */
