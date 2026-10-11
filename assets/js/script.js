@@ -9,37 +9,53 @@ function renderHeader() {
   headerDescEl.innerHTML = headerInfos.join('<br>');
 }
 
-// 2. 공통 카드 HTML 생성 헬퍼 함수
+// 2. 공통 카드 HTML 생성 헬퍼 함수 (첫 번째 이미지만 카드에 표시, 전체 데이터는 모달용으로 전달)
 function createCardHTML(item, isPagesFolder) {
-  let imgVal = item.image || item.src || item.img || '';
+  let rawImages = item.images || item.image || item.src || item.img || [];
+  let imgList = Array.isArray(rawImages) ? rawImages : [rawImages];
+  
   let linkSrc = item.link || '';
   const caption = item.caption || '';
 
-  const isImagePath = imgVal.includes('/') || imgVal.includes('.');
-
   if (isPagesFolder) {
-      if (isImagePath) {
-        if (!imgVal.startsWith('../') && !imgVal.startsWith('http')) {
-          imgVal = '../' + imgVal;
+      imgList = imgList.map(imgVal => {
+        const isImagePath = imgVal.includes('/') || imgVal.includes('.');
+        if (isImagePath && !imgVal.startsWith('../') && !imgVal.startsWith('http')) {
+          return '../' + imgVal;
         }
-      }
-      // 링크는 pages/ 폴더 내부에 있으므로, 상대 경로(파일명) 그대로 유지되도록 처리
+        return imgVal;
+      });
+
       if (linkSrc.startsWith('pages/')) {
         linkSrc = linkSrc.replace('pages/', '');
       }
     }
 
-  let thumbHTML = '';
-  if (!isImagePath && imgVal !== '') {
-    thumbHTML = `
-      <div class="card-thumb text-thumb" role="img" aria-label="${imgVal}">
-        <span>${imgVal}</span>
+  const totalCount = imgList.length;
+  let thumbsHTML = '';
+  
+  if (imgList.length === 0 || (imgList.length === 1 && imgList[0] === '')) {
+    thumbsHTML = `
+      <div class="card-thumb text-thumb" role="img" aria-label="이미지 없음">
+        <span>이미지 없음</span>
+      </div>
+    `;
+  } else if (!imgList[0].includes('/') && !imgList[0].includes('.')) {
+    const textVal = imgList[0];
+    thumbsHTML = `
+      <div class="card-thumb text-thumb" role="img" aria-label="${textVal}">
+        <span>${textVal}</span>
       </div>
     `;
   } else {
-    thumbHTML = `
-      <div class="card-thumb">
-        <img src="${encodeURI(imgVal)}" 
+    // 카드에는 맨 첫 번째 이미지만 표시하되, 전체 이미지를 모달에 넘기기 위해 data-images에 전체 리스트 주입
+    const firstImgVal = imgList[0];
+    const badgeHTML = (totalCount > 1) ? `<div class="image-count-badge">${totalCount}p</div>` : '';
+    
+    thumbsHTML = `
+      <div class="card-thumb" data-images='${JSON.stringify(imgList)}'>
+        ${badgeHTML}
+        <img src="${encodeURI(firstImgVal)}" 
              alt="${caption.split('\n')[0] || ''}" 
              loading="lazy" 
              onerror="this.style.display='none';">
@@ -54,19 +70,19 @@ function createCardHTML(item, isPagesFolder) {
   const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
   const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer" aria-label="외부 링크 (새 창)"' : '';
 
-  if (linkSrc || (!isImagePath && imgVal !== '')) {
+  if (linkSrc && totalCount <= 1 && (imgList.length === 0 || imgList[0].includes('/') || imgList[0].includes('.'))) {
     return `
       <article class="card">
-        <a href="${linkSrc || '#'}" class="card-link" ${targetAttr}>
-          ${thumbHTML}
+        <a href="${linkSrc}" class="card-link" ${targetAttr}>
+          ${thumbsHTML}
           ${captionHTML}
         </a>
       </article>
     `;
   } else {
     return `
-      <article class="card">
-        ${thumbHTML}
+      <article class="card multi-image-card" data-link="${linkSrc}">
+        ${thumbsHTML}
         ${captionHTML}
       </article>
     `;
@@ -75,17 +91,15 @@ function createCardHTML(item, isPagesFolder) {
 
 // 3. 페이지네이션 및 그리드 렌더링 통합 관리
 let currentPage = 1;
-const itemsPerPage = 12; // 페이지당 표시할 아이템 수 (조정 가능)
+const itemsPerPage = 12;
 
 function setupPagination(totalItems) {
   let paginationEl = document.querySelector('.floating-pagination');
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
-  // 범위 이탈 방지
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
-  // 플로팅 UI가 없으면 동적으로 생성하여 body에 주입
   if (!paginationEl) {
     paginationEl = document.createElement('nav');
     paginationEl.className = 'floating-pagination';
@@ -103,12 +117,11 @@ function setupPagination(totalItems) {
     `;
     document.body.appendChild(paginationEl);
 
-    // 이벤트 리스너 등록 (최초 1회)
     document.getElementById('prev-btn').addEventListener('click', () => {
       if (currentPage > 1) {
         currentPage--;
         executeRender();
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // 추가
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
 
@@ -118,12 +131,11 @@ function setupPagination(totalItems) {
       if (currentPage < maxPages) {
         currentPage++;
         executeRender();
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // 추가
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }
 
-  // 상태 업데이트 및 끝 도달 시 버튼 비활성화 (아무 일도 일어나지 않음)
   document.getElementById('current-page').textContent = currentPage;
   document.getElementById('total-pages').textContent = totalPages;
   document.getElementById('prev-btn').disabled = (currentPage === 1);
@@ -158,38 +170,108 @@ function executeRender() {
   }
 }
 
-// 4. 서브페이지 라이트박스 모달
+// 4. 통합 라이트박스 슬라이더 모달 (카드 클릭 시 전체 이미지 슬라이드 연동)
 function initLightbox() {
-  const detailContainer = document.querySelector('.grid-cols-3');
-  if (!detailContainer) return;
+  const gridContainer = document.querySelector('.grid-cols-3, .grid-cols-4, .grid-cols-5');
+  if (!gridContainer) return;
 
   const modal = document.createElement('div');
   modal.className = 'image-modal';
   
-  const modalImg = document.createElement('img');
-  modalImg.className = 'image-modal-content';
-  
-  modal.appendChild(modalImg);
+  modal.innerHTML = `
+    <button class="modal-arrow modal-prev" aria-label="이전 이미지">&#10094;</button>
+    <div class="modal-content-wrapper">
+      <img class="image-modal-content" src="" alt="확대 이미지">
+    </div>
+    <button class="modal-arrow modal-next" aria-label="다음 이미지">&#10095;</button>
+  `;
   document.body.appendChild(modal);
 
-  detailContainer.addEventListener('click', (e) => {
-    if (e.target.tagName === 'IMG' && !e.target.closest('a')) {
-      modalImg.src = e.target.src;
-      modalImg.alt = e.target.alt || '';
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
+  const modalImg = modal.querySelector('.image-modal-content');
+  const prevBtn = modal.querySelector('.modal-prev');
+  const nextBtn = modal.querySelector('.modal-next');
+
+  let currentImages = [];
+  let currentIndex = 0;
+
+  function updateModalImage() {
+    if (currentImages.length > 0) {
+      modalImg.src = currentImages[currentIndex];
+      
+      if (currentImages.length <= 1) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+      } else {
+        prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
+        nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
+      }
+    }
+  }
+
+  gridContainer.addEventListener('click', (e) => {
+    const linkEl = e.target.closest('a');
+    if (linkEl && linkEl.getAttribute('href') && linkEl.getAttribute('href') !== '#') {
+      return;
+    }
+
+    const cardEl = e.target.closest('.card');
+    if (cardEl && cardEl.hasAttribute('data-link')) {
+      const linkVal = cardEl.getAttribute('data-link');
+      if (linkVal && linkVal !== '') {
+        window.location.href = linkVal;
+        return;
+      }
+    }
+
+    // 카드 내부의 썸네일(.card-thumb)을 클릭했을 때 모달 열기 (전체 이미지 배열 전달)
+    const thumbContainer = e.target.closest('.card-thumb');
+    if (thumbContainer) {
+      try {
+        currentImages = JSON.parse(thumbContainer.getAttribute('data-images') || '[]');
+        if (currentImages.length > 0) {
+          currentIndex = 0;
+          updateModalImage();
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   });
 
-  modal.addEventListener('click', () => {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
+  prevBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (currentImages.length > 1 && currentIndex > 0) {
+      currentIndex--;
+      updateModalImage();
+    }
+  });
+
+  nextBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (currentImages.length > 1 && currentIndex < currentImages.length - 1) {
+      currentIndex++;
+      updateModalImage();
+    }
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (!e.target.closest('.modal-arrow')) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
   });
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') {
       modal.classList.remove('active');
       document.body.style.overflow = '';
+    } else if (e.key === 'ArrowLeft') {
+      prevBtn.click();
+    } else if (e.key === 'ArrowRight') {
+      nextBtn.click();
     }
   });
 }
