@@ -67,7 +67,6 @@ a {
 .nav-links a {
   color: #666;
   padding: 0 1rem;
-  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 .nav-links li:not(:last-child)::after {
@@ -78,7 +77,6 @@ a {
   background-color: #ddd;
 }
 
-.nav-links a:hover,
 .nav-links a.active {
   color: #000;
   text-shadow: 0 0 0.5px #000; 
@@ -348,7 +346,7 @@ a {
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 600;
-  padding: 0.05rem 0.8rem 0.2rem 0.9rem;
+  padding: 0rem 0.9rem 0.1rem 1rem;
   border-radius: 15px;
   z-index: 10;
   letter-spacing: 0.08em;
@@ -401,34 +399,48 @@ a {
 
 /* 모달 양끝 네비게이션 화살표 */
 .modal-arrow {
-  position: absolute;
+  position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.6);
   color: #fff;
   border: none;
-  width: 60px;
-  height: 100px;
-  font-size: 2.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer; /* 화살표 영역은 이동 버튼이므로 고유 커서 유지 */
-  z-index: 3100;
-  transition: opacity 0.2s ease;
-  opacity: 0.7;
+  z-index: 3200;
 }
 
-.modal-arrow:hover {
-  opacity: 1;
+/* 내부 SVG 아이콘 공통 스타일 */
+.modal-arrow svg {
+  display: block;
+  stroke: #fff;
+  position: relative;
+  width: 24px;  /* 기존 20px에서 1.2배 확대 */
+  height: 24px; /* 기존 20px에서 1.2배 확대 */
+}
+
+/* 이전(왼쪽) 버튼 속 화살표만 왼쪽으로 살짝 이동 */
+.modal-prev svg {
+  left: -1px; /* 원하시는 만큼 값을 조절하실 수 있습니다 (예: -1px ~ -2px) */
+}
+
+/* 다음(오른쪽) 버튼 속 화살표만 오른쪽으로 살짝 이동 */
+.modal-next svg {
+  left: 1px;  /* 원하시는 만큼 값을 조절하실 수 있습니다 (예: 1px ~ 2px) */
 }
 
 .modal-prev {
-  left: 20px;
+  left: 24px;
 }
 
 .modal-next {
-  right: 20px;
+  right: 24px;
 }
 
 /* ==========================================================================

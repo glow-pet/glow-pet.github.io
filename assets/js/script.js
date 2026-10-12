@@ -170,7 +170,7 @@ function executeRender() {
   }
 }
 
-// 4. 통합 라이트박스 슬라이더 모달 (카드 클릭 시 전체 이미지 슬라이드 연동)
+// 4. 통합 라이트박스 슬라이더 모달 (SVG 아이콘을 통한 완벽한 중앙 정렬)
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-3, .grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
@@ -179,11 +179,15 @@ function initLightbox() {
   modal.className = 'image-modal';
   
   modal.innerHTML = `
-    <button class="modal-arrow modal-prev" aria-label="이전 이미지">&#10094;</button>
-    <div class="modal-content-wrapper">
+    <button class="modal-arrow modal-prev" aria-label="이전 이미지">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <div class="modal-image-container">
       <img class="image-modal-content" src="" alt="확대 이미지">
     </div>
-    <button class="modal-arrow modal-next" aria-label="다음 이미지">&#10095;</button>
+    <button class="modal-arrow modal-next" aria-label="다음 이미지">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
   `;
   document.body.appendChild(modal);
 
@@ -198,11 +202,15 @@ function initLightbox() {
     if (currentImages.length > 0) {
       modalImg.src = currentImages[currentIndex];
       
+      // 이미지가 1장 이하일 경우 양쪽 모두 숨김
       if (currentImages.length <= 1) {
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
       } else {
+        // 첫 번째 이미지인 경우 왼쪽(이전) 화살표 숨김, 마지막인 경우 보임
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
+        
+        // 마지막 이미지인 경우 오른쪽(다음) 화살표 숨김, 아니면 보임
         nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
     }
@@ -223,7 +231,6 @@ function initLightbox() {
       }
     }
 
-    // 카드 내부의 썸네일(.card-thumb)을 클릭했을 때 모달 열기 (전체 이미지 배열 전달)
     const thumbContainer = e.target.closest('.card-thumb');
     if (thumbContainer) {
       try {
@@ -256,7 +263,9 @@ function initLightbox() {
     }
   });
 
+// 화살표 버튼을 제외한 모달 내외부(이미지 및 배경 포함) 어디를 클릭해도 닫히도록 설정
   modal.addEventListener('click', (e) => {
+    // 클릭한 요소가 화살표 버튼(.modal-arrow 또는 그 내부 아이콘)이 아닐 때만 닫기 실행
     if (!e.target.closest('.modal-arrow')) {
       modal.classList.remove('active');
       document.body.style.overflow = '';
