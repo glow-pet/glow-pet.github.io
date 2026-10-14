@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <script src="../assets/js/common.js" defer></script>
+    <script src="../assets/js/script.js" defer></script>
+</head>
+
+<body>
+
+    <common-layout>
+        <main class="container">
+            <!-- 자바스크립트가 이미지 카드를 생성해 넣을 공간 -->
+            <div class="grid grid-cols-3"></div>
+        </main> 
+    </common-layout>
+
+    <!-- 이 페이지에서 보여줄 이미지 목록 -->
+    <script>
+        window.fanworksImages = [
+            {
+                image: "../assets/images/fanworks/rara-grace/bafkreie66sqgrj2x4ehb5icg74o335yy6ha6thnpoiufpoos6pqqhaefci.webp",
+                caption: "리그모어x그레이스."
+            },
+        ];
+    </script>
+
+</body>
+</html>
