@@ -29,7 +29,6 @@ class CommonLayout extends HTMLElement {
 
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
-        const historyPath = isPagesFolder ? 'history.html' : 'pages/history.html';
 
         this.innerHTML = `
             <nav class="navbar">
@@ -37,7 +36,6 @@ class CommonLayout extends HTMLElement {
                 <ul class="nav-links">
                     <li><a href="${ocsPath}">OC</a></li>
                     <li><a href="${indexPath}">2차 창작</a></li>
-                    <li><a href="${historyPath}">내역</a></li>
                 </ul>
                 <div class="nav-right"></div>
             </nav>
