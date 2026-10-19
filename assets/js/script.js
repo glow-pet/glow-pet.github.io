@@ -1,21 +1,46 @@
 // assets/js/script.js
 
-// 1. 헤더 설명 렌더링
+// 1. 헤더 설명 및 정렬 드롭다운 렌더링
 function renderHeader() {
+  const containerEl = document.querySelector('.container');
+  const headerEl = document.querySelector('.header');
   const headerDescEl = document.querySelector('.header-desc');
   const headerInfos = window.headerInfos || [];
-  if (!headerDescEl || headerInfos.length === 0) return;
+  
+  if (headerDescEl && headerInfos.length > 0) {
+    headerDescEl.innerHTML = headerInfos.join('<br>');
+  }
 
-  headerDescEl.innerHTML = headerInfos.join('<br>');
+  const mainGrid = document.querySelector('.grid-cols-4, .grid-cols-5, .grid-cols-3');
+  if (containerEl && headerEl && mainGrid && !document.querySelector('.sort-dropdown-wrapper')) {
+    const sortWrapper = document.createElement('div');
+    sortWrapper.className = 'sort-dropdown-wrapper';
+    sortWrapper.innerHTML = `
+      <select id="sort-select" class="sort-select" aria-label="카드 정렬 기준">
+        <option value="created">생성순</option>
+        <option value="date">날짜순</option>
+        <option value="count">콘텐츠 수량 순</option>
+      </select>
+    `;
+    headerEl.insertAdjacentElement('afterend', sortWrapper);
+
+    const selectEl = sortWrapper.querySelector('#sort-select');
+    selectEl.addEventListener('change', (e) => {
+      window.currentSortMode = e.target.value;
+      currentDisplayLimit = itemsPerBatch; 
+      executeRender(true); 
+    });
+  }
 }
 
-// 2. 공통 카드 HTML 생성 헬퍼 함수 (첫 번째 이미지만 카드에 표시, 전체 데이터는 모달용으로 전달)
+// 2. 공통 카드 HTML 생성 헬퍼 함수
 function createCardHTML(item, isPagesFolder) {
   let rawImages = item.images || item.image || item.src || item.img || [];
   let imgList = Array.isArray(rawImages) ? rawImages : [rawImages];
   
   let linkSrc = item.link || '';
   const caption = item.caption || '';
+  const dateStr = item.date || item.uploadDate || item.created || '';
 
   if (isPagesFolder) {
       imgList = imgList.map(imgVal => {
@@ -29,7 +54,7 @@ function createCardHTML(item, isPagesFolder) {
       if (linkSrc.startsWith('pages/')) {
         linkSrc = linkSrc.replace('pages/', '');
       }
-    }
+  }
 
   const totalCount = imgList.length;
   let thumbsHTML = '';
@@ -48,12 +73,11 @@ function createCardHTML(item, isPagesFolder) {
       </div>
     `;
   } else {
-    // 카드에는 맨 첫 번째 이미지만 표시하되, 전체 이미지를 모달에 넘기기 위해 data-images에 전체 리스트 주입
     const firstImgVal = imgList[0];
     const badgeHTML = (totalCount > 1) ? `<div class="image-count-badge">${totalCount}p</div>` : '';
     
     thumbsHTML = `
-      <div class="card-thumb" data-images='${JSON.stringify(imgList)}'>
+      <div class="card-thumb" data-images='${JSON.stringify(imgList)}' data-caption="${encodeURIComponent(caption)}">
         ${badgeHTML}
         <img src="${encodeURI(firstImgVal)}" 
              alt="${caption.split('\n')[0] || ''}" 
@@ -63,8 +87,12 @@ function createCardHTML(item, isPagesFolder) {
     `;
   }
 
-  const captionHTML = caption 
-    ? `<div class="card-info"><p class="card-info-item">${caption}</p></div>` 
+  const dateHTML = dateStr ? `<div class="card-date">${dateStr}</div>` : '';
+  const captionHTML = (caption || dateStr)
+    ? `<div class="card-info">
+        ${caption ? `<p class="card-info-item">${caption}</p>` : ''}
+        ${dateHTML}
+       </div>` 
     : '';
 
   const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
@@ -89,88 +117,98 @@ function createCardHTML(item, isPagesFolder) {
   }
 }
 
-// 3. 페이지네이션 및 그리드 렌더링 통합 관리
-let currentPage = 1;
-const itemsPerPage = 12;
+let currentDisplayLimit = 12; 
+const itemsPerBatch = 12;     
+window.currentSortMode = 'created';
 
-function setupPagination(totalItems) {
-  let paginationEl = document.querySelector('.floating-pagination');
-  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+function getSortedData(dataArray) {
+  if (!Array.isArray(dataArray)) return [];
+  const list = [...dataArray];
 
-  if (currentPage > totalPages) currentPage = totalPages;
-  if (currentPage < 1) currentPage = 1;
+  if (window.currentSortMode === 'date') {
+    return list.sort((a, b) => new Date(b.date || b.uploadDate || 0) - new Date(a.date || a.uploadDate || 0));
+  } else if (window.currentSortMode === 'count') {
+    return list.sort((a, b) => {
+      const getCount = (item) => {
+        const raw = item.images || item.image || item.src || item.img || [];
+        return Array.isArray(raw) ? raw.length : (raw ? 1 : 0);
+      };
+      return getCount(b) - getCount(a);
+    });
+  }
+  return list;
+}
 
-  if (!paginationEl) {
-    paginationEl = document.createElement('nav');
-    paginationEl.className = 'floating-pagination';
-    paginationEl.setAttribute('aria-label', '갤러리 페이지 네비게이션');
-    paginationEl.innerHTML = `
-      <button id="prev-btn" class="page-btn arrow-btn" aria-label="이전 페이지">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
-      <div class="page-indicator" aria-live="polite">
-        <span id="current-page">1</span>/<span id="total-pages">1</span>
-      </div>
-      <button id="next-btn" class="page-btn arrow-btn" aria-label="다음 페이지">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+// '더보기' 버튼을 컨테이너 내부(푸터 위)에 생성하도록 수정
+function setupInfiniteScroll(totalItems) {
+  const containerEl = document.querySelector('.container');
+  if (!containerEl) return;
+
+  let loadMoreWrapper = containerEl.querySelector('.load-more-wrapper');
+
+  if (!loadMoreWrapper) {
+    loadMoreWrapper = document.createElement('div');
+    loadMoreWrapper.className = 'load-more-wrapper';
+    loadMoreWrapper.innerHTML = `
+      <button id="load-more-btn" class="load-more-btn" aria-label="콘텐츠 더보기">
+        <span>더보기</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </button>
     `;
-    document.body.appendChild(paginationEl);
+    containerEl.appendChild(loadMoreWrapper);
 
-    document.getElementById('prev-btn').addEventListener('click', () => {
-      if (currentPage > 1) {
-        currentPage--;
-        executeRender();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
-
-    document.getElementById('next-btn').addEventListener('click', () => {
-      const activeData = window.galleryData || window.fanworksImages || [];
-      const maxPages = Math.ceil(activeData.length / itemsPerPage) || 1;
-      if (currentPage < maxPages) {
-        currentPage++;
-        executeRender();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    document.getElementById('load-more-btn').addEventListener('click', () => {
+      currentDisplayLimit += itemsPerBatch;
+      executeRender(false);
     });
   }
 
-  document.getElementById('current-page').textContent = currentPage;
-  document.getElementById('total-pages').textContent = totalPages;
-  document.getElementById('prev-btn').disabled = (currentPage === 1);
-  document.getElementById('next-btn').disabled = (currentPage >= totalPages);
+  const btn = document.getElementById('load-more-btn');
+  if (btn) {
+    if (currentDisplayLimit >= totalItems) {
+      btn.style.display = 'none';
+    } else {
+      btn.style.display = 'inline-flex';
+    }
+  }
 }
 
-function executeRender() {
+function executeRender(isReset = false) {
   const mainContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   const subContainer = document.querySelector('.grid-cols-3');
   const isPagesFolder = window.location.pathname.includes('/pages/');
 
+  if (isReset) {
+    currentDisplayLimit = itemsPerBatch;
+  }
+
   if (mainContainer) {
-    const dataList = window.galleryData || [];
+    let dataList = window.galleryData || [];
     if (dataList.length === 0) {
       mainContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 2rem 0;">등록된 데이터가 없습니다.</p>';
       return;
     }
+    dataList = getSortedData(dataList);
     mainContainer.classList.add('crop-square');
-    const paginatedData = dataList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    mainContainer.innerHTML = paginatedData.map(item => createCardHTML(item, isPagesFolder)).join('');
-    setupPagination(dataList.length);
+    
+    const slicedData = dataList.slice(0, currentDisplayLimit);
+    mainContainer.innerHTML = slicedData.map(item => createCardHTML(item, isPagesFolder)).join('');
+    setupInfiniteScroll(dataList.length);
   } 
   else if (subContainer) {
-    const items = window.fanworksImages || [];
+    let items = window.fanworksImages || [];
     if (items.length === 0) return;
-    const paginatedItems = items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    subContainer.innerHTML = paginatedItems.map(item => {
+    items = getSortedData(items);
+    
+    const slicedItems = items.slice(0, currentDisplayLimit);
+    subContainer.innerHTML = slicedItems.map(item => {
       const dataItem = typeof item === 'string' ? { image: item, caption: '' } : item;
       return createCardHTML(dataItem, isPagesFolder);
     }).join('');
-    setupPagination(items.length);
+    setupInfiniteScroll(items.length);
   }
 }
 
-// 4. 통합 라이트박스 슬라이더 모달 (SVG 아이콘을 통한 완벽한 중앙 정렬)
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-3, .grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
@@ -182,8 +220,13 @@ function initLightbox() {
     <button class="modal-arrow modal-prev" aria-label="이전 이미지">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
-    <div class="modal-image-container">
-      <img class="image-modal-content" src="" alt="확대 이미지">
+    <div class="modal-body-container">
+      <div class="modal-image-container">
+        <img class="image-modal-content" src="" alt="확대 이미지" tabindex="0">
+      </div>
+      <div class="modal-caption-container">
+        <p class="modal-caption-text"></p>
+      </div>
     </div>
     <button class="modal-arrow modal-next" aria-label="다음 이미지">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -192,28 +235,32 @@ function initLightbox() {
   document.body.appendChild(modal);
 
   const modalImg = modal.querySelector('.image-modal-content');
+  const captionTextEl = modal.querySelector('.modal-caption-text');
+  const captionContainer = modal.querySelector('.modal-caption-container');
   const prevBtn = modal.querySelector('.modal-prev');
   const nextBtn = modal.querySelector('.modal-next');
 
   let currentImages = [];
   let currentIndex = 0;
+  let currentCaption = '';
 
   function updateModalImage() {
     if (currentImages.length > 0) {
       modalImg.src = currentImages[currentIndex];
       
-      // 이미지가 1장 이하일 경우 양쪽 모두 숨김
       if (currentImages.length <= 1) {
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
       } else {
-        // 첫 번째 이미지인 경우 왼쪽(이전) 화살표 숨김, 마지막인 경우 보임
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
-        
-        // 마지막 이미지인 경우 오른쪽(다음) 화살표 숨김, 아니면 보임
-        nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
+        prevBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
     }
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
   }
 
   gridContainer.addEventListener('click', (e) => {
@@ -235,11 +282,26 @@ function initLightbox() {
     if (thumbContainer) {
       try {
         currentImages = JSON.parse(thumbContainer.getAttribute('data-images') || '[]');
+        currentCaption = decodeURIComponent(thumbContainer.getAttribute('data-caption') || '');
+
         if (currentImages.length > 0) {
           currentIndex = 0;
           updateModalImage();
+
+          if (currentCaption.trim()) {
+            captionTextEl.innerText = currentCaption;
+            captionContainer.style.display = 'block';
+          } else {
+            captionTextEl.innerText = '';
+            captionContainer.style.display = 'none';
+          }
+
           modal.classList.add('active');
           document.body.style.overflow = 'hidden';
+
+          setTimeout(() => {
+            modalImg.focus();
+          }, 50);
         }
       } catch (err) {
         console.error(err);
@@ -263,20 +325,16 @@ function initLightbox() {
     }
   });
 
-// 화살표 버튼을 제외한 모달 내외부(이미지 및 배경 포함) 어디를 클릭해도 닫히도록 설정
   modal.addEventListener('click', (e) => {
-    // 클릭한 요소가 화살표 버튼(.modal-arrow 또는 그 내부 아이콘)이 아닐 때만 닫기 실행
-    if (!e.target.closest('.modal-arrow')) {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
+    if (!e.target.closest('.modal-arrow') && !e.target.closest('.modal-caption-container')) {
+      closeModal();
     }
   });
 
   window.addEventListener('keydown', (e) => {
     if (!modal.classList.contains('active')) return;
     if (e.key === 'Escape') {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
+      closeModal();
     } else if (e.key === 'ArrowLeft') {
       prevBtn.click();
     } else if (e.key === 'ArrowRight') {
@@ -285,10 +343,9 @@ function initLightbox() {
   });
 }
 
-// 초기화 실행
 function init() {
   renderHeader();
-  executeRender();
+  executeRender(true);
   initLightbox();
 }
 

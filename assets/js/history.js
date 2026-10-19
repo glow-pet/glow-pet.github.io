@@ -1,5 +1,5 @@
-// history.js
-const historyRawText = `
+// favs.js
+const favsRawText = `
 
 도시전설 해체센터
 게임
@@ -285,17 +285,17 @@ TVA
 
 `;
 
-// assets/js/history.js
+// assets/js/favs.js
 
-let currentHistoryPage = 1;
-const historyItemsPerPage = 12; // 내역 페이지당 아이템 수
+let currentfavsPage = 1;
+const favsItemsPerPage = 12; // 내역 페이지당 아이템 수
 
-function setupHistoryPagination(totalItems) {
+function setupfavsPagination(totalItems) {
   let paginationEl = document.querySelector('.floating-pagination');
-  const totalPages = Math.ceil(totalItems / historyItemsPerPage) || 1;
+  const totalPages = Math.ceil(totalItems / favsItemsPerPage) || 1;
 
-  if (currentHistoryPage > totalPages) currentHistoryPage = totalPages;
-  if (currentHistoryPage < 1) currentHistoryPage = 1;
+  if (currentfavsPage > totalPages) currentfavsPage = totalPages;
+  if (currentfavsPage < 1) currentfavsPage = 1;
 
   if (!paginationEl) {
     paginationEl = document.createElement('nav');
@@ -315,47 +315,47 @@ function setupHistoryPagination(totalItems) {
     document.body.appendChild(paginationEl);
 
     document.getElementById('prev-btn').addEventListener('click', () => {
-      if (currentHistoryPage > 1) {
-        currentHistoryPage--;
-        renderHistoryData();
+      if (currentfavsPage > 1) {
+        currentfavsPage--;
+        renderfavsData();
         window.scrollTo({ top: 0, behavior: 'smooth' }); // 상단으로 스크롤 이동
       }
     });
 
     document.getElementById('next-btn').addEventListener('click', () => {
-      const cleanText = (typeof historyRawText !== 'undefined' ? historyRawText : '').replace(/\r/g, '');
+      const cleanText = (typeof favsRawText !== 'undefined' ? favsRawText : '').replace(/\r/g, '');
       const blocks = cleanText.split(/\n\s*\n/).filter(block => block.trim() !== '');
-      const maxPages = Math.ceil(blocks.length / historyItemsPerPage) || 1;
+      const maxPages = Math.ceil(blocks.length / favsItemsPerPage) || 1;
       
-      if (currentHistoryPage < maxPages) {
-        currentHistoryPage++;
-        renderHistoryData();
+      if (currentfavsPage < maxPages) {
+        currentfavsPage++;
+        renderfavsData();
         window.scrollTo({ top: 0, behavior: 'smooth' }); // 상단으로 스크롤 이동
       }
     });
   }
 
-  document.getElementById('current-page').textContent = currentHistoryPage;
+  document.getElementById('current-page').textContent = currentfavsPage;
   document.getElementById('total-pages').textContent = totalPages;
-  document.getElementById('prev-btn').disabled = (currentHistoryPage === 1);
-  document.getElementById('next-btn').disabled = (currentHistoryPage >= totalPages);
+  document.getElementById('prev-btn').disabled = (currentfavsPage === 1);
+  document.getElementById('next-btn').disabled = (currentfavsPage >= totalPages);
 }
 
-function renderHistoryData() {
-  const container = document.getElementById('history-list');
+function renderfavsData() {
+  const container = document.getElementById('favs-list');
   if (!container) return;
 
-  if (typeof historyRawText === 'undefined') {
-    console.error("historyRawText 데이터를 찾을 수 없습니다. history.js를 확인해 주세요.");
+  if (typeof favsRawText === 'undefined') {
+    console.error("favsRawText 데이터를 찾을 수 없습니다. favs.js를 확인해 주세요.");
     return;
   }
 
-  const cleanText = historyRawText.replace(/\r/g, '');
+  const cleanText = favsRawText.replace(/\r/g, '');
   const blocks = cleanText.split(/\n\s*\n/).filter(block => block.trim() !== '');
 
   // 현재 페이지에 해당하는 블록만 잘라내기 (12개 단위)
-  const startIndex = (currentHistoryPage - 1) * historyItemsPerPage;
-  const endIndex = startIndex * 1 + historyItemsPerPage * 1;
+  const startIndex = (currentfavsPage - 1) * favsItemsPerPage;
+  const endIndex = startIndex * 1 + favsItemsPerPage * 1;
   const paginatedBlocks = blocks.slice(startIndex, endIndex);
 
   const html = paginatedBlocks.map(block => {
@@ -364,7 +364,7 @@ function renderHistoryData() {
     const content = lines.slice(1).map(line => line.trim()).join('<br>');
 
     return `
-      <article class="history-block">
+      <article class="favs-block">
         <h2 class="title">${title}</h2>
         <p class="line">${content}</p>
       </article>
@@ -372,7 +372,7 @@ function renderHistoryData() {
   }).join('');
 
   container.innerHTML = html;
-  setupHistoryPagination(blocks.length);
+  setupfavsPagination(blocks.length);
 }
 
-document.addEventListener("DOMContentLoaded", renderHistoryData);
+document.addEventListener("DOMContentLoaded", renderfavsData);

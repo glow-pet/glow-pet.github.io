@@ -1,4 +1,4 @@
-// common.js
+// assets/js/common.js
 
 // 1. <head> 필수 CSS 동적 주입
 if (!document.querySelector('link[href*="styles.css"]')) {
@@ -26,17 +26,33 @@ class CommonLayout extends HTMLElement {
     connectedCallback() {
         const originalChildren = Array.from(this.childNodes);
         const isPagesFolder = window.location.pathname.includes('/pages/');
+        const currentFileName = window.location.pathname.split('/').pop() || 'index.html';
 
+        // 루트 경로 및 하위 pages 폴더 경로 설정
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
+        const fanworksPath = isPagesFolder ? 'fanworks.html' : 'pages/fanworks.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
+        const favsPath = isPagesFolder ? 'favs.html' : 'pages/favs.html';
 
         this.innerHTML = `
             <nav class="navbar">
+                <button class="sidebar-toggle-btn" aria-label="메뉴 열기/닫기">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
                 <div class="logo"><a href="${indexPath}"></a></div>
-                <ul class="nav-links">
-                    <li><a href="${ocsPath}">OC</a></li>
-                    <li><a href="${indexPath}">2차 창작</a></li>
-                </ul>
+                <div class="nav-links-wrapper">
+                    <button class="sidebar-close-btn" aria-label="메뉴 닫기">✕</button>
+                    <ul class="nav-links">
+                        <li><a href="${indexPath}">홈</a></li>
+                        <li><a href="${ocsPath}">1차 창작</a></li>
+                        <li><a href="${fanworksPath}">2차 창작</a></li>
+                        <li><a href="${favsPath}">관심 작품</a></li>
+                    </ul>
+                </div>
                 <div class="nav-right"></div>
             </nav>
 
@@ -48,16 +64,57 @@ class CommonLayout extends HTMLElement {
         `;
 
         const mainContent = this.querySelector('.content-body');
+        const containerEl = originalChildren.find(node => node.nodeType === 1 && node.classList.contains('container')) || mainContent;
+
+        // ocs, fanworks, favs 및 메인(index.html)에서는 뒤로가기 버튼 제외
+        const isExcludedPage = currentFileName.startsWith('ocs') || currentFileName.startsWith('fanworks') || currentFileName.startsWith('favs') || currentFileName.startsWith('history') || currentFileName === 'index.html' || !isPagesFolder;
+        
+        if (isPagesFolder && !isExcludedPage) {
+            const backBtnWrapper = document.createElement('div');
+            backBtnWrapper.className = 'back-button-wrapper';
+            backBtnWrapper.innerHTML = `
+                <button type="button" class="back-btn" onclick="history.back()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span>뒤로가기</span>
+                </button>
+            `;
+            const targetContainer = containerEl.classList && containerEl.classList.contains('container') ? containerEl : containerEl.querySelector('.container');
+            if (targetContainer) {
+                targetContainer.prepend(backBtnWrapper);
+            } else {
+                containerEl.prepend(backBtnWrapper);
+            }
+        }
+
         originalChildren.forEach(node => {
             mainContent.appendChild(node);
         });
 
         this.updateTitle();
         this.setActiveNav();
+        this.initSidebar();
 
-        // ★ 레이아웃 조립이 완전히 끝난 직후 갤러리를 렌더링하도록 호출 ★
         if (typeof window.loadGallery === 'function') {
             window.loadGallery();
+        }
+    }
+
+    initSidebar() {
+        const toggleBtn = this.querySelector('.sidebar-toggle-btn');
+        const closeBtn = this.querySelector('.sidebar-close-btn');
+        const navWrapper = this.querySelector('.nav-links-wrapper');
+
+        if (toggleBtn && navWrapper) {
+            toggleBtn.addEventListener('click', () => {
+                navWrapper.classList.toggle('active');
+            });
+        }
+        if (closeBtn && navWrapper) {
+            closeBtn.addEventListener('click', () => {
+                navWrapper.classList.remove('active');
+            });
         }
     }
 
