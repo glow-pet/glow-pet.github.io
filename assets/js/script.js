@@ -34,87 +34,109 @@ function renderHeader() {
 }
 
 // 2. 공통 카드 HTML 생성 헬퍼 함수
+// 수정 후
+// 수정 후
 function createCardHTML(item, isPagesFolder) {
   let rawImages = item.images || item.image || item.src || item.img || [];
-  let imgList = Array.isArray(rawImages) ? rawImages : [rawImages];
+  let rawList = Array.isArray(rawImages) ? rawImages : [rawImages];
   
+  // 객체 또는 문자열 형태의 콘텐츠 안전하게 추출
+  let imgList = rawList.map(itemObj => {
+    if (typeof itemObj === 'object' && itemObj !== null) {
+      return itemObj.path || itemObj.content || '';
+    }
+    return itemObj;
+  }).filter(val => val !== '');
+
   let linkSrc = item.link || '';
   const caption = item.caption || '';
   const dateStr = item.date || item.uploadDate || item.created || '';
+  const tags = item.tags || [];
 
   if (isPagesFolder) {
-      imgList = imgList.map(imgVal => {
-        const isImagePath = imgVal.includes('/') || imgVal.includes('.');
-        if (isImagePath && !imgVal.startsWith('../') && !imgVal.startsWith('http')) {
-          return '../' + imgVal;
-        }
-        return imgVal;
-      });
-
-      if (linkSrc.startsWith('pages/')) {
-        linkSrc = linkSrc.replace('pages/', '');
+    imgList = imgList.map(imgVal => {
+      const isImagePath = typeof imgVal === 'string' && (imgVal.includes('/') || imgVal.includes('.'));
+      if (isImagePath && !imgVal.startsWith('../') && !imgVal.startsWith('http')) {
+        return '../' + imgVal;
       }
+      return imgVal;
+    });
+
+    if (linkSrc.startsWith('pages/')) {
+      linkSrc = linkSrc.replace('pages/', '');
+    }
   }
 
   const totalCount = imgList.length;
   let thumbsHTML = '';
   
-  if (imgList.length === 0 || (imgList.length === 1 && imgList[0] === '')) {
+  // 1. 이미지/텍스트가 없는 경우
+  if (totalCount === 0) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" role="img" aria-label="이미지 없음">
-        <span>이미지 없음</span>
+      <div class="card-thumb text-thumb" role="img" aria-label="콘텐츠 없음">
+        <span>No Image</span>
       </div>
     `;
-  } else if (!imgList[0].includes('/') && !imgList[0].includes('.')) {
+  } 
+  // 2. 첫 번째 콘텐츠가 텍스트인 경우
+  else if (typeof imgList[0] === 'string' && !imgList[0].includes('/') && !imgList[0].includes('.')) {
     const textVal = imgList[0];
     thumbsHTML = `
       <div class="card-thumb text-thumb" role="img" aria-label="${textVal}">
         <span>${textVal}</span>
       </div>
     `;
-  } else {
-    const firstImgVal = imgList[0];
+  } 
+  // 3. 이미지인 경우
+  else {
+    let firstImgVal = item.thumbnail || imgList[0];
+    if (isPagesFolder && firstImgVal && !firstImgVal.startsWith('../') && !firstImgVal.startsWith('http')) {
+      firstImgVal = '../' + firstImgVal;
+    }
+
     const badgeHTML = (totalCount > 1) ? `<div class="image-count-badge">${totalCount}p</div>` : '';
     
+    // 링크 유무에 따라 모달용 속성 부여 여부 결정
+    const modalAttrs = !linkSrc ? `data-images='${JSON.stringify(isPagesFolder ? imgList : rawList)}' data-caption="${encodeURIComponent(caption)}"` : '';
+
     thumbsHTML = `
-      <div class="card-thumb" data-images='${JSON.stringify(imgList)}' data-caption="${encodeURIComponent(caption)}">
+      <div class="card-thumb ${!linkSrc ? 'open-modal-thumb' : ''}" ${modalAttrs}>
         ${badgeHTML}
         <img src="${encodeURI(firstImgVal)}" 
-             alt="${caption.split('\n')[0] || ''}" 
+             alt="${caption || ''}" 
              loading="lazy" 
              onerror="this.style.display='none';">
       </div>
     `;
   }
 
-  const dateHTML = dateStr ? `<div class="card-date">${dateStr}</div>` : '';
-  const captionHTML = (caption || dateStr)
-    ? `<div class="card-info">
-        ${caption ? `<p class="card-info-item">${caption}</p>` : ''}
-        ${dateHTML}
-       </div>` 
+  // 링크가 존재하면 썸네일 영역만 <a> 태그로 감쌈
+  if (linkSrc) {
+    const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
+    const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
+    thumbsHTML = `<a href="${linkSrc}" class="card-thumb-link" ${targetAttr}>${thumbsHTML}</a>`;
+  }
+
+  // 태그 뱃지 생성
+  const tagsHtml = tags.length > 0 
+    ? `<div class="card-tags">${tags.map(tag => `<span class="tag-badge">${tag}</span>`).join('')}</div>` 
     : '';
 
-  const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
-  const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer" aria-label="외부 링크 (새 창)"' : '';
+  // 캡션 및 날짜 정보 영역
+  const infoHTML = `
+    <div class="card-info">
+      ${tagsHtml}
+      ${caption ? `<p class="card-info-item">${caption}</p>` : ''}
+      ${dateStr ? `<div class="card-date">${dateStr}</div>` : ''}
+    </div>
+  `;
 
-  if (linkSrc && totalCount <= 1 && (imgList.length === 0 || imgList[0].includes('/') || imgList[0].includes('.'))) {
-    return `
-      <article class="card">
-        <a href="${linkSrc}" class="card-link" ${targetAttr}>
-          ${thumbsHTML}
-          ${captionHTML}
-        </a>
-      </article>
-    `;
-  } else {
-    return `
-      <article class="card multi-image-card" data-link="${linkSrc}">
-        ${thumbsHTML}
-        ${captionHTML}
-      </article>
-    `;
-  }
+  return `
+    <article class="card">
+      ${thumbsHTML}
+      ${infoHTML}
+    </article>
+  `;
 }
 
 let currentDisplayLimit = 12; 

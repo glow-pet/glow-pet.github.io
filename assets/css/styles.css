@@ -358,7 +358,6 @@ a {
   font-size: 0.9rem;
   letter-spacing: 0.05em;
   aspect-ratio: 1 / 1;
-  padding: 1rem;
   text-align: center;
   word-break: break-all;
   white-space: pre-wrap;
@@ -381,7 +380,7 @@ a {
 
 .card-info {
   border-top: 1px solid #eaeaea;
-  padding: 0.7rem 1.1rem 1rem;
+  padding: 0.7rem 1rem 0.9rem;
   line-height: 1.5;
   background-color: #ffffff;
 }
@@ -402,16 +401,16 @@ a {
 
 /* 카드 하단 날짜 스타일 */
 .card-date {
-  font-size: 0.8rem;
-  color: #888;
-  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #222;
+  margin-top: 0.8rem;
 }
 
 .image-count-badge {
   position: absolute;
   top: 10px;
   left: 10px;
-  background-color: #333;
+  background-color: #222;
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 600;
@@ -419,6 +418,25 @@ a {
   border-radius: 15px;
   z-index: 10;
   letter-spacing: 0.08em;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.tag-badge {
+  display: inline-block;
+  background-color: #f0f0f0;
+  color: #555;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.05rem 0.5rem;
+  border-radius: 12px;
+  letter-spacing: -0.01em;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* ==========================================================================
