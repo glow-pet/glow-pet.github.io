@@ -329,6 +329,8 @@ a {
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column; /* 세로 방향 정렬 */
 }
 
 .card-link {
@@ -380,9 +382,12 @@ a {
 
 .card-info {
   border-top: 1px solid #eaeaea;
-  padding: 0.7rem 1rem 0.9rem;
+  padding: 0.9rem 1rem 0.8rem;
   line-height: 1.5;
   background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;  
 }
 
 .card-info-item {
@@ -399,11 +404,11 @@ a {
   margin-top: 0;
 }
 
-/* 카드 하단 날짜 스타일 */
 .card-date {
   font-size: 0.85rem;
   color: #222;
-  margin-top: 0.8rem;
+  margin-top: auto; /* 여백을 밀어내어 항상 하단에 위치하도록 설정 */
+  padding-top: 0.8rem;
 }
 
 .image-count-badge {
@@ -453,7 +458,7 @@ a {
   z-index: 3000;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
+  overscroll-behavior: contain; /* 모달 외부로 스크롤 전파 방지 */
 }
 
 .image-modal.active {
@@ -501,6 +506,30 @@ a {
   white-space: pre-wrap;
   word-break: break-all;
   cursor: default;
+}
+
+/* 우측 상단 모달 닫기 버튼 스타일 */
+.modal-close-btn {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3200;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.85);
 }
 
 @media (max-width: 768px) {
@@ -596,3 +625,176 @@ a {
   color: #888;
   line-height: 1.6;
 }
+
+/* ==========================================================================
+   7. 태그 필터 모달 및 페이지네이션 스타일
+   ========================================================================== */
+.filter-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 4000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.filter-modal-content {
+  background: #fff;
+  width: 750px;
+  max-width: 90vw;
+  max-height: 80vh;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.filter-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 0.8rem;
+}
+
+.filter-modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+/* 3열 구조 및 왼쪽 정렬 */
+.filter-columns-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 1.2rem 0;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.filter-col h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 2px solid #333;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.8rem;
+  color: #222;
+}
+
+.filter-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.filter-row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* Tri-state 체크박스 디자인 */
+.tri-state-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.tri-state-checkbox.include {
+  background-color: #222;
+  color: #fff;
+  border-color: #222;
+}
+
+.tri-state-checkbox.exclude {
+  background-color: #e74c3c;
+  color: #fff;
+  border-color: #e74c3c;
+}
+
+.filter-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #eaeaea;
+  padding-top: 1rem;
+}
+
+.filter-apply-btn {
+  padding: 0.5rem 1.5rem;
+  background-color: #222;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-apply-btn:hover {
+  background-color: #444;
+}
+
+/* 페이지네이션 스타일 (화살표 + 페이지 번호 나열) */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 3rem 0 2rem 0;
+}
+
+.pagination-container button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-container button:hover:not(:disabled) {
+  background-color: #f4f4f4;
+  border-color: #bbb;
+}
+
+.pagination-container button.active {
+  background-color: #222;
+  color: #fff;
+  border-color: #222;
+  font-weight: 600;
+}
+
+.pagination-container button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
