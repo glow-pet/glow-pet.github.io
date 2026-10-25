@@ -408,18 +408,18 @@ a {
   font-size: 0.85rem;
   color: #222;
   margin-top: auto; /* 여백을 밀어내어 항상 하단에 위치하도록 설정 */
-  padding-top: 0.8rem;
+  padding-top: 0.2rem;
 }
 
 .image-count-badge {
   position: absolute;
   top: 10px;
   left: 10px;
-  background-color: #222;
+  background-color: #444;
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 600;
-  padding: 0rem 0.9rem 0.1rem 1rem;
+  padding: 0rem 0.8rem 0.1rem 1rem;
   border-radius: 15px;
   z-index: 10;
   letter-spacing: 0.08em;
@@ -798,3 +798,386 @@ a {
   cursor: not-allowed;
 }
 
+/* ==========================================================================
+   Admin Page Styles
+   ========================================================================== */
+.admin-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 1rem;
+}
+.admin-header h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.3rem;
+}
+.admin-header p {
+    font-size: 0.85rem;
+    color: #666;
+}
+.admin-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.admin-card {
+    background: #ffffff;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 16px;
+}
+.admin-thumb-preview {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    aspect-ratio: 1 / 1;
+    background: #eee;
+    border: 1px solid #ddd; /* 썸네일 외곽선 1px 추가 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    border-radius: 4px;
+}
+.admin-thumb-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.admin-badge {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: bold;
+}
+.admin-card-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    text-align: left;
+}
+.admin-card-meta {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+.admin-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.admin-tag-badge {
+    display: inline-block;
+    background-color: #f0f0f0;
+    color: #555;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.05rem 0.5rem;
+    border-radius: 12px;
+}
+.admin-card-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.admin-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+.admin-btn-edit {
+    color: #2980b9;
+}
+.admin-btn-edit:hover {
+    text-decoration: underline;
+}
+.admin-btn-del {
+    color: #e74c3c;
+}
+.admin-btn-del:hover {
+    text-decoration: underline;
+}
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 4000;
+    justify-content: center;
+    align-items: center;
+}
+.modal.active {
+    display: flex;
+}
+.modal-content {
+    background: #fff;
+    width: 600px;
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow-y: auto;
+}
+.form-group {
+    margin-bottom: 12px;
+}
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #333;
+}
+.form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+.image-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.image-item {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+.image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.image-item .remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(231,76,60,0.9);
+    color: #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+/* 태그 선택 UI 스타일 */
+.admin-tag-selector-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 8px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+.admin-tag-chip {
+    padding: 4px 8px;
+    background: #eef2f5;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #444;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+}
+.admin-tag-chip.active {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+}
+
+/* 이미지 경로 프리뷰 스타일 */
+.image-path-preview {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 4px;
+    font-family: monospace;
+}
+
+/* ==========================================================================
+   Admin Fluid 3-Column Layout Styles & Thumbnail Optimization
+   ========================================================================== */
+.admin-navbar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.admin-nav-home {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    text-decoration: none;
+}
+.admin-nav-title {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* 화면 전체 너비를 꽉 채우는 3열 비율 그리드 레이아웃 */
+.admin-layout-wrapper {
+    display: grid;
+    grid-template-columns: 240px 1fr 1fr;
+    height: calc(100vh - 61px);
+    overflow: hidden;
+    width: 100vw;
+}
+
+/* 1열: 사이드바 */
+.admin-sidebar {
+    background: #fdfdfd;
+    border-right: 1px solid #eaeaea;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+}
+.admin-sidebar-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+.admin-menu-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #444;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.admin-menu-btn:hover {
+    background: #f0f2f5;
+}
+.admin-menu-btn.active {
+    background: #222;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* 2열: 콘텐츠 목록 패널 */
+.admin-content-pane {
+    background: #ffffff;
+    border-right: 1px solid #eaeaea;
+    padding: 1.5rem;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    box-sizing: border-box;
+}
+.admin-pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.8rem;
+}
+.admin-pane-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 2열 카드 썸네일 최적화 스타일 */
+.admin-thumb-preview {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f0f0f0;
+    position: relative;
+}
+.admin-thumb-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 원본 비율을 유지하며 작은 박스에 꽉 채움 */
+}
+
+/* 3열: 에디터 패널 */
+.admin-editor-pane {
+    background: #fafafa;
+    padding: 1.5rem;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-sizing: border-box;
+}
+.admin-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 0.8rem;
+}
+.admin-editor-header h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 이미지 경로 프리뷰 스타일 */
+.image-path-preview {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 4px;
+    font-family: monospace;
+}

@@ -35,7 +35,7 @@ class CommonLayout extends HTMLElement {
         const favsPath = isPagesFolder ? 'favs.html' : 'pages/favs.html';
 
         this.innerHTML = `
-            <nav class="navbar">
+            <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
                 <button class="sidebar-toggle-btn" aria-label="메뉴 열기/닫기">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -44,7 +44,7 @@ class CommonLayout extends HTMLElement {
                     </svg>
                 </button>
                 <div class="logo"><a href="${indexPath}"></a></div>
-                <div class="nav-links-wrapper">
+                <div class="nav-links-wrapper" style="position: absolute; left: 50%; transform: translateX(-50%);">
                     <button class="sidebar-close-btn" aria-label="메뉴 닫기">✕</button>
                     <ul class="nav-links">
                         <li><a href="${indexPath}">홈</a></li>
@@ -53,7 +53,9 @@ class CommonLayout extends HTMLElement {
                         <li><a href="${favsPath}">관심 작품</a></li>
                     </ul>
                 </div>
-                <div class="nav-right"></div>
+                <div class="nav-right" style="margin-left: auto;">
+                    <a href="${isPagesFolder ? '../admin.html' : 'admin.html'}" class="admin-link-btn" style="font-size: 0.8rem; padding: 0.3rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; color: #555; background: #fff; text-decoration: none;">관리</a>
+                </div>
             </nav>
 
             <div class="content-body"></div>

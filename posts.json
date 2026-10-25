@@ -1,35 +1,73 @@
 [
     {
+        "id": 18,
         "category": "2차창작",
-        "id": 14,
-        "date": "2026-10-10",
+        "tags": [
+            "델타룬",
+            "디셈버"
+        ],
+        "alt": "",
+        "date": "2026-10-24",
         "status": "public",
+        "thumbnail-image": "assets/images/fanworks/deltarune/bafkreicarjvk6qoy4v5zkickpoprhgfzjfm3cyicrdp4ptt24l3ns6itzy.webp"
+    },
+    {
+        "id": 17,
+        "category": "2차창작",
+        "tags": [
+            "델타룬",
+            "노엘",
+            "디셈버",
+            "노엘+디셈버"
+        ],
+        "alt": "",
+        "date": "2026-10-24",
+        "status": "public",
+        "thumbnail-image": "assets/images/fanworks/deltarune/bafkreiejofrncnkylxyxwqf5d4e66k7tqtdb7ochef52ylw4pqx3poocwy.webp"
+    },
+    {
+        "id": 16,
+        "category": "2차창작",
+        "tags": [
+            "델타룬",
+            "노엘",
+            "디셈버",
+            "노엘+디셈버"
+        ],
+        "alt": "",
+        "date": "2026-10-24",
+        "status": "public",
+        "thumbnail-image": "assets/images/fanworks/deltarune/bafkreifsbzelkzzpd6g5nfj7js3az4caoj7tmrd3gorb5zvrs4fuiy6nfi.webp"
+    },
+    {
+        "id": 15,
+        "category": "2차창작",
+        "tags": [
+            "델타룬",
+            "노엘"
+        ],
+        "alt": "",
+        "date": "2026-10-21",
+        "status": "public",
+        "thumbnail-image": "assets/images/fanworks/deltarune/bafkreieuext7cvkvma53kocwpifhhkrazsirlt2ak7oko3nsop3rfvtah4.webp"
+    },
+    {
+        "id": 14,
+        "category": "2차창작",
         "tags": [
             "안녕 라라",
             "라라",
             "마리",
             "라라x마리"
         ],
-        "link": "",
         "alt": "라라x마리. (운동중) 마리: 낑낑. 라라: ... (복근. 불끈.) 라라: 마리, 복근 대단하다. 마리: 응? 라라도 복근 만들어 볼래? 제과도 체력이 중요하잖아. 라라: 응... 있지, 마리. 만져봐도 돼? 마리: 뭐, 니 마음대로 해라. 라라: ?",
+        "date": "2026-10-10",
+        "status": "public",
+        "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreihjdg3hrvkryk7y7ozd4sntuetnj3czjrvchzf2uastvgxj6i3owy.webp",
         "images": [
             "assets/images/fanworks/goodbye-lara/bafkreihjdg3hrvkryk7y7ozd4sntuetnj3czjrvchzf2uastvgxj6i3owy.webp",
             "assets/images/fanworks/goodbye-lara/bafkreid2khe6osk3afuqkjo5nsmo3232tiaiqdgyqzlkxe57gludshg2mq.webp"
-        ],
-        "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreid2khe6osk3afuqkjo5nsmo3232tiaiqdgyqzlkxe57gludshg2mq.webp"
-    },
-    {
-        "category": "2차창작",
-        "id": 13,
-        "date": "2026-10-01",
-        "status": "public",
-        "tags": [
-            "안녕 라라",
-            "라라"
-        ],
-        "link": "",
-        "alt": "라라. 완전히 사람이 된 라라가 저지 메이드 차림으로 눈앞에 서 있다. 머리 위에는 여우 귀까지 달고 조신한 미소를 짓고 있다. 양손으로는 분홍색 파르페를 올린 트레이를 들고 있다.",
-        "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreidiaxi2x6a2lbxkht4qdvx4y4g3lhkj3zg5eeu5kevdrlibvsugbu.webp"
+        ]
     },
     {
         "category": "2차창작",
@@ -90,34 +128,18 @@
         "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreiarmaxgkexn6v7d2kotkoej2qwk54wduvmvtk336rn42fjscepkgu.webp"
     },
     {
-        "category": "2차창작",
         "id": 8,
-        "date": "2026-10-18",
-        "status": "public",
+        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘",
             "디셈버",
-            "노엘x디셈버"
+            "노엘+디셈버"
         ],
-        "link": "",
         "alt": "",
-        "thumbnail-image": "assets/images/fanworks/deltarune/bafkreiakn25dtnovpqbrh76lrwj5kbl6xtphm2jpyfn2m22lkopcdufxc4.webp"
-    },
-    {
-        "category": "2차창작",
-        "id": 7,
-        "date": "2026-10-01",
+        "date": "2026-10-18",
         "status": "public",
-        "tags": [
-            "이거 그리고 죽어",
-            "레이",
-            "아이",
-            "아이x레이"
-        ],
-        "link": "",
-        "alt": "",
-        "thumbnail-image": "assets/images/fanworks/draw-this-then-die/bafkreig7stisjxuoosg45rimj3te2uraa6folmjbnnphfsp47gs66cyce4.webp"
+        "thumbnail-image": "assets/images/fanworks/deltarune/bafkreiakn25dtnovpqbrh76lrwj5kbl6xtphm2jpyfn2m22lkopcdufxc4.webp"
     },
     {
         "category": "2차창작",
@@ -144,18 +166,5 @@
         "link": "",
         "alt": "",
         "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreifevvd6kaufhh6mjxstjikqiwcinpxlcccogppyqyykktr3c5lduy.webp"
-    },
-    {
-        "category": "2차창작",
-        "id": 4,
-        "date": "2026-10-01",
-        "status": "public",
-        "tags": [
-            "안녕 라라",
-            "마리"
-        ],
-        "link": "",
-        "alt": "",
-        "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreifhiydljk7fsgiyqepkxvvxwv4r5fm4ytud3r35loh4cwcypwhwmq.webp"
     }
 ]

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>posts.json 관리자 | 창작</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/js/admin.js" defer></script>
+</head>
+<body>
+
+    <nav class="admin-navbar">
+        <a href="index.html" class="admin-nav-home">홈</a>
+        <span class="admin-nav-title">관리</span>
+    </nav>
+
+    <div class="admin-layout-wrapper" id="adminLayoutWrapper">
+        <!-- 1열: 사이드바 (카테고리 선택) -->
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-title">콘텐츠 관리</div>
+            <button class="admin-menu-btn" onclick="selectCategory('2차창작')">2차 창작</button>
+            <button class="admin-menu-btn" onclick="selectCategory('1차창작')">1차 창작</button>
+            <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid #eee;">
+                <button onclick="downloadJson()" style="width: 100%; background: #27ae60; color: #fff; border: none; padding: 0.7rem; border-radius: 6px; font-weight: 600; cursor: pointer;" title="수정된 내용을 posts.json 파일로 다운로드합니다">JSON 저장</button>
+            </div>
+        </aside>
+
+        <!-- 2열: 콘텐츠 목록 영역 -->
+        <main class="admin-content-pane" id="contentPane">
+            <div id="contentPaneInner" style="display: none; flex-direction: column; gap: 1.2rem;">
+                <div class="admin-pane-header">
+                    <h2 id="currentTabTitle">콘텐츠 목록</h2>
+                    <button onclick="openEditEditor(null)" style="background: #222; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">+ 새 카드 추가</button>
+                </div>
+                <div class="admin-card-list" id="cardGrid"></div>
+            </div>
+            <div id="contentPanePlaceholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #aaa; font-size: 0.9rem;">
+                카테고리를 선택해주세요.
+            </div>
+        </main>
+
+        <!-- 3열: 수정 / 추가 에디터 패널 -->
+        <aside class="admin-editor-pane" id="editorPane">
+            <div id="editorPaneInner" style="display: none; flex-direction: column; gap: 1rem;">
+                <div class="admin-editor-header">
+                    <h3 id="editorTitle">카드 수정</h3>
+                    <button type="button" onclick="tryCloseEditor()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+                </div>
+                <form id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="hidden" id="cardId">
+                    <div class="form-group">
+                        <label>카테고리</label>
+                        <select id="cardCategory">
+                            <option value="1차창작">1차창작</option>
+                            <option value="2차창작">2차창작</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>태그 (쉼표로 구분)</label>
+                        <input type="text" id="cardTags" placeholder="안녕 라라, 라라, 마리">
+                        <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 6px; padding: 8px; background: #fff; border: 1px solid #ddd; border-radius: 6px; max-height: 180px; overflow-y: auto;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>이미지 추가</label>
+                        <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="newImgFilename" placeholder="파일명 (확장자 제외)" style="flex: 1;">
+                            <button type="button" onclick="addImagePath()" style="background: #444; color: #fff; border: none; padding: 0 16px; border-radius: 4px; cursor: pointer;">추가</button>
+                        </div>
+                        <div id="imageList" class="image-list"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>alt (캡션)</label>
+                        <textarea id="cardAlt" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>날짜</label>
+                        <input type="date" id="cardDate">
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; border-top: 1px solid #eaeaea; padding-top: 1rem;">
+                        <button type="button" onclick="tryCloseEditor()" style="background: #ccc; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">취소</button>
+                        <button type="submit" id="saveBtn" style="background: #222; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600;" disabled>적용</button>
+                    </div>
+                </form>
+            </div>
+            <div id="editorPanePlaceholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #aaa; font-size: 0.9rem;">
+                수정할 카드를 선택해주세요.
+            </div>
+        </aside>
+    </div>
+</body>
+</html>

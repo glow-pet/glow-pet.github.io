@@ -88,7 +88,7 @@ function createCardHTML(item, isPagesFolder) {
     // 이미지가 2개 이상일 때만 좌측 상단에 갯수 뱃지 추가
     let countBadgeHTML = '';
     if (rawImages.length > 1) {
-      countBadgeHTML = `<div class="image-count-badge">${rawImages.length}</div>`;
+      countBadgeHTML = `<div class="image-count-badge">${rawImages.length}p</div>`;
     }
 
     thumbsHTML = `
@@ -98,7 +98,7 @@ function createCardHTML(item, isPagesFolder) {
       </div>
     `;
   }
-  
+
   if (linkSrc) {
     const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
     const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
