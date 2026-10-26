@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../assets/css/styles.css">
     <script src="../assets/js/common.js" defer></script>
-    <script src="../assets/js/script.js" defer></script>
+    <!-- type="module"을 추가하여 script.js 내부의 import문이 정상 작동하도록 합니다 -->
+    <script type="module" src="../assets/js/script.js" defer></script>
 </head>
 <body>
 
@@ -18,59 +19,6 @@
             <div class="grid grid-cols-5"></div>
         </div>
     </common-layout>
-    <script>
-        window.galleryData = [
-            {
-                link: "",
-                image: "이미지 준비 중",
-                caption: "쿠리야마 시구레"
-            },
-            {
-                link: "",
-                image: "이미지 준비 중",
-                caption: "새비지"
-            },
-            {
-                link: "",
-                image: "이미지 준비 중",
-                caption: "그리즐리"
-            },
-            {
-                link: "",
-                image: "이미지 준비 중",
-                caption: "지지"
-            },
-            {
-                link: "ocs-jin.html",
-                image: "assets/images/ocs/bafkreiax3jfdqonio2xn3c4a5fgddivhkgnjkmaqbm4a2rdhcqilbuacne.webp",
-                caption: "탁 진"
-            },
-            {
-                link: "",
-                image: "이미지 준비 중",
-                caption: "마치"
-            },
-            {
-                link: "",
-                image: "이미지 준비 중",
-                caption: "제인 에이버리"
-            },
-            {
-                link: "ocs-makella.html",
-                image: "이미지 준비 중",
-                caption: "마켈라"
-            },       
-            {
-                link: "ocs-frederike.html",
-                image: "이미지 준비 중",
-                caption: "프레데리케"
-            },       
-            {
-                link: "",
-                image: "이미지 준비 중",
-                caption: "레인(마사 벨로즈)"
-            },
-        ];
-    </script>
+    <!-- 하드코딩된 galleryData 스크립트는 제거합니다 (profiles.json으로 대체) -->
 </body>
 </html>

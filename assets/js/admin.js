@@ -1,9 +1,12 @@
 let postsData = [];
+let profilesData = [];
 let tagsData = { works: [] };
 let currentImages = [];
 let initialFormState = '';
 let activeTagFilters = {}; 
 let currentSelectedCategory = null;
+let currentAdminPage = 1;
+const adminItemsPerPage = 10;
 
 let editingWorks = []; 
 let modalWorkEyeStates = {}; 
@@ -20,20 +23,23 @@ const GENRE_FOLDER_MAP = {
 
 async function loadData() {
     try {
-        const [postsRes, tagsRes] = await Promise.all([
+        const [postsRes, profilesRes, tagsRes] = await Promise.all([
             fetch('posts.json'),
+            fetch('profiles.json').catch(() => ({ ok: false })),
             fetch('tags.json')
         ]);
         if (postsRes.ok) postsData = await postsRes.json();
+        if (profilesRes && profilesRes.ok) profilesData = await profilesRes.json();
         if (tagsRes.ok) tagsData = await tagsRes.json();
     } catch (e) {
         console.error('데이터 로드 실패', e);
-        alert('posts.json 또는 tags.json 파일을 불러오지 못했습니다. Live Server 환경을 확인해주세요.');
+        alert('데이터 파일을 불러오지 못했습니다. Live Server 환경을 확인해주세요.');
     }
 }
 
 window.selectCategory = function(category) {
     currentSelectedCategory = category;
+    currentAdminPage = 1;
 
     document.querySelectorAll('.admin-menu-btn').forEach(btn => {
         if (btn.textContent.includes(category)) {
@@ -56,69 +62,165 @@ function renderGrid() {
     const grid = document.getElementById('cardGrid');
     if (!grid || !currentSelectedCategory) return;
 
-    const filtered = postsData.filter(p => (p.category || '2차창작') === currentSelectedCategory);
+    let targetData = [];
+    if (currentSelectedCategory === '1차창작') {
+        targetData = profilesData;
+    } else {
+        targetData = postsData.filter(p => (p.category || '2차창작') === currentSelectedCategory);
+    }
 
-    if (filtered.length === 0) {
+    if (targetData.length === 0) {
         grid.innerHTML = '<p style="text-align:center; color:#888; padding:2rem;">등록된 데이터가 없습니다.</p>';
+        renderAdminPagination(0);
         return;
     }
 
-    grid.innerHTML = filtered.map(post => {
-        const images = (post.images && post.images.length > 0) ? post.images : [post['thumbnail-image'] || ''];
-        const firstImg = images[0] || '';
-        const badge = images.length > 1 ? `<div class="admin-badge">${images.length}p</div>` : '';
-        
-        const tagsHtml = (post.tags || []).map(t => `<span style="font-size: 0.8rem; color: #666; margin-right: 6px;">#${t}</span>`).join('');
-        const metaText = [post.category || '기타', post.date || ''].filter(Boolean).join(' | ');
+    const totalPages = Math.ceil(targetData.length / adminItemsPerPage) || 1;
+    if (currentAdminPage > totalPages) currentAdminPage = totalPages;
 
-        return `
-            <div class="admin-card-item">
-                <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center;">
-                    <button class="admin-action-btn" onclick="openEditEditor(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
-                    <button class="admin-action-btn" onclick="deleteCard(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+    const startIndex = (currentAdminPage - 1) * adminItemsPerPage;
+    const slicedData = targetData.slice(startIndex, startIndex + adminItemsPerPage);
+
+    if (currentSelectedCategory === '1차창작') {
+        grid.innerHTML = slicedData.map(item => {
+            const thumb = item.thumbnail || item.portrait || '';
+            return `
+                <div class="admin-card-item">
+                    <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                        <button class="admin-action-btn" onclick="openEditEditor(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
+                        <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+                    </div>
+                    <div class="admin-thumb-preview">
+                        ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
+                    </div>
+                    <div class="admin-card-info" style="flex: 1; min-width: 0;">
+                        <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 2px;">${item.name || ''} (${item.foreignName || ''})</div>
+                        <div class="admin-card-meta" style="font-size: 0.75rem; color: #666;">${item.title || ''} | ${item.age ? item.age + '세' : ''} ${item.gender || ''}</div>
+                    </div>
                 </div>
-                <div class="admin-thumb-preview">
-                    ${badge}
-                    ${firstImg ? `<img src="${firstImg}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
+            `;
+        }).join('');
+    } else {
+        grid.innerHTML = slicedData.map(post => {
+            const images = (post.images && post.images.length > 0) ? post.images : [post['thumbnail-image'] || ''];
+            const firstImg = images[0] || '';
+            const badge = images.length > 1 ? `<div class="admin-badge">${images.length}p</div>` : '';
+            
+            const tagsHtml = (post.tags || []).map(t => `<span style="font-size: 0.8rem; color: #666; margin-right: 6px;">#${t}</span>`).join('');
+            const dateText = post.date || '';
+
+            return `
+                <div class="admin-card-item">
+                    <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                        <button class="admin-action-btn" onclick="openEditEditor(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
+                        <button class="admin-action-btn" onclick="deleteCard(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+                    </div>
+                    <div class="admin-thumb-preview">
+                        ${badge}
+                        ${firstImg ? `<img src="${firstImg}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
+                    </div>
+                    <div class="admin-card-info" style="flex: 1; min-width: 0;">
+                        <div class="admin-card-meta" style="font-size: 0.8rem; color: #666; margin-bottom: 2px; font-weight: 500;">${dateText}</div>
+                        <div class="admin-card-tags" style="display: flex; flex-wrap: wrap; gap: 2px; row-gap: 0.2rem;">${tagsHtml}</div>
+                    </div>
                 </div>
-                <div class="admin-card-info" style="flex: 1; min-width: 0; padding-top: 2px;">
-                    <div class="admin-card-meta" style="font-size: 0.8rem; color: #666; margin-bottom: 4px; font-weight: 500;">${metaText}</div>
-                    <div class="admin-card-tags" style="display: flex; flex-wrap: wrap; gap: 2px;">${tagsHtml}</div>
-                </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+    }
+
+    renderAdminPagination(targetData.length);
+}
+
+function renderAdminPagination(totalItems) {
+    const paginationEl = document.getElementById('adminPagination');
+    if (!paginationEl) return;
+
+    const totalPages = Math.ceil(totalItems / adminItemsPerPage) || 1;
+    if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+    }
+
+    let html = `<button type="button" class="page-arrow" ${currentAdminPage === 1 ? 'disabled' : ''} data-page="${currentAdminPage - 1}">&lt;</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button type="button" class="page-num ${i === currentAdminPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+    html += `<button type="button" class="page-arrow" ${currentAdminPage === totalPages ? 'disabled' : ''} data-page="${currentAdminPage + 1}">&gt;</button>`;
+    paginationEl.innerHTML = html;
+
+    paginationEl.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetPage = parseInt(e.currentTarget.dataset.page);
+            if (!isNaN(targetPage)) {
+                currentAdminPage = targetPage;
+                renderGrid();
+            }
+        });
+    });
 }
 
 window.openEditEditor = function(id) {
-    const post = postsData.find(p => p.id === id);
+    const editForm = document.getElementById('editForm');
+    const ocForm = document.getElementById('ocForm');
 
-    if (post) {
-        document.getElementById('editorTitle').innerHTML = `카드 수정 &nbsp;&nbsp;&nbsp; ID:${post.id}`;
-        document.getElementById('cardId').value = post.id;
-        document.getElementById('cardCategory').value = post.category || currentSelectedCategory;
-        document.getElementById('cardTags').value = (post.tags || []).join(', ');
-        document.getElementById('cardAlt').value = post.alt || '';
-        document.getElementById('cardDate').value = post.date || '';
-        currentImages = (post.images && post.images.length > 0) ? [...post.images] : (post['thumbnail-image'] ? [post['thumbnail-image']] : []);
+    if (currentSelectedCategory === '1차창작') {
+        editForm.style.display = 'none';
+        ocForm.style.display = 'flex';
+
+        const item = profilesData.find(p => p.id === id);
+        if (item) {
+            document.getElementById('editorTitle').innerHTML = `프로필 수정 &nbsp;&nbsp;&nbsp; ID:${item.id}`;
+            document.getElementById('ocId').value = item.id;
+            document.getElementById('ocName').value = item.name || '';
+            document.getElementById('ocForeignName').value = item.foreignName || '';
+            document.getElementById('ocTitle').value = item.title || '';
+            document.getElementById('ocAge').value = item.age || '';
+            document.getElementById('ocGender').value = item.gender || '';
+            document.getElementById('ocHeight').value = item.height || '';
+            document.getElementById('ocThumbnail').value = item.thumbnail || '';
+            document.getElementById('ocPortrait').value = item.portrait || '';
+            document.getElementById('ocDescription').value = item.description || '';
+            document.getElementById('ocDate').value = item.date || '';
+        } else {
+            document.getElementById('editorTitle').innerHTML = `새 캐릭터 프로필 추가`;
+            document.getElementById('ocId').value = '';
+            ocForm.reset();
+            document.getElementById('ocDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        initialFormState = getOcFormState();
+        checkOcFormChanges();
     } else {
-        document.getElementById('editorTitle').innerHTML = `새 카드 추가`;
-        document.getElementById('cardId').value = '';
-        document.getElementById('cardCategory').value = currentSelectedCategory || '2차창작';
-        document.getElementById('cardTags').value = '';
-        document.getElementById('cardAlt').value = '';
-        document.getElementById('cardDate').value = new Date().toISOString().split('T')[0];
-        currentImages = [];
-    }
+        ocForm.style.display = 'none';
+        editForm.style.display = 'flex';
 
-    renderImages();
-    syncFilterStateFromInput();
+        const post = postsData.find(p => p.id === id);
+        if (post) {
+            document.getElementById('editorTitle').innerHTML = `카드 수정 &nbsp;&nbsp;&nbsp; ID:${post.id}`;
+            document.getElementById('cardId').value = post.id;
+            document.getElementById('cardCategory').value = post.category || currentSelectedCategory;
+            document.getElementById('cardTags').value = (post.tags || []).join(', ');
+            document.getElementById('cardAlt').value = post.alt || '';
+            document.getElementById('cardDate').value = post.date || '';
+            currentImages = (post.images && post.images.length > 0) ? [...post.images] : (post['thumbnail-image'] ? [post['thumbnail-image']] : []);
+        } else {
+            document.getElementById('editorTitle').innerHTML = `새 카드 추가`;
+            document.getElementById('cardId').value = '';
+            document.getElementById('cardCategory').value = currentSelectedCategory || '2차창작';
+            document.getElementById('cardTags').value = '';
+            document.getElementById('cardAlt').value = '';
+            document.getElementById('cardDate').value = new Date().toISOString().split('T')[0];
+            currentImages = [];
+        }
+
+        renderImages();
+        syncFilterStateFromInput();
+        initialFormState = getFormState();
+        checkFormChanges();
+    }
     
     document.getElementById('editorPaneInner').style.display = 'flex';
     document.getElementById('editorPanePlaceholder').style.display = 'none';
-
-    initialFormState = getFormState();
-    checkFormChanges();
 };
 
 function closeEditor() {
@@ -212,7 +314,6 @@ function renderTagFilterModalContent() {
     const colRels = document.getElementById('editColRels');
     if (!colWorks || !colChars || !colRels) return;
 
-    // 1열: 작품 렌더링 + 하단 [+] 버튼
     const worksHtml = editingWorks.map(w => {
         const isOpen = !!modalWorkEyeStates[w.name];
         return `
@@ -228,21 +329,20 @@ function renderTagFilterModalContent() {
 
     colWorks.innerHTML = worksHtml + `<div class="tag-add-btn-box" id="addWorkBox" onclick="initInlineAdd('work', this)" title="새 작품 추가">+</div>`;
 
-    // 눈 뜬 작품들에 속하는 캐릭터들 수집
     const activeWorks = editingWorks.filter(w => modalWorkEyeStates[w.name]);
     const charsToShow = [];
 
     if (activeWorks.length > 0) {
         activeWorks.forEach(w => {
             w.characters.forEach(c => {
-                if (!charsToShow.some(item => item.name === c.name)) {
+                const isRel = c.name.includes('+') || c.name.includes('x');
+                if (!isRel && !charsToShow.some(item => item.name === c.name)) {
                     charsToShow.push(c);
                 }
             });
         });
     }
 
-    // 2열: 캐릭터 렌더링 + 하단 [+] 버튼
     if (activeWorks.length === 0) {
         colChars.innerHTML = '<span style="color:#aaa; font-size:0.8rem;">작품의 눈을 떠주세요</span>';
     } else {
@@ -261,20 +361,15 @@ function renderTagFilterModalContent() {
         colChars.innerHTML = charsHtml + `<div class="tag-add-btn-box" id="addCharBox" onclick="initInlineAdd('char', this)" title="선택된 작품에 캐릭터 추가">+</div>`;
     }
 
-    // 눈 뜬 캐릭터들 이름 목록
     const activeCharNames = editingWorks.flatMap(w => w.characters).filter(c => modalCharEyeStates[c.name]).map(c => c.name);
 
-    // 3열: 관계 렌더링 + 하단 [+] 버튼
     const relsToShow = new Set();
     if (activeCharNames.length > 0) {
         activeWorks.forEach(w => {
             w.characters.forEach(c => {
                 if (c.relations) {
                     c.relations.forEach(rel => {
-                        const parts = rel.split(/[\+x]/).map(s => s.trim()).filter(Boolean);
-                        if (parts.length >= 2 && parts.every(p => activeCharNames.includes(p))) {
-                            relsToShow.add(rel);
-                        }
+                        relsToShow.add(rel);
                     });
                 }
             });
@@ -412,13 +507,11 @@ window.confirmDeleteWork = function() {
     closeWorkDeleteModal();
 };
 
-// 모달 안의 '적용 및 저장' 버튼: tags.json 파일만 다운로드 저장
 window.applyTagHierarchyModal = function() {
     tagsData.works = editingWorks;
     document.getElementById('tagEditModal').classList.remove('active');
     renderAdminTagSelector();
 
-    // tags.json 파일 다운로드 저장
     const tagsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tagsData, null, 4));
     const a = document.createElement('a');
     a.setAttribute("href", tagsStr);
@@ -504,6 +597,21 @@ function getFormState() {
     });
 }
 
+function getOcFormState() {
+    return JSON.stringify({
+        name: document.getElementById('ocName').value,
+        foreignName: document.getElementById('ocForeignName').value,
+        title: document.getElementById('ocTitle').value,
+        age: document.getElementById('ocAge').value,
+        gender: document.getElementById('ocGender').value,
+        height: document.getElementById('ocHeight').value,
+        thumbnail: document.getElementById('ocThumbnail').value,
+        portrait: document.getElementById('ocPortrait').value,
+        description: document.getElementById('ocDescription').value,
+        date: document.getElementById('ocDate').value
+    });
+}
+
 function checkFormChanges() {
     const saveBtn = document.getElementById('saveBtn');
     if (!saveBtn) return;
@@ -516,13 +624,26 @@ function checkFormChanges() {
     }
 }
 
+function checkOcFormChanges() {
+    const saveBtn = document.getElementById('ocSaveBtn');
+    if (!saveBtn) return;
+    if (getOcFormState() !== initialFormState) {
+        saveBtn.removeAttribute('disabled');
+        saveBtn.style.opacity = '1';
+    } else {
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.style.opacity = '0.5';
+    }
+}
+
 function renderImages() {
     const listEl = document.getElementById('imageList');
     if (!listEl) return;
     listEl.innerHTML = currentImages.map((img, idx) => `
-        <div class="image-item" style="width: 70px; height: 70px; position: relative; border: 1px solid #ccc; border-radius: 4px; overflow: hidden;">
+        <div class="image-item" style="position: relative;">
+            <div class="image-item-index">${idx + 1}</div>
             <img src="${img}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
-            <div class="remove-btn" onclick="removeImage(${idx})" style="position: absolute; top: 2px; right: 2px; background: rgba(231,76,60,0.9); color: #fff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 9px; cursor: pointer;">✕</div>
+            <div class="remove-btn" onclick="removeImage(${idx})">✕</div>
         </div>
     `).join('');
     checkFormChanges();
@@ -580,13 +701,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    ['ocName', 'ocForeignName', 'ocTitle', 'ocAge', 'ocGender', 'ocHeight', 'ocThumbnail', 'ocPortrait', 'ocDescription', 'ocDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', checkOcFormChanges);
+            el.addEventListener('change', checkOcFormChanges);
+        }
+    });
+
     const editForm = document.getElementById('editForm');
     if (editForm) {
         editForm.onsubmit = (e) => {
             e.preventDefault();
             const idVal = document.getElementById('cardId').value;
             const cardData = {
-                id: idVal ? parseInt(idVal) : (Math.max(...postsData.map(p => p.id || 0), 0) + 1),
+                id: idVal ? parseInt(idVal) : (Math.max(0, ...postsData.map(p => p.id || 0)) + 1),
                 category: document.getElementById('cardCategory').value,
                 tags: document.getElementById('cardTags').value.split(',').map(t => t.trim()).filter(Boolean),
                 alt: document.getElementById('cardAlt').value,
@@ -606,6 +735,37 @@ document.addEventListener('DOMContentLoaded', async () => {
                 postsData[existingIdx] = cardData;
             } else {
                 postsData.unshift(cardData);
+            }
+
+            closeEditor();
+            renderGrid();
+        };
+    }
+
+    const ocForm = document.getElementById('ocForm');
+    if (ocForm) {
+        ocForm.onsubmit = (e) => {
+            e.preventDefault();
+            const idVal = document.getElementById('ocId').value;
+            const ocData = {
+                id: idVal ? parseInt(idVal) : (Math.max(0, ...profilesData.map(p => p.id || 0)) + 1),
+                name: document.getElementById('ocName').value,
+                foreignName: document.getElementById('ocForeignName').value,
+                title: document.getElementById('ocTitle').value,
+                age: document.getElementById('ocAge').value,
+                gender: document.getElementById('ocGender').value,
+                height: document.getElementById('ocHeight').value,
+                thumbnail: document.getElementById('ocThumbnail').value,
+                portrait: document.getElementById('ocPortrait').value,
+                description: document.getElementById('ocDescription').value,
+                date: document.getElementById('ocDate').value
+            };
+
+            const existingIdx = profilesData.findIndex(p => p.id === ocData.id);
+            if (existingIdx !== -1) {
+                profilesData[existingIdx] = ocData;
+            } else {
+                profilesData.unshift(ocData);
             }
 
             closeEditor();
@@ -633,18 +793,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 window.deleteCard = function(id) {
-    if (confirm('정말 이 카드를 삭제하시겠습니까?')) {
-        postsData = postsData.filter(p => p.id !== id);
+    if (confirm('정말 이 항목을 삭제하시겠습니까?')) {
+        if (currentSelectedCategory === '1차창작') {
+            profilesData = profilesData.filter(p => p.id !== id);
+        } else {
+            postsData = postsData.filter(p => p.id !== id);
+        }
         renderGrid();
     }
 };
 
-// 사이드바의 저장 버튼: posts.json 파일만 다운로드 저장
 window.downloadJson = function() {
     const postsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(postsData, null, 4));
     const a = document.createElement('a');
     a.setAttribute("href", postsStr);
     a.setAttribute("download", "posts.json");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+};
+
+window.downloadProfileJson = function() {
+    const profilesStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(profilesData, null, 4));
+    const a = document.createElement('a');
+    a.setAttribute("href", profilesStr);
+    a.setAttribute("download", "profiles.json");
     document.body.appendChild(a);
     a.click();
     a.remove();

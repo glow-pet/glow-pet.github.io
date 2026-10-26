@@ -1,7 +1,6 @@
 [
     {
         "id": 19,
-        "category": "2차창작",
         "tags": [
             "언더테일",
             "샌즈",
@@ -16,7 +15,6 @@
     },
     {
         "id": 18,
-        "category": "2차창작",
         "tags": [
             "델타룬",
             "디셈버"
@@ -28,7 +26,6 @@
     },
     {
         "id": 17,
-        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘",
@@ -42,7 +39,6 @@
     },
     {
         "id": 16,
-        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘",
@@ -56,7 +52,6 @@
     },
     {
         "id": 15,
-        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘"
@@ -68,7 +63,6 @@
     },
     {
         "id": 14,
-        "category": "2차창작",
         "tags": [
             "안녕 라라",
             "라라",
@@ -85,7 +79,6 @@
         ]
     },
     {
-        "category": "2차창작",
         "id": 12,
         "date": "2026-10-01",
         "status": "public",
@@ -98,7 +91,6 @@
         "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreifhiydljk7fsgiyqepkxvvxwv4r5fm4ytud3r35loh4cwcypwhwmq.webp"
     },
     {
-        "category": "2차창작",
         "id": 11,
         "date": "2026-10-01",
         "status": "public",
@@ -113,7 +105,6 @@
         "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreifiaaaax2mu7q2m5kj42fsajqmmhibzpyikep7co7g5m7ldkx3vze.webp"
     },
     {
-        "category": "2차창작",
         "id": 10,
         "date": "2026-10-01",
         "status": "public",
@@ -128,7 +119,6 @@
         "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreifpd47u3i6cu5wwq7laxirddm5vscnhuxcua5o6j2gnd4mte223du.webp"
     },
     {
-        "category": "2차창작",
         "id": 9,
         "date": "2026-10-01",
         "status": "public",
@@ -144,7 +134,6 @@
     },
     {
         "id": 8,
-        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘",
@@ -157,7 +146,6 @@
         "thumbnail-image": "assets/images/fanworks/deltarune/bafkreiakn25dtnovpqbrh76lrwj5kbl6xtphm2jpyfn2m22lkopcdufxc4.webp"
     },
     {
-        "category": "2차창작",
         "id": 6,
         "date": "2026-10-02",
         "status": "public",
@@ -170,7 +158,6 @@
         "thumbnail-image": "assets/images/fanworks/revue-starlight/bafkreia4m4bq6lwmpa2zvn7evaat4t72cpz4eoisfuyqnfzsdw5ckr23ze.webp"
     },
     {
-        "category": "2차창작",
         "id": 5,
         "date": "2026-10-01",
         "status": "public",

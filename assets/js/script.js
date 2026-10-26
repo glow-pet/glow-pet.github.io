@@ -7,7 +7,7 @@ let currentPage = 1;
 const itemsPerPage = 12;
 let tagFilterModal = null;
 
-// 1. 헤더 및 필터 열기 버튼 추가 (정렬 기준 '최신순'만 남김)
+// 1. 헤더 및 필터 열기 버튼 추가 (태그 필터 버튼 명칭을 '필터'로 변경)
 function renderHeader() {
   const headerEl = document.querySelector('.header');
   const mainGrid = document.querySelector('.grid-cols-4, .grid-cols-5, .grid-cols-3');
@@ -21,7 +21,7 @@ function renderHeader() {
     controlsWrapper.style.marginBottom = '1.5rem';
 
     controlsWrapper.innerHTML = `
-      <button type="button" id="open-filter-modal-btn" class="filter-open-btn" style="color: #fff; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; background: #333; cursor: pointer;">태그 필터</button>
+      <button type="button" id="open-filter-modal-btn" class="filter-open-btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">필터</button>
       <div class="sort-dropdown-wrapper" style="margin-bottom: 0;">
         <select id="sort-select" class="sort-select" aria-label="카드 정렬 기준">
           <option value="latest">최신순</option>
@@ -43,7 +43,127 @@ function renderHeader() {
   }
 }
 
-// 2. 카드 HTML 생성 (카드 갤러리에서는 태그와 날짜 제거, 썸네일과 페이지 수 뱃지만 표시)
+// [기존 script.js 구조를 해치지 않는 1차 창작 프로필 연동부]
+
+let profilesData = [];
+
+// 1차 창작 카드 HTML 생성 (5열 그리드)
+// 1차 창작 카드 HTML 생성 (클래스명을 .open-oc-modal과 .oc-card로 일치시킴)
+function createOcCardHTML(item) {
+  const thumbSrc = item.thumbnail || item.portrait || '';
+  return `
+    <article class="card oc-card open-oc-modal" data-oc-id="${item.id}" style="cursor: pointer;">
+      <div class="card-thumb">
+        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.style.display='none';">
+      </div>
+    </article>
+  `;
+}
+
+// 1차 창작 전용 모달 초기화 (2열 구조, 좌측 상단 오버레이, 우측 스크롤)
+// 1차 창작 전용 모달 초기화
+function initOcLightbox() {
+  let ocModal = document.querySelector('.oc-modal');
+  if (!ocModal) {
+    ocModal = document.createElement('div');
+    ocModal.className = 'oc-modal';
+    ocModal.innerHTML = `
+      <button type="button" class="oc-modal-close-btn" aria-label="닫기">✕</button>
+      <div class="oc-modal-body">
+        <div class="oc-modal-left-pane">
+          <div class="oc-modal-basic-info">
+            <div class="oc-info-name" id="ocName"></div>
+            <div class="oc-info-foreign-name" id="ocForeignName"></div>
+            <div class="oc-info-title" id="ocTitle"></div>
+            <div class="oc-info-stats">
+              <span id="ocAge"></span>
+              <span id="ocGender"></span>
+              <span id="ocHeight"></span>
+            </div>
+          </div>
+          <img class="oc-modal-portrait" id="ocPortrait" src="" alt="초상화">
+        </div>
+        <div class="oc-modal-right-pane">
+          <div class="oc-modal-right-pane-scrollable">
+            <div class="oc-modal-detail-text" id="ocDetailText"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(ocModal);
+  }
+
+  const closeBtn = ocModal.querySelector('.oc-modal-close-btn');
+
+  function openOcModal(character) {
+    document.getElementById('ocName').innerText = character.name || '';
+    document.getElementById('ocForeignName').innerText = character.foreignName || '';
+    document.getElementById('ocTitle').innerText = character.title || '';
+    
+    document.getElementById('ocAge').innerText = character.age ? `${character.age}세` : '';
+    document.getElementById('ocGender').innerText = character.gender || '';
+    document.getElementById('ocHeight').innerText = character.height ? `${character.height}cm` : '';
+
+    document.getElementById('ocPortrait').src = character.portrait || character.thumbnail || '';
+    document.getElementById('ocDetailText').innerText = character.description || '';
+
+    ocModal.classList.add('active');
+    
+    // 블루스카이처럼 모달 떴을 때 배경 스크롤바를 완전히 숨김
+    document.body.classList.add('modal-open');
+  }
+
+  function closeOcModal() {
+    ocModal.classList.remove('active');
+    
+    // 모달 닫힐 때 배경 스크롤 복구
+    document.body.classList.remove('modal-open');
+  }
+
+  closeBtn.onclick = (e) => {
+    e.stopPropagation();
+    closeOcModal();
+  };
+  
+  ocModal.onclick = (e) => {
+    if (e.target === ocModal) closeOcModal();
+  };
+  
+  ocModal.querySelector('.oc-modal-body').onclick = (e) => e.stopPropagation();
+
+  const gridContainer = document.querySelector('.grid-cols-5');
+  if (gridContainer) {
+    gridContainer.onclick = (e) => {
+      // .open-oc-modal 클래스를 가진 요소를 정확히 타겟팅합니다.
+      const card = e.target.closest('.open-oc-modal');
+      if (!card) return;
+      const ocId = parseInt(card.dataset.ocId);
+      const targetChar = profilesData.find(p => p.id === ocId);
+      if (targetChar) openOcModal(targetChar);
+    };
+  }
+}
+
+// 1차 창작 페이지 전용 로더 (기존 initApp 내부에 분기 추가용)
+async function initOcApp() {
+  const isProfilePage = document.querySelector('.grid-cols-5');
+  if (isProfilePage) {
+    try {
+      const jsonPath = window.location.pathname.includes('/pages/') ? '../profiles.json' : 'profiles.json';
+      const res = await fetch(jsonPath);
+      if (res.ok) {
+        profilesData = await res.json();
+        isProfilePage.classList.add('crop-square');
+        isProfilePage.innerHTML = profilesData.map(createOcCardHTML).join('');
+        initOcLightbox();
+      }
+    } catch (e) {
+      console.error('profiles.json 로드 실패', e);
+    }
+  }
+}
+
+// 2. 카드 HTML 생성 (갤러리 카드에서는 태그와 날짜 제거, 썸네일과 페이지 수 뱃지만 표시)
 function createCardHTML(item, isPagesFolder) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
@@ -83,7 +203,6 @@ function createCardHTML(item, isPagesFolder) {
       return img;
     });
 
-    // 모달 내부에서 활용하기 위해 태그, 날짜, 이미지 배열, 캡션 정보를 속성으로 담아둠
     const modalAttrs = `
       data-images='${JSON.stringify(processedImages)}' 
       data-caption="${encodeURIComponent(altText)}" 
@@ -91,10 +210,9 @@ function createCardHTML(item, isPagesFolder) {
       data-tags='${JSON.stringify(tags)}'
     `;
     
-    // 이미지가 2개 이상일 때만 좌측 상단에 갯수 뱃지 추가
     let countBadgeHTML = '';
     if (rawImages.length > 1) {
-      countBadgeHTML = `<div class="image-count-badge">${rawImages.length}쪽</div>`;
+      countBadgeHTML = `<div class="image-count-badge">${rawImages.length}p</div>`;
     }
 
     thumbsHTML = `
@@ -111,7 +229,6 @@ function createCardHTML(item, isPagesFolder) {
     thumbsHTML = `<a href="${linkSrc}" class="card-thumb-link" ${targetAttr}>${thumbsHTML}</a>`;
   }
 
-  // 카드 갤러리 하단 정보 영역(card-info)을 완전히 제거하여 썸네일만 깔끔하게 출력
   return `
     <article class="card">
       ${thumbsHTML}
@@ -135,7 +252,6 @@ function getSortedData(dataArray) {
   });
 }
 
-// 3. 페이지네이션 UI 렌더링
 function renderPagination(totalItems) {
   const containerEl = document.querySelector('.container');
   if (!containerEl) return;
@@ -198,8 +314,7 @@ function executeRender() {
   }
 }
 
-// 4. 라이트박스 (모달창 내부 캡션 상단에 #태그, 날짜, 페이지 수 배치)
-// 4. 라이트박스 (모달창 내부 상단에 날짜, 태그, 페이지 수 배치 및 가독성 개선)
+// 4. 라이트박스 (모달창: 배경 클릭 시 닫기, 닫기 버튼 배치, 2열 레이아웃)
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
@@ -210,21 +325,21 @@ function initLightbox() {
     modal.className = 'image-modal';
     modal.innerHTML = `
       <button type="button" class="modal-close-btn" aria-label="모달 닫기">✕</button>
-      <button type="button" class="modal-arrow modal-prev" aria-label="이전 이미지">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
       <div class="modal-body-container">
         <div class="modal-image-container">
+          <button type="button" class="modal-arrow modal-prev" aria-label="이전 이미지">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
           <img class="image-modal-content" src="" alt="확대 이미지" tabindex="0">
+          <button type="button" class="modal-arrow modal-next" aria-label="다음 이미지">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
         <div class="modal-caption-container">
-          <div class="modal-meta-top" style="margin-bottom: 10px; font-size: 0.85rem; color: #555; display: flex; flex-direction: column; gap: 4px; line-height: 1.4;"></div>
-          <p class="modal-caption-text" style="margin: 0;"></p>
+          <div class="modal-meta-top"></div>
+          <p class="modal-caption-text"></p>
         </div>
       </div>
-      <button type="button" class="modal-arrow modal-next" aria-label="다음 이미지">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
     `;
     document.body.appendChild(modal);
   }
@@ -232,7 +347,6 @@ function initLightbox() {
   const modalImg = modal.querySelector('.image-modal-content');
   const captionTextEl = modal.querySelector('.modal-caption-text');
   const modalMetaTop = modal.querySelector('.modal-meta-top');
-  const captionContainer = modal.querySelector('.modal-caption-container');
   const prevBtn = modal.querySelector('.modal-prev');
   const nextBtn = modal.querySelector('.modal-next');
   const closeBtn = modal.querySelector('.modal-close-btn');
@@ -249,7 +363,7 @@ function initLightbox() {
         nextBtn.style.display = 'none';
       } else {
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
-        prevBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
+        nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
     }
   }
@@ -265,18 +379,6 @@ function initLightbox() {
     document.body.style.overflow = '';
     document.body.style.touchAction = '';
   }
-
-  modal.addEventListener('wheel', (e) => {
-    if (!e.target.closest('.modal-caption-container')) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  modal.addEventListener('touchmove', (e) => {
-    if (!e.target.closest('.modal-caption-container')) {
-      e.preventDefault();
-    }
-  }, { passive: false });
 
   gridContainer.onclick = (e) => {
     const thumbContainer = e.target.closest('.card-thumb');
@@ -294,21 +396,13 @@ function initLightbox() {
         currentIndex = 0;
         updateModalImage();
 
-        // 1. 날짜 (제일 위)
-        const dateHtml = `<div class="modal-meta-date" style="color: #888; font-size: 0.8rem;">${currentDate || '날짜 없음'}</div>`;
-        
-        // 2. 태그 (그 아래, #태그 형식)
+        const dateHtml = `<div class="modal-meta-date">${currentDate || '날짜 없음'}</div>`;
         const tagsText = currentTags.length > 0 ? currentTags.map(t => `#${t}`).join(' ') : '태그 없음';
-        const tagsHtml = `<div class="modal-meta-tags" style="font-weight: 500; color: #333;">${tagsText}</div>`;
-        
-        // 3. 장수 (맨 아래, 'n쪽' 표기)
-        const pageCountHtml = `<div class="modal-meta-pages" style="color: #666; font-size: 0.8rem;">${currentImages.length}쪽</div>`;
+        const tagsHtml = `<div class="modal-meta-tags">${tagsText}</div>`;
+        const pageCountHtml = `<div class="modal-meta-pages">${currentImages.length}쪽</div>`;
 
-        // 항상 순서대로 표시
         modalMetaTop.innerHTML = dateHtml + tagsHtml + pageCountHtml;
-        modalMetaTop.style.display = 'flex';
 
-        // 캡션이 없어도 모달 정보 영역이 항상 유지되도록 설정
         if (currentCaption.trim()) {
           captionTextEl.innerText = currentCaption;
           captionTextEl.style.display = 'block';
@@ -316,7 +410,6 @@ function initLightbox() {
           captionTextEl.innerText = '';
           captionTextEl.style.display = 'none';
         }
-        captionContainer.style.display = 'block';
 
         openModal();
       }
@@ -346,15 +439,20 @@ function initLightbox() {
     closeModal();
   };
 
+  // 모달 영역 아무 곳이나 클릭해도 닫히도록 처리
   modal.onclick = (e) => {
-    if (e.target === modal || e.target.classList.contains('modal-body-container') || e.target.classList.contains('modal-image-container')) {
-      closeModal();
-    }
+    closeModal();
   };
 }
 
-// 초기화 함수
 async function initApp() {
+  // 1차 창작 페이지(.grid-cols-5가 있는 경우)라면 profiles.json을 렌더링한 후 posts.json 로딩을 타지 않고 종료합니다.
+  const isProfilePage = document.querySelector('.grid-cols-5');
+  if (isProfilePage) {
+    await initOcApp();
+    return; // <-- 이 부분이 핵심입니다. 이로 인해 posts.json이 덮어씌우는 것을 방지합니다.
+  }
+
   renderHeader();
 
   try {
