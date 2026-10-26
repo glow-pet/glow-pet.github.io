@@ -149,7 +149,6 @@ a {
   padding: 2rem 2.5rem;
 }
 
-/* 5. 컨테이너 안쪽 상단에 배치되는 뒤로가기 버튼 */
 .back-button-wrapper {
   margin-bottom: 1.5rem;
 }
@@ -166,13 +165,9 @@ a {
   padding: 0;
 }
 
-.back-btn:hover {
-  color: #000;
-}
-
 .header {
   position: relative;
-  margin-bottom: 1rem; /* 정렬 드롭다운과 간격 조절 */
+  margin-bottom: 1rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid #eaeaea;
 }
@@ -190,7 +185,6 @@ a {
   line-height: 1.7;
 }
 
-/* 4. 헤더 아래쪽에 위치하는 정렬 드롭다운 스타일 */
 .sort-dropdown-wrapper {
   display: flex;
   justify-content: flex-end;
@@ -216,7 +210,6 @@ a {
   margin-top: 5rem;
 }
 
-/* 더보기 버튼 (아래 화살표) 스타일 */
 .load-more-wrapper {
   display: flex;
   justify-content: center;
@@ -239,14 +232,10 @@ a {
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.load-more-btn:hover {
-  background-color: #f4f4f4;
-  border-color: #ccc;
-}
-
 .load-more-btn svg {
   stroke: #555;
 }
+
 
 /* ==========================================================================
    3. 공통 그리드 스타일 (.grid)
@@ -330,7 +319,7 @@ a {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
   display: flex;
-  flex-direction: column; /* 세로 방향 정렬 */
+  flex-direction: column;
 }
 
 .card-link {
@@ -407,7 +396,7 @@ a {
 .card-date {
   font-size: 0.85rem;
   color: #222;
-  margin-top: auto; /* 여백을 밀어내어 항상 하단에 위치하도록 설정 */
+  margin-top: auto;
   padding-top: 0.2rem;
 }
 
@@ -444,6 +433,7 @@ a {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+
 /* ==========================================================================
    5. 모달 슬라이더 (우측 캡션 + 스크롤바)
    ========================================================================== */
@@ -458,7 +448,7 @@ a {
   z-index: 3000;
   justify-content: center;
   align-items: center;
-  overscroll-behavior: contain; /* 모달 외부로 스크롤 전파 방지 */
+  overscroll-behavior: contain;
 }
 
 .image-modal.active {
@@ -508,7 +498,6 @@ a {
   cursor: default;
 }
 
-/* 우측 상단 모달 닫기 버튼 스타일 */
 .modal-close-btn {
   position: fixed;
   top: 24px;
@@ -526,10 +515,6 @@ a {
   cursor: pointer;
   z-index: 3200;
   transition: background-color 0.2s ease;
-}
-
-.modal-close-btn:hover {
-  background-color: rgba(0, 0, 0, 0.85);
 }
 
 @media (max-width: 768px) {
@@ -591,6 +576,7 @@ a {
   right: 24px;
 }
 
+
 /* ==========================================================================
    6. favs.html 블록 스타일
    ========================================================================== */
@@ -625,6 +611,7 @@ a {
   color: #888;
   line-height: 1.6;
 }
+
 
 /* ==========================================================================
    7. 태그 필터 모달 및 페이지네이션 스타일
@@ -673,7 +660,6 @@ a {
   color: #666;
 }
 
-/* 3열 구조 및 왼쪽 정렬 */
 .filter-columns-wrapper {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -708,7 +694,6 @@ a {
   color: #444;
 }
 
-/* Tri-state 체크박스 디자인 */
 .tri-state-checkbox {
   width: 20px;
   height: 20px;
@@ -753,11 +738,6 @@ a {
   cursor: pointer;
 }
 
-.filter-apply-btn:hover {
-  background-color: #444;
-}
-
-/* 페이지네이션 스타일 (화살표 + 페이지 번호 나열) */
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -798,8 +778,9 @@ a {
   cursor: not-allowed;
 }
 
+
 /* ==========================================================================
-   Admin Page Styles
+   8. Admin Page Styles (Fixed 3-Column Layout & Modals)
    ========================================================================== */
 .admin-container {
     max-width: 800px;
@@ -827,7 +808,7 @@ a {
 .admin-card-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0;
 }
 .admin-card {
     background: #ffffff;
@@ -845,7 +826,7 @@ a {
     min-width: 70px;
     aspect-ratio: 1 / 1;
     background: #eee;
-    border: 1px solid #ddd; /* 썸네일 외곽선 1px 추가 */
+    border: 1px solid #ddd;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -873,55 +854,42 @@ a {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     overflow: hidden;
     text-align: left;
 }
 .admin-card-meta {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #666;
     font-weight: 500;
 }
 .admin-card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
 }
 .admin-tag-badge {
     display: inline-block;
-    background-color: #f0f0f0;
-    color: #555;
+    color: #666;
     font-size: 0.8rem;
     font-weight: 500;
-    padding: 0.05rem 0.5rem;
-    border-radius: 12px;
 }
 .admin-card-actions {
     display: flex;
     gap: 12px;
     align-items: center;
     flex-shrink: 0;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
 }
 .admin-action-btn {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    padding: 0;
+    color: #888;
 }
-.admin-btn-edit {
-    color: #2980b9;
-}
-.admin-btn-edit:hover {
-    text-decoration: underline;
-}
-.admin-btn-del {
-    color: #e74c3c;
-}
-.admin-btn-del:hover {
-    text-decoration: underline;
-}
+
 .modal {
     display: none;
     position: fixed;
@@ -998,7 +966,6 @@ a {
     cursor: pointer;
 }
 
-/* 태그 선택 UI 스타일 */
 .admin-tag-selector-box {
     display: flex;
     flex-wrap: wrap;
@@ -1028,71 +995,92 @@ a {
     border-color: #222;
 }
 
-/* 이미지 경로 프리뷰 스타일 */
 .image-path-preview {
-    font-size: 0.75rem;
-    color: #888;
-    margin-bottom: 4px;
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.4rem;
     font-family: monospace;
 }
 
 /* ==========================================================================
-   Admin Fluid 3-Column Layout Styles & Thumbnail Optimization
+   Admin Refined Layout & Custom Tag Modal Styles
    ========================================================================== */
 .admin-navbar {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    justify-content: flex-start;
+    gap: 2rem;
     padding: 1rem 2rem;
     background-color: #ffffff;
     border-bottom: 1px solid #eee;
+    height: 61px;
+    box-sizing: border-box;
     position: sticky;
     top: 0;
     z-index: 1000;
 }
+
 .admin-nav-home {
-    font-weight: 700;
-    font-size: 1.1rem;
     color: #333;
     text-decoration: none;
-}
-.admin-nav-title {
-    font-size: 1rem;
-    color: #666;
-    font-weight: 500;
+    font-weight: 700;
 }
 
-/* 화면 전체 너비를 꽉 채우는 3열 비율 그리드 레이아웃 */
+.admin-nav-title {
+    color: #666;
+}
+
 .admin-layout-wrapper {
     display: grid;
-    grid-template-columns: 240px 1fr 1fr;
+    grid-template-columns: 240px 450px 1fr;
     height: calc(100vh - 61px);
     overflow: hidden;
     width: 100vw;
 }
 
-/* 1열: 사이드바 */
+.admin-column-header {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 0.6rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 1열 사이드바: 메뉴 영역만 스크롤, 저장 버튼 고정 */
 .admin-sidebar {
     background: #fdfdfd;
     border-right: 1px solid #eaeaea;
     padding: 1.5rem 1rem;
     display: flex;
     flex-direction: column;
-    gap: 8px;
     box-sizing: border-box;
-    overflow-y: scroll;
+    height: 100%;
+    overflow: hidden;
 }
-.admin-sidebar-title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #888;
-    margin-bottom: 0.5rem;
-    padding-left: 0.5rem;
+
+.admin-sidebar-menu-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 2px;
 }
+
+.admin-sidebar-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    margin-top: auto;
+}
+
 .admin-menu-btn {
     width: 100%;
     text-align: left;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.8rem;
     background: transparent;
     border: none;
     border-radius: 6px;
@@ -1102,82 +1090,447 @@ a {
     cursor: pointer;
     transition: background 0.15s ease;
 }
-.admin-menu-btn:hover {
-    background: #f0f2f5;
-}
+
 .admin-menu-btn.active {
     background: #222;
     color: #fff;
     font-weight: 600;
 }
 
-/* 2열: 콘텐츠 목록 패널 */
+/* 어두운 회색 버튼 스타일 통일 (#444) */
+.admin-save-btn, .admin-dark-btn {
+    background: #444;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.admin-save-btn {
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 0.9rem;
+}
+
+.admin-dark-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
 .admin-content-pane {
     background: #ffffff;
     border-right: 1px solid #eaeaea;
     padding: 1.5rem;
-    overflow-y: scroll;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
     box-sizing: border-box;
+    height: 100%;
 }
-.admin-pane-header {
+
+.admin-card-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 4px;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+}
+
+.admin-editor-pane {
+    background: #fafafa;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+/* 태그 나열 칸: 박스 테두리 제거 및 하단 border만 유지 */
+.admin-tag-input-line {
+    border: none !important;
+    border-bottom: 1px solid #ddd !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    padding: 6px 2px !important;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.admin-tag-input-line:focus {
+    outline: none;
+    border-bottom-color: #222 !important;
+}
+
+/* 태그 필터 열머리: 어두운 회색 배경 (#444) 적용 */
+.filter-col-header-dark {
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: #444;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.8rem;
 }
-.admin-pane-header h2 {
-    font-size: 1.1rem;
+
+.filter-col-header-dark button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.filter-col-scrollable {
+    max-height: 160px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* 태그 추가 커스텀 모달 스타일 */
+.tag-add-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 5000;
+    justify-content: center;
+    align-items: center;
+}
+
+.tag-add-modal-overlay.active {
+    display: flex;
+}
+
+.tag-add-modal-card {
+    background: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tag-add-modal-title {
+    font-size: 0.9rem;
     font-weight: 600;
     color: #333;
 }
 
-/* 2열 카드 썸네일 최적화 스타일 */
-.admin-thumb-preview {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #f0f0f0;
-    position: relative;
-}
-.admin-thumb-preview img {
+.tag-add-modal-input {
     width: 100%;
-    height: 100%;
-    object-fit: cover; /* 원본 비율을 유지하며 작은 박스에 꽉 채움 */
-}
-
-/* 3열: 에디터 패널 */
-.admin-editor-pane {
-    background: #fafafa;
-    padding: 1.5rem;
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
     box-sizing: border-box;
 }
-.admin-editor-header {
+
+.tag-add-modal-input:focus {
+    outline: none;
+    border-color: #222;
+}
+
+/* ==========================================================================
+   Tag Hierarchy Edit Modal Styles (세로 높이 확장)
+   ========================================================================== */
+.tag-edit-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 5000;
+    justify-content: center;
+    align-items: center;
+}
+
+.tag-edit-modal-overlay.active {
+    display: flex;
+}
+
+.tag-edit-modal-content {
+    background: #fff;
+    width: 750px;
+    max-width: 90vw;
+    height: 75vh; /* 세로 높이 확장 */
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+}
+
+.tag-edit-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #eaeaea;
     padding-bottom: 0.8rem;
+    margin-bottom: 1rem;
 }
-.admin-editor-header h3 {
-    font-size: 1.05rem;
+
+.tag-edit-modal-header h3 {
+    font-size: 1rem;
     font-weight: 600;
     color: #333;
 }
 
-/* 이미지 경로 프리뷰 스타일 */
-.image-path-preview {
-    font-size: 0.75rem;
-    color: #888;
+.tag-edit-columns-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 4px;
+}
+
+.tag-edit-col {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tag-edit-col h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-bottom: 2px solid #333;
+    padding-bottom: 4px;
     margin-bottom: 4px;
-    font-family: monospace;
+    color: #222;
+}
+
+.tag-edit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #eaeaea;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.tag-delete-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 4px;
+}
+
+.work-delete-confirm-box {
+    margin-top: 8px;
+    padding: 8px;
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #c53030;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* ==========================================================================
+   Work Delete Confirm Modal Styles (작품 삭제 재확인 전용 모달)
+   ========================================================================== */
+.work-delete-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 6000;
+    justify-content: center;
+    align-items: center;
+}
+
+.work-delete-modal-overlay.active {
+    display: flex;
+}
+
+.work-delete-modal-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 320px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+}
+
+.work-delete-modal-text {
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   Tag Hierarchy 3-Column Filter Modal Styles (3열 필터형 위계 관리 스타일)
+   ========================================================================== */
+.tag-edit-modal-content {
+    background: #fff;
+    width: 800px;
+    max-width: 90vw;
+    height: 75vh;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+}
+
+.tag-edit-columns-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 4px;
+}
+
+.tag-edit-col {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.tag-edit-col h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: #444;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.tag-edit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #eaeaea;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.tag-edit-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.eye-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #f0f2f5;
+    color: #333;
+}
+
+.eye-btn.closed {
+    background: #e5e7eb;
+    color: #9ca3af;
+    text-decoration: line-through;
+}
+
+.tag-delete-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 4px;
+}
+
+/* ==========================================================================
+   Tag Hierarchy Add Button Styles ([+] 추가 버튼 스타일)
+   ========================================================================== */
+.tag-add-btn-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #e5e7eb; /* 회색 배경 */
+    border: 1px dashed #d1d5db;
+    border-radius: 4px;
+    height: 36px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #4b5563;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+}
+
+/* ==========================================================================
+   Tag Hierarchy Inline Input Styles (인라인 입력 칸 스타일)
+   ========================================================================== */
+.tag-add-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid #3b82f6;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    outline: none;
+    margin-top: 6px;
+}
+
+/* ==========================================================================
+   Card Modal Meta & Tag Styles (모달 내부 메타 정보 및 #태그 스타일)
+   ========================================================================== */
+.modal-meta-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.modal-tags-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #444;
+    margin-bottom: 8px;
+    font-weight: 500;
 }

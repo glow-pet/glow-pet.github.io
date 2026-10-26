@@ -21,7 +21,7 @@ function renderHeader() {
     controlsWrapper.style.marginBottom = '1.5rem';
 
     controlsWrapper.innerHTML = `
-      <button type="button" id="open-filter-modal-btn" class="filter-open-btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">태그 필터</button>
+      <button type="button" id="open-filter-modal-btn" class="filter-open-btn" style="color: #fff; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; background: #333; cursor: pointer;">태그 필터</button>
       <div class="sort-dropdown-wrapper" style="margin-bottom: 0;">
         <select id="sort-select" class="sort-select" aria-label="카드 정렬 기준">
           <option value="latest">최신순</option>
@@ -43,7 +43,7 @@ function renderHeader() {
   }
 }
 
-// 2. 카드 HTML 생성
+// 2. 카드 HTML 생성 (카드 갤러리에서는 태그와 날짜 제거, 썸네일과 페이지 수 뱃지만 표시)
 function createCardHTML(item, isPagesFolder) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
@@ -83,12 +83,18 @@ function createCardHTML(item, isPagesFolder) {
       return img;
     });
 
-    const modalAttrs = `data-images='${JSON.stringify(processedImages)}' data-caption="${encodeURIComponent(altText)}"`;
+    // 모달 내부에서 활용하기 위해 태그, 날짜, 이미지 배열, 캡션 정보를 속성으로 담아둠
+    const modalAttrs = `
+      data-images='${JSON.stringify(processedImages)}' 
+      data-caption="${encodeURIComponent(altText)}" 
+      data-date="${encodeURIComponent(dateStr)}" 
+      data-tags='${JSON.stringify(tags)}'
+    `;
     
     // 이미지가 2개 이상일 때만 좌측 상단에 갯수 뱃지 추가
     let countBadgeHTML = '';
     if (rawImages.length > 1) {
-      countBadgeHTML = `<div class="image-count-badge">${rawImages.length}p</div>`;
+      countBadgeHTML = `<div class="image-count-badge">${rawImages.length}쪽</div>`;
     }
 
     thumbsHTML = `
@@ -105,21 +111,10 @@ function createCardHTML(item, isPagesFolder) {
     thumbsHTML = `<a href="${linkSrc}" class="card-thumb-link" ${targetAttr}>${thumbsHTML}</a>`;
   }
 
-  const tagsHtml = tags.length > 0 
-    ? `<div class="card-tags">${tags.map(tag => `<span class="tag-badge">${tag}</span>`).join('')}</div>` 
-    : '';
-
-  const infoHTML = `
-    <div class="card-info">
-      ${tagsHtml}
-      ${dateStr ? `<div class="card-date">${dateStr}</div>` : ''}
-    </div>
-  `;
-
+  // 카드 갤러리 하단 정보 영역(card-info)을 완전히 제거하여 썸네일만 깔끔하게 출력
   return `
     <article class="card">
       ${thumbsHTML}
-      ${infoHTML}
     </article>
   `;
 }
@@ -130,7 +125,6 @@ function getSortedData(dataArray) {
   if (!Array.isArray(dataArray)) return [];
   const list = [...dataArray];
 
-  // 최신순 정렬 (날짜 기준 내림차순, 날짜가 없다면 id 기준 내림차순)
   return list.sort((a, b) => {
     const dateA = new Date(a.date || 0);
     const dateB = new Date(b.date || 0);
@@ -204,7 +198,8 @@ function executeRender() {
   }
 }
 
-// 4. 라이트박스 (모달창)
+// 4. 라이트박스 (모달창 내부 캡션 상단에 #태그, 날짜, 페이지 수 배치)
+// 4. 라이트박스 (모달창 내부 상단에 날짜, 태그, 페이지 수 배치 및 가독성 개선)
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
@@ -223,7 +218,8 @@ function initLightbox() {
           <img class="image-modal-content" src="" alt="확대 이미지" tabindex="0">
         </div>
         <div class="modal-caption-container">
-          <p class="modal-caption-text"></p>
+          <div class="modal-meta-top" style="margin-bottom: 10px; font-size: 0.85rem; color: #555; display: flex; flex-direction: column; gap: 4px; line-height: 1.4;"></div>
+          <p class="modal-caption-text" style="margin: 0;"></p>
         </div>
       </div>
       <button type="button" class="modal-arrow modal-next" aria-label="다음 이미지">
@@ -235,6 +231,7 @@ function initLightbox() {
 
   const modalImg = modal.querySelector('.image-modal-content');
   const captionTextEl = modal.querySelector('.modal-caption-text');
+  const modalMetaTop = modal.querySelector('.modal-meta-top');
   const captionContainer = modal.querySelector('.modal-caption-container');
   const prevBtn = modal.querySelector('.modal-prev');
   const nextBtn = modal.querySelector('.modal-next');
@@ -252,7 +249,7 @@ function initLightbox() {
         nextBtn.style.display = 'none';
       } else {
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
-        nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
+        prevBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
     }
   }
@@ -290,18 +287,36 @@ function initLightbox() {
       const imagesAttr = thumbContainer.getAttribute('data-images');
       currentImages = imagesAttr ? JSON.parse(imagesAttr) : [];
       const currentCaption = decodeURIComponent(thumbContainer.getAttribute('data-caption') || '');
+      const currentDate = decodeURIComponent(thumbContainer.getAttribute('data-date') || '');
+      const currentTags = JSON.parse(thumbContainer.getAttribute('data-tags') || '[]');
 
       if (currentImages.length > 0) {
         currentIndex = 0;
         updateModalImage();
 
+        // 1. 날짜 (제일 위)
+        const dateHtml = `<div class="modal-meta-date" style="color: #888; font-size: 0.8rem;">${currentDate || '날짜 없음'}</div>`;
+        
+        // 2. 태그 (그 아래, #태그 형식)
+        const tagsText = currentTags.length > 0 ? currentTags.map(t => `#${t}`).join(' ') : '태그 없음';
+        const tagsHtml = `<div class="modal-meta-tags" style="font-weight: 500; color: #333;">${tagsText}</div>`;
+        
+        // 3. 장수 (맨 아래, 'n쪽' 표기)
+        const pageCountHtml = `<div class="modal-meta-pages" style="color: #666; font-size: 0.8rem;">${currentImages.length}쪽</div>`;
+
+        // 항상 순서대로 표시
+        modalMetaTop.innerHTML = dateHtml + tagsHtml + pageCountHtml;
+        modalMetaTop.style.display = 'flex';
+
+        // 캡션이 없어도 모달 정보 영역이 항상 유지되도록 설정
         if (currentCaption.trim()) {
           captionTextEl.innerText = currentCaption;
-          captionContainer.style.display = 'block';
+          captionTextEl.style.display = 'block';
         } else {
           captionTextEl.innerText = '';
-          captionContainer.style.display = 'none';
+          captionTextEl.style.display = 'none';
         }
+        captionContainer.style.display = 'block';
 
         openModal();
       }

@@ -1,0 +1,68 @@
+{
+    "works": [
+        {
+            "name": "델타룬",
+            "characters": [
+                {
+                    "name": "노엘",
+                    "relations": [
+                        "노엘+디셈버"
+                    ]
+                },
+                {
+                    "name": "디셈버",
+                    "relations": [
+                        "노엘+디셈버"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "레뷰 스타라이트",
+            "characters": [
+                {
+                    "name": "나나",
+                    "relations": []
+                }
+            ]
+        },
+        {
+            "name": "안녕 라라",
+            "characters": [
+                {
+                    "name": "라라",
+                    "relations": [
+                        "라라x마리"
+                    ]
+                },
+                {
+                    "name": "마리",
+                    "relations": [
+                        "라라x마리"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "언더테일",
+            "characters": [
+                {
+                    "name": "샌즈",
+                    "relations": []
+                },
+                {
+                    "name": "차라",
+                    "relations": []
+                },
+                {
+                    "name": "파피루스",
+                    "relations": []
+                },
+                {
+                    "name": "프리스크",
+                    "relations": []
+                }
+            ]
+        }
+    ]
+}

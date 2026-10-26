@@ -1,28 +1,37 @@
 let postsData = [];
+let tagsData = { works: [] };
 let currentImages = [];
 let initialFormState = '';
 let activeTagFilters = {}; 
 let currentSelectedCategory = null;
 
-// 장르 태그별 폴더명 매핑 사전
+let editingWorks = []; 
+let modalWorkEyeStates = {}; 
+let modalCharEyeStates = {}; 
+let workToDelete = null;
+
 const GENRE_FOLDER_MAP = {
     "델타룬": "deltarune",
     "이거 그리고 죽어": "draw-this-then-die",
     "레뷰 스타라이트": "revue-starlight",
-    "안녕 라라": "goodbye-lara"
+    "안녕 라라": "goodbye-lara",
+    "언더테일": "undertale"
 };
 
-async function loadPosts() {
+async function loadData() {
     try {
-        const res = await fetch('posts.json');
-        postsData = await res.json();
+        const [postsRes, tagsRes] = await Promise.all([
+            fetch('posts.json'),
+            fetch('tags.json')
+        ]);
+        if (postsRes.ok) postsData = await postsRes.json();
+        if (tagsRes.ok) tagsData = await tagsRes.json();
     } catch (e) {
-        console.error('posts.json 로드 실패', e);
-        alert('posts.json 파일을 불러오지 못했습니다. Live Server 환경에서 열려있는지 확인해주세요.');
+        console.error('데이터 로드 실패', e);
+        alert('posts.json 또는 tags.json 파일을 불러오지 못했습니다. Live Server 환경을 확인해주세요.');
     }
 }
 
-// 1열 카테고리 클릭 -> 2열 콘텐츠 영역 표시
 window.selectCategory = function(category) {
     currentSelectedCategory = category;
 
@@ -58,35 +67,34 @@ function renderGrid() {
         const images = (post.images && post.images.length > 0) ? post.images : [post['thumbnail-image'] || ''];
         const firstImg = images[0] || '';
         const badge = images.length > 1 ? `<div class="admin-badge">${images.length}p</div>` : '';
-        const tagsHtml = (post.tags || []).map(t => `<span class="admin-tag-badge">${t}</span>`).join('');
         
+        const tagsHtml = (post.tags || []).map(t => `<span style="font-size: 0.8rem; color: #666; margin-right: 6px;">#${t}</span>`).join('');
         const metaText = [post.category || '기타', post.date || ''].filter(Boolean).join(' | ');
 
         return `
-            <div class="admin-card" style="display: flex; align-items: center; gap: 12px; padding: 10px; background: #fff; border: 1px solid #eaeaea; border-radius: 6px; margin-bottom: 8px;">
+            <div class="admin-card-item">
+                <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center;">
+                    <button class="admin-action-btn" onclick="openEditEditor(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
+                    <button class="admin-action-btn" onclick="deleteCard(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+                </div>
                 <div class="admin-thumb-preview">
                     ${badge}
                     ${firstImg ? `<img src="${firstImg}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
                 </div>
-                <div class="admin-card-info" style="flex: 1; min-width: 0;">
-                    <div class="admin-card-meta" style="font-size: 0.75rem; color: #888; margin-bottom: 2px;">${metaText}</div>
-                    <div class="admin-card-tags" style="display: flex; flex-wrap: wrap; gap: 4px;">${tagsHtml}</div>
-                </div>
-                <div class="admin-card-actions" style="display: flex; gap: 4px;">
-                    <button class="admin-action-btn admin-btn-edit" onclick="openEditEditor(${post.id})" style="padding: 4px 8px; font-size: 0.8rem; cursor: pointer;">수정</button>
-                    <button class="admin-action-btn admin-btn-del" onclick="deleteCard(${post.id})" style="padding: 4px 8px; font-size: 0.8rem; color: #e74c3c; cursor: pointer;">삭제</button>
+                <div class="admin-card-info" style="flex: 1; min-width: 0; padding-top: 2px;">
+                    <div class="admin-card-meta" style="font-size: 0.8rem; color: #666; margin-bottom: 4px; font-weight: 500;">${metaText}</div>
+                    <div class="admin-card-tags" style="display: flex; flex-wrap: wrap; gap: 2px;">${tagsHtml}</div>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// 2열 콘텐츠에서 '수정' 또는 '+ 새 카드 추가' 클릭 -> 3열 에디터 영역 표시
 window.openEditEditor = function(id) {
     const post = postsData.find(p => p.id === id);
 
     if (post) {
-        document.getElementById('editorTitle').innerText = `카드 수정 (ID: ${post.id})`;
+        document.getElementById('editorTitle').innerHTML = `카드 수정 &nbsp;&nbsp;&nbsp; ID:${post.id}`;
         document.getElementById('cardId').value = post.id;
         document.getElementById('cardCategory').value = post.category || currentSelectedCategory;
         document.getElementById('cardTags').value = (post.tags || []).join(', ');
@@ -94,7 +102,7 @@ window.openEditEditor = function(id) {
         document.getElementById('cardDate').value = post.date || '';
         currentImages = (post.images && post.images.length > 0) ? [...post.images] : (post['thumbnail-image'] ? [post['thumbnail-image']] : []);
     } else {
-        document.getElementById('editorTitle').innerText = '새 카드 추가';
+        document.getElementById('editorTitle').innerHTML = `새 카드 추가`;
         document.getElementById('cardId').value = '';
         document.getElementById('cardCategory').value = currentSelectedCategory || '2차창작';
         document.getElementById('cardTags').value = '';
@@ -118,18 +126,12 @@ function closeEditor() {
     document.getElementById('editorPanePlaceholder').style.display = 'flex';
 }
 
-// 3열 내부 태그 선택기 (작품, 캐릭터, 관계 분류 및 +, x 관계열 포함)
 function renderAdminTagSelector() {
     const box = document.getElementById('tagSelectorBox');
     if (!box) return;
 
-    const works = new Set();
-    postsData.forEach(p => {
-        const tags = p.tags || [];
-        if (tags.length > 0) works.add(tags[0]);
-    });
-    works.add("이거 그리고 죽어");
-    const sortedWorks = Array.from(works).sort((a, b) => a.localeCompare(b, 'ko'));
+    const works = tagsData.works.map(w => w.name);
+    const sortedWorks = Array.from(new Set(works)).sort((a, b) => a.localeCompare(b, 'ko'));
 
     const includedWorks = Object.keys(activeTagFilters).filter(tag => 
         sortedWorks.includes(tag) && activeTagFilters[tag] === 'include'
@@ -138,18 +140,12 @@ function renderAdminTagSelector() {
     const characters = new Set();
     const relationships = new Set();
 
-    characters.add("레이");
-    characters.add("아이");
-    relationships.add("아이x레이");
-
-    postsData.forEach(p => {
-        const tags = p.tags || [];
-        if (tags.length > 0 && (includedWorks.length === 0 || includedWorks.includes(tags[0]))) {
-            tags.slice(1).forEach(t => {
-                if (t.includes('x') || t.includes('+')) {
-                    relationships.add(t);
-                } else {
-                    characters.add(t);
+    tagsData.works.forEach(w => {
+        if (includedWorks.includes(w.name)) {
+            w.characters.forEach(c => {
+                characters.add(c.name);
+                if (c.relations) {
+                    c.relations.forEach(r => relationships.add(r));
                 }
             });
         }
@@ -159,24 +155,32 @@ function renderAdminTagSelector() {
     const sortedRels = Array.from(relationships).sort((a, b) => a.localeCompare(b, 'ko'));
 
     box.innerHTML = `
-        <div class="filter-columns-wrapper" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0; box-shadow: none; max-height: none;">
+        <div class="filter-columns-wrapper" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0;">
             <div class="filter-col">
-                <h4 style="font-size:0.8rem; font-weight:600; border-bottom:2px solid #333; padding-bottom:3px; margin-bottom:6px;">작품</h4>
-                <div class="filter-item-list" style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="filter-col-header-dark" style="justify-content: center;">
+                    <span>작품</span>
+                </div>
+                <div class="filter-col-scrollable" style="display: flex; flex-direction: column; gap: 4px;">
                     ${sortedWorks.map(tag => renderTagRow(tag)).join('')}
                 </div>
             </div>
             <div class="filter-col">
-                <h4 style="font-size:0.8rem; font-weight:600; border-bottom:2px solid #333; padding-bottom:3px; margin-bottom:6px;">캐릭터</h4>
-                <div class="filter-item-list" style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="filter-col-header-dark" style="justify-content: center;">
+                    <span>캐릭터</span>
+                </div>
+                <div class="filter-col-scrollable" style="display: flex; flex-direction: column; gap: 4px;">
                     ${includedWorks.length === 0 ? '<span style="color:#aaa; font-size:0.75rem;">작품 선택 필요</span>' :
+                      sortedChars.length === 0 ? '<span style="color:#aaa; font-size:0.75rem;">해당 태그 없음</span>' :
                       sortedChars.map(tag => renderTagRow(tag)).join('')}
                 </div>
             </div>
             <div class="filter-col">
-                <h4 style="font-size:0.8rem; font-weight:600; border-bottom:2px solid #333; padding-bottom:3px; margin-bottom:6px;">관계</h4>
-                <div class="filter-item-list" style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="filter-col-header-dark" style="justify-content: center;">
+                    <span>관계</span>
+                </div>
+                <div class="filter-col-scrollable" style="display: flex; flex-direction: column; gap: 4px;">
                     ${includedWorks.length === 0 ? '<span style="color:#aaa; font-size:0.75rem;">작품 선택 필요</span>' :
+                      sortedRels.length === 0 ? '<span style="color:#aaa; font-size:0.75rem;">해당 태그 없음</span>' :
                       sortedRels.map(tag => renderTagRow(tag)).join('')}
                 </div>
             </div>
@@ -187,6 +191,242 @@ function renderAdminTagSelector() {
     document.getElementById('cardTags').value = selectedTags.join(', ');
     updateImagePathPreview();
 }
+
+window.openTagHierarchyModal = function() {
+    editingWorks = JSON.parse(JSON.stringify(tagsData.works));
+
+    editingWorks.forEach(w => { 
+        if (modalWorkEyeStates[w.name] === undefined) modalWorkEyeStates[w.name] = false; 
+        w.characters.forEach(c => {
+            if (modalCharEyeStates[c.name] === undefined) modalCharEyeStates[c.name] = false;
+        });
+    });
+
+    renderTagFilterModalContent();
+    document.getElementById('tagEditModal').classList.add('active');
+};
+
+function renderTagFilterModalContent() {
+    const colWorks = document.getElementById('editColWorks');
+    const colChars = document.getElementById('editColChars');
+    const colRels = document.getElementById('editColRels');
+    if (!colWorks || !colChars || !colRels) return;
+
+    // 1열: 작품 렌더링 + 하단 [+] 버튼
+    const worksHtml = editingWorks.map(w => {
+        const isOpen = !!modalWorkEyeStates[w.name];
+        return `
+            <div class="tag-edit-row">
+                <span>${w.name}</span>
+                <div class="tag-edit-actions">
+                    <button type="button" class="eye-btn ${isOpen ? '' : 'closed'}" onclick="toggleModalWorkEye('${w.name}')">${isOpen ? '눈뜸' : '눈감음'}</button>
+                    <button type="button" class="tag-delete-btn" onclick="openWorkDeleteModal('${w.name}')">✕</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    colWorks.innerHTML = worksHtml + `<div class="tag-add-btn-box" id="addWorkBox" onclick="initInlineAdd('work', this)" title="새 작품 추가">+</div>`;
+
+    // 눈 뜬 작품들에 속하는 캐릭터들 수집
+    const activeWorks = editingWorks.filter(w => modalWorkEyeStates[w.name]);
+    const charsToShow = [];
+
+    if (activeWorks.length > 0) {
+        activeWorks.forEach(w => {
+            w.characters.forEach(c => {
+                if (!charsToShow.some(item => item.name === c.name)) {
+                    charsToShow.push(c);
+                }
+            });
+        });
+    }
+
+    // 2열: 캐릭터 렌더링 + 하단 [+] 버튼
+    if (activeWorks.length === 0) {
+        colChars.innerHTML = '<span style="color:#aaa; font-size:0.8rem;">작품의 눈을 떠주세요</span>';
+    } else {
+        const charsHtml = charsToShow.map(c => {
+            const isOpen = !!modalCharEyeStates[c.name];
+            return `
+                <div class="tag-edit-row">
+                    <span>${c.name}</span>
+                    <div class="tag-edit-actions">
+                        <button type="button" class="eye-btn ${isOpen ? '' : 'closed'}" onclick="toggleModalCharEye('${c.name}')">${isOpen ? '눈뜸' : '눈감음'}</button>
+                        <button type="button" class="tag-delete-btn" onclick="deleteCharTag('${c.name}')">✕</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        colChars.innerHTML = charsHtml + `<div class="tag-add-btn-box" id="addCharBox" onclick="initInlineAdd('char', this)" title="선택된 작품에 캐릭터 추가">+</div>`;
+    }
+
+    // 눈 뜬 캐릭터들 이름 목록
+    const activeCharNames = editingWorks.flatMap(w => w.characters).filter(c => modalCharEyeStates[c.name]).map(c => c.name);
+
+    // 3열: 관계 렌더링 + 하단 [+] 버튼
+    const relsToShow = new Set();
+    if (activeCharNames.length > 0) {
+        activeWorks.forEach(w => {
+            w.characters.forEach(c => {
+                if (c.relations) {
+                    c.relations.forEach(rel => {
+                        const parts = rel.split(/[\+x]/).map(s => s.trim()).filter(Boolean);
+                        if (parts.length >= 2 && parts.every(p => activeCharNames.includes(p))) {
+                            relsToShow.add(rel);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    const sortedRelsToShow = Array.from(relsToShow);
+
+    if (activeCharNames.length === 0) {
+        colRels.innerHTML = '<span style="color:#aaa; font-size:0.8rem;">캐릭터의 눈을 떠주세요</span>';
+    } else {
+        const relsHtml = sortedRelsToShow.map(rel => `
+            <div class="tag-edit-row">
+                <span>${rel}</span>
+                <button type="button" class="tag-delete-btn" onclick="deleteRelTag('${rel}')">✕</button>
+            </div>
+        `).join('');
+        colRels.innerHTML = relsHtml + `<div class="tag-add-btn-box" id="addRelBox" onclick="initInlineAdd('rel', this)" title="선택된 캐릭터들에 관계 추가">+</div>`;
+    }
+}
+
+window.initInlineAdd = function(type, boxEl) {
+    if (boxEl.querySelector('input')) return;
+
+    const originalHtml = boxEl.innerHTML;
+    boxEl.innerHTML = `<input type="text" class="tag-add-input" placeholder="입력 후 엔터" autofocus>`;
+    const inputEl = boxEl.querySelector('input');
+
+    inputEl.focus();
+
+    inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.stopPropagation();
+            applyInlineAdd(type, inputEl.value);
+        } else if (e.key === 'Escape') {
+            boxEl.innerHTML = originalHtml;
+        }
+    });
+
+    inputEl.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (inputEl && inputEl.parentNode) {
+                applyInlineAdd(type, inputEl.value);
+            }
+        }, 150);
+    });
+};
+
+function applyInlineAdd(type, val) {
+    if (!val || !val.trim()) {
+        renderTagFilterModalContent();
+        return;
+    }
+    const trimmed = val.trim();
+
+    if (type === 'work') {
+        if (!editingWorks.some(w => w.name === trimmed)) {
+            editingWorks.push({ name: trimmed, characters: [] });
+            modalWorkEyeStates[trimmed] = true;
+        }
+    } else if (type === 'char') {
+        const activeWorks = editingWorks.filter(w => modalWorkEyeStates[w.name]);
+        if (activeWorks.length > 0) {
+            activeWorks.forEach(w => {
+                if (!w.characters.some(c => c.name === trimmed)) {
+                    w.characters.push({ name: trimmed, relations: [] });
+                }
+            });
+            modalCharEyeStates[trimmed] = true;
+        }
+    } else if (type === 'rel') {
+        const activeWorks = editingWorks.filter(w => modalWorkEyeStates[w.name]);
+        if (activeWorks.length > 0 && activeWorks[0].characters.length > 0) {
+            const activeCharNames = activeWorks.flatMap(w => w.characters).filter(c => modalCharEyeStates[c.name]).map(c => c.name);
+            if (activeCharNames.length >= 2) {
+                const targetChar = activeWorks[0].characters.find(c => c.name === activeCharNames[0]);
+                if (targetChar) {
+                    if (!targetChar.relations) targetChar.relations = [];
+                    if (!targetChar.relations.includes(trimmed)) {
+                        targetChar.relations.push(trimmed);
+                    }
+                }
+            }
+        }
+    }
+
+    renderTagFilterModalContent();
+}
+
+window.toggleModalWorkEye = function(workName) {
+    modalWorkEyeStates[workName] = !modalWorkEyeStates[workName];
+    renderTagFilterModalContent();
+};
+
+window.toggleModalCharEye = function(charName) {
+    modalCharEyeStates[charName] = !modalCharEyeStates[charName];
+    renderTagFilterModalContent();
+};
+
+window.deleteCharTag = function(charName) {
+    editingWorks.forEach(w => {
+        w.characters = w.characters.filter(c => c.name !== charName);
+    });
+    delete modalCharEyeStates[charName];
+    renderTagFilterModalContent();
+};
+
+window.deleteRelTag = function(relName) {
+    editingWorks.forEach(w => {
+        w.characters.forEach(c => {
+            if (c.relations) {
+                c.relations = c.relations.filter(r => r !== relName);
+            }
+        });
+    });
+    renderTagFilterModalContent();
+};
+
+window.openWorkDeleteModal = function(workName) {
+    workToDelete = workName;
+    document.getElementById('workDeleteModal').classList.add('active');
+};
+
+window.closeWorkDeleteModal = function() {
+    workToDelete = null;
+    document.getElementById('workDeleteModal').classList.remove('active');
+};
+
+window.confirmDeleteWork = function() {
+    if (workToDelete) {
+        editingWorks = editingWorks.filter(w => w.name !== workToDelete);
+        delete modalWorkEyeStates[workToDelete];
+        renderTagFilterModalContent();
+    }
+    closeWorkDeleteModal();
+};
+
+// 모달 안의 '적용 및 저장' 버튼: tags.json 파일만 다운로드 저장
+window.applyTagHierarchyModal = function() {
+    tagsData.works = editingWorks;
+    document.getElementById('tagEditModal').classList.remove('active');
+    renderAdminTagSelector();
+
+    // tags.json 파일 다운로드 저장
+    const tagsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tagsData, null, 4));
+    const a = document.createElement('a');
+    a.setAttribute("href", tagsStr);
+    a.setAttribute("download", "tags.json");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+};
 
 function renderTagRow(tag) {
     const isIncluded = activeTagFilters[tag] === 'include';
@@ -201,6 +441,19 @@ function renderTagRow(tag) {
 window.toggleAdminTag = function(tag) {
     if (activeTagFilters[tag] === 'include') {
         delete activeTagFilters[tag];
+        
+        const allWorks = new Set(tagsData.works.map(w => w.name));
+        if (allWorks.has(tag)) {
+            const targetWork = tagsData.works.find(w => w.name === tag);
+            if (targetWork) {
+                targetWork.characters.forEach(c => {
+                    delete activeTagFilters[c.name];
+                    if (c.relations) {
+                        c.relations.forEach(r => delete activeTagFilters[r]);
+                    }
+                });
+            }
+        }
     } else {
         activeTagFilters[tag] = 'include';
     }
@@ -308,29 +561,13 @@ window.removeImage = function(idx) {
     renderImages();
 };
 
-window.tryCloseEditor = function() {
-    if (getFormState() !== initialFormState) {
-        if (confirm('저장되지 않았습니다. 닫으시겠습니까?')) {
-            closeEditor();
-        }
-    } else {
-        closeEditor();
-    }
-};
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
 
-document.addEventListener('DOMContentLoaded', () => {
     const categorySelect = document.getElementById('cardCategory');
     if (categorySelect) {
         categorySelect.addEventListener('change', () => {
             updateImagePathPreview();
-            checkFormChanges();
-        });
-    }
-
-    const tagsInput = document.getElementById('cardTags');
-    if (tagsInput) {
-        tagsInput.addEventListener('input', () => {
-            syncFilterStateFromInput();
             checkFormChanges();
         });
     }
@@ -376,7 +613,23 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    loadPosts();
+    const tagEditModal = document.getElementById('tagEditModal');
+    if (tagEditModal) {
+        tagEditModal.addEventListener('click', (e) => {
+            if (e.target === tagEditModal) {
+                tagEditModal.classList.remove('active');
+            }
+        });
+    }
+
+    const workDeleteModal = document.getElementById('workDeleteModal');
+    if (workDeleteModal) {
+        workDeleteModal.addEventListener('click', (e) => {
+            if (e.target === workDeleteModal) {
+                closeWorkDeleteModal();
+            }
+        });
+    }
 });
 
 window.deleteCard = function(id) {
@@ -386,12 +639,13 @@ window.deleteCard = function(id) {
     }
 };
 
+// 사이드바의 저장 버튼: posts.json 파일만 다운로드 저장
 window.downloadJson = function() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(postsData, null, 4));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "posts.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    const postsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(postsData, null, 4));
+    const a = document.createElement('a');
+    a.setAttribute("href", postsStr);
+    a.setAttribute("download", "posts.json");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 };
