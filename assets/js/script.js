@@ -20,25 +20,14 @@ function renderHeader() {
     controlsWrapper.style.alignItems = 'center';
     controlsWrapper.style.marginBottom = '1.5rem';
 
+    // 최신순 드롭다운을 없애고 필터 버튼만 남김
     controlsWrapper.innerHTML = `
       <button type="button" id="open-filter-modal-btn" class="filter-open-btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">필터</button>
-      <div class="sort-dropdown-wrapper" style="margin-bottom: 0;">
-        <select id="sort-select" class="sort-select" aria-label="카드 정렬 기준">
-          <option value="latest">최신순</option>
-        </select>
-      </div>
     `;
     headerEl.insertAdjacentElement('afterend', controlsWrapper);
 
     document.getElementById('open-filter-modal-btn').addEventListener('click', () => {
       if (tagFilterModal) tagFilterModal.open();
-    });
-
-    const selectEl = controlsWrapper.querySelector('#sort-select');
-    selectEl.addEventListener('change', (e) => {
-      window.currentSortMode = e.target.value;
-      currentPage = 1;
-      executeRender();
     });
   }
 }
@@ -60,8 +49,6 @@ function createOcCardHTML(item) {
   `;
 }
 
-// 1차 창작 전용 모달 초기화 (2열 구조, 좌측 상단 오버레이, 우측 스크롤)
-// 1차 창작 전용 모달 초기화
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
@@ -108,15 +95,11 @@ function initOcLightbox() {
     document.getElementById('ocDetailText').innerText = character.description || '';
 
     ocModal.classList.add('active');
-    
-    // 블루스카이처럼 모달 떴을 때 배경 스크롤바를 완전히 숨김
     document.body.classList.add('modal-open');
   }
 
   function closeOcModal() {
     ocModal.classList.remove('active');
-    
-    // 모달 닫힐 때 배경 스크롤 복구
     document.body.classList.remove('modal-open');
   }
 
@@ -134,7 +117,6 @@ function initOcLightbox() {
   const gridContainer = document.querySelector('.grid-cols-5');
   if (gridContainer) {
     gridContainer.onclick = (e) => {
-      // .open-oc-modal 클래스를 가진 요소를 정확히 타겟팅합니다.
       const card = e.target.closest('.open-oc-modal');
       if (!card) return;
       const ocId = parseInt(card.dataset.ocId);
@@ -164,7 +146,8 @@ async function initOcApp() {
 }
 
 // 2. 카드 HTML 생성 (갤러리 카드에서는 태그와 날짜 제거, 썸네일과 페이지 수 뱃지만 표시)
-function createCardHTML(item, isPagesFolder) {
+// createCardHTML 내부 썸네일 생성 시 수량 배지 코드 삭제 및 상태 처리 반영
+function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
     thumbSrc = item.images[0];
@@ -178,6 +161,9 @@ function createCardHTML(item, isPagesFolder) {
   const dateStr = item.date || '';
   const tags = item.tags || [];
 
+  const isPrivate = item.private;
+  const isSensitive = item.sensitive;
+
   if (isPagesFolder) {
     if (thumbSrc && !thumbSrc.startsWith('../') && !thumbSrc.startsWith('http')) {
       thumbSrc = '../' + thumbSrc;
@@ -185,7 +171,15 @@ function createCardHTML(item, isPagesFolder) {
   }
 
   let thumbsHTML = '';
-  if (textThumb) {
+  // 비공개 혹은 민감한 콘텐츠이며 필터에서 해제되지 않은 경우
+  if ((isPrivate || isSensitive) && !showSensitiveOverride) {
+    const labelText = isPrivate ? '비공개' : '민감한 콘텐츠'; // 비공개 우선
+    thumbsHTML = `
+      <div class="card-thumb text-thumb" style="background-color: #555; color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+        <span>${labelText}</span>
+      </div>
+    `;
+  } else if (textThumb) {
     thumbsHTML = `
       <div class="card-thumb text-thumb" role="img" aria-label="${textThumb}">
         <span>${textThumb}</span>
@@ -203,27 +197,22 @@ function createCardHTML(item, isPagesFolder) {
       return img;
     });
 
+    // 모달 출력을 위해 data 속성 반드시 포함
     const modalAttrs = `
       data-images='${JSON.stringify(processedImages)}' 
       data-caption="${encodeURIComponent(altText)}" 
       data-date="${encodeURIComponent(dateStr)}" 
       data-tags='${JSON.stringify(tags)}'
     `;
-    
-    let countBadgeHTML = '';
-    if (rawImages.length > 1) {
-      countBadgeHTML = `<div class="image-count-badge">${rawImages.length}p</div>`;
-    }
 
     thumbsHTML = `
-      <div class="card-thumb open-modal-thumb" ${modalAttrs}>
-        ${countBadgeHTML}
-        <img src="${encodeURI(thumbSrc)}" alt="${altText}" loading="lazy" onerror="this.style.display='none';">
+      <div class="card-thumb" ${modalAttrs}>
+        <img src="${processedImages[0]}" alt="" loading="lazy">
       </div>
     `;
   }
 
-  if (linkSrc) {
+  if (linkSrc && !((isPrivate || isSensitive) && !showSensitiveOverride)) {
     const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
     const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
     thumbsHTML = `<a href="${linkSrc}" class="card-thumb-link" ${targetAttr}>${thumbsHTML}</a>`;

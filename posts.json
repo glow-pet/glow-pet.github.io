@@ -1,5 +1,19 @@
 [
     {
+        "id": 20,
+        "category": "2차창작",
+        "tags": [
+            "이거 그리고 죽어",
+            "레이",
+            "아이",
+            "아이x레이"
+        ],
+        "alt": "",
+        "date": "2026-10-25",
+        "status": "public",
+        "thumbnail-image": "assets/images/fanworks/draw-this-then-die/bafkreia6f3j7abf2fb6c5bl7j6wgg2ysqlgwvlwmhlwhnpwtzbfllsm2w4.webp"
+    },
+    {
         "id": 19,
         "tags": [
             "언더테일",
@@ -26,11 +40,12 @@
     },
     {
         "id": 17,
+        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘",
             "디셈버",
-            "노엘+디셈버"
+            "노엘x디셈버"
         ],
         "alt": "",
         "date": "2026-10-24",
@@ -39,11 +54,12 @@
     },
     {
         "id": 16,
+        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘",
             "디셈버",
-            "노엘+디셈버"
+            "노엘x디셈버"
         ],
         "alt": "",
         "date": "2026-10-24",
@@ -134,11 +150,12 @@
     },
     {
         "id": 8,
+        "category": "2차창작",
         "tags": [
             "델타룬",
             "노엘",
             "디셈버",
-            "노엘+디셈버"
+            "노엘x디셈버"
         ],
         "alt": "",
         "date": "2026-10-18",

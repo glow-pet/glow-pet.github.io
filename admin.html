@@ -48,101 +48,123 @@
 
         <!-- 3열: 수정 / 추가 에디터 패널 -->
         <aside class="admin-editor-pane" id="editorPane">
-            <div id="editorPaneInner" style="display: none; flex-direction: column;">
+            <!-- 3열: 수정 / 추가 에디터 패널 내부 (editorPaneInner 부분 수정) -->
+            <div id="editorPaneInner" style="display: none; flex-direction: column; height: 100%;">
                 <div class="admin-column-header">
                     <span id="editorTitle">항목 수정</span>
+                    <!-- '적용' 버튼을 열머리 가장 오른쪽으로 이동 -->
+                    <div>
+                        <button type="submit" form="editForm" id="saveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem;" disabled>적용</button>
+                        <button type="submit" form="ocForm" id="ocSaveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem; display: none;" disabled>적용</button>
+                    </div>
                 </div>
 
-                <!-- 2차 창작(posts) 전용 폼 -->
-                <form id="editForm" style="display: flex; flex-direction: column; gap: 12px; margin-top: 0.5rem;">
-                    <input type="hidden" id="cardId">
-                    <div class="form-group" style="display:none;">
-                        <label>카테고리</label>
-                        <select id="cardCategory">
-                            <option value="1차창작">1차창작</option>
-                            <option value="2차창작" selected>2차창작</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
-                            <button type="button" class="admin-dark-btn" onclick="openTagHierarchyModal()">수정</button>
+                <!-- 스크롤이 가능하도록 내부 폼 영역을 감싸는 스크롤 박스 -->
+                <div style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
+                    <!-- 2차 창작(posts) 전용 폼 -->
+                    <form id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- 기존 폼 내부 내용 동일 (하단의 적용 버튼 div는 삭제하거나 숨김 처리) -->
+                        <input type="hidden" id="cardId">
+                        <div class="form-group" style="display:none;">
+                            <label>카테고리</label>
+                            <select id="cardCategory">
+                                <option value="1차창작">1차창작</option>
+                                <option value="2차창작" selected>2차창작</option>
+                            </select>
                         </div>
-                        <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
-                        <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>이미지 추가</label>
-                        <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
-                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                            <input type="text" id="newImgFilename" placeholder="파일명 (확장자 제외)" style="flex: 1;">
-                            <button type="button" onclick="addImagePath()" class="admin-dark-btn">추가</button>
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
+                                <button type="button" class="admin-dark-btn" onclick="openTagHierarchyModal()">수정</button>
+                            </div>
+                            <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
+                            <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
                         </div>
-                        <div id="imageList" class="image-list"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>alt (캡션)</label>
-                        <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>날짜</label>
-                        <input type="date" id="cardDate" style="width: 35%;">
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; border-top: 1px solid #eaeaea; padding-top: 1rem;">
-                        <button type="submit" id="saveBtn" class="admin-dark-btn" style="padding: 0.5rem 1.5rem;" disabled>적용</button>
-                    </div>
-                </form>
+                        <div class="form-group">
+                            <label>이미지 추가</label>
+                            <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" id="newImgFilename" placeholder="파일명 (확장자 제외)" style="flex: 1;">
+                                <button type="button" onclick="addImagePath()" class="admin-dark-btn">추가</button>
+                            </div>
+                            <div id="imageList" class="image-list"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>alt (캡션)</label>
+                            <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>날짜</label>
+                            <input type="date" id="cardDate" style="width: 35%;">
+                        </div>
+                        <div class="form-group" style="margin-top: 20px; margin-bottom: 100px; display: flex; gap: 2rem; align-items: center;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="isPrivate" style="width: 16px; height: 16px;"> 비공개
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="isSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
+                            </label>
+                        </div>
+                    </form>
 
-                <!-- 1차 창작 프로필 전용 폼 -->
-                <form id="ocForm" style="display: none; flex-direction: column; gap: 12px; margin-top: 0.5rem;">
-                    <input type="hidden" id="ocId">
-                    <div class="form-group">
-                        <label>성명</label>
-                        <input type="text" id="ocName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>성명 외국어 표기</label>
-                        <input type="text" id="ocForeignName">
-                    </div>
-                    <div class="form-group">
-                        <label>칭호</label>
-                        <input type="text" id="ocTitle">
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <!-- 1차 창작 프로필 전용 폼 -->
+                    <form id="ocForm" style="display: none; flex-direction: column; gap: 12px;">
                         <div class="form-group">
-                            <label>나이</label>
-                            <input type="text" id="ocAge" placeholder="예: 22">
+                            <label>ID (고유 번호)</label>
+                            <input type="text" id="ocId" style="width: 20%;"required placeholder="예: 1">
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                            <div class="form-group">
+                                <label>성명</label>
+                                <input type="text" id="ocName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>성명 외국어 표기</label>
+                                <input type="text" id="ocForeignName">
+                            </div>
+                            <div class="form-group">
+                                <label>칭호</label>
+                                <input type="text" id="ocTitle">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                            <div class="form-group">
+                                <label>나이</label>
+                                <input type="text" id="ocAge" placeholder="예: 22">
+                            </div>
+                            <div class="form-group">
+                                <label>성별</label>
+                                <input type="text" id="ocGender" placeholder="예: 여성">
+                            </div>
+                            <div class="form-group">
+                                <label>키 (cm)</label>
+                                <input type="text" id="ocHeight" placeholder="예: 168">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <div class="form-group">
+                                <label>썸네일 파일명 (확장자 제외)</label>
+                                <input type="text" id="ocThumbnail">
+                            </div>
+                            <div class="form-group">
+                                <label>모달 이미지 파일명 (확장자 제외)</label>
+                                <input type="text" id="ocPortrait">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>성별</label>
-                            <input type="text" id="ocGender" placeholder="예: 여성">
+                            <label>세부 정보</label>
+                            <textarea id="ocDescription" rows="8" style="resize: none; height: 300px;"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label>키 (cm)</label>
-                            <input type="text" id="ocHeight" placeholder="예: 168">
+                        <div class="form-group" style="margin-top: 20px; margin-bottom: 100px; display: flex; gap: 2rem; align-items: center;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="isPrivate" style="width: 16px; height: 16px;"> 비공개
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="isSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
+                            </label>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label>카드 썸네일 이미지 경로</label>
-                        <input type="text" id="ocThumbnail" placeholder="assets/images/ocs/filename_thumb.webp">
-                    </div>
-                    <div class="form-group">
-                        <label>모달 초상화 이미지 경로 (세로 꽉 차는 이미지)</label>
-                        <input type="text" id="ocPortrait" placeholder="assets/images/ocs/filename_portrait.webp">
-                    </div>
-                    <div class="form-group">
-                        <label>상세 설정 및 설명 (우측 2열 스크롤 텍스트)</label>
-                        <textarea id="ocDescription" rows="8" style="resize: none;"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>등록 날짜</label>
-                        <input type="date" id="ocDate" style="width: 40%;">
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; border-top: 1px solid #eaeaea; padding-top: 1rem;">
-                        <button type="submit" id="ocSaveBtn" class="admin-dark-btn" style="padding: 0.5rem 1.5rem;" disabled>적용</button>
-                    </div>
-                </form>
-
+                    </form>
+                </div>
             </div>
             <div id="editorPanePlaceholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #aaa; font-size: 0.9rem;">
                 수정할 카드를 선택해주세요.

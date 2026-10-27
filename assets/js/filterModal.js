@@ -1,10 +1,10 @@
-// assets/js/filterModal.js
-
 export class TagFilterModal {
-    constructor(onApplyCallback) {
+    constructor(onApplyCallback, options = {}) {
         this.onApplyCallback = onApplyCallback;
-        this.filterState = {}; // { tagName: 'include' | 'exclude' }
+        this.filterState = {}; 
+        this.options = options;
         this.allPosts = [];
+        this.showSensitive = false;
 
         this.initDOM();
         this.initEvents();
@@ -16,10 +16,10 @@ export class TagFilterModal {
                 <div id="tag-filter-modal" class="filter-modal-overlay" style="display: none;">
                     <div class="filter-modal-content">
                         <div class="filter-modal-header">
-                            <h3>태그 필터</h3>
+                            <h3>필터</h3>
                             <button type="button" id="filter-modal-close-btn" class="filter-close-btn">&times;</button>
                         </div>
-                        <div class="filter-columns-wrapper">
+                        <div class="filter-columns-wrapper" id="filterColumnsArea">
                             <div class="filter-col">
                                 <h4>작품</h4>
                                 <div id="filter-col-work" class="filter-item-list"></div>
@@ -32,6 +32,14 @@ export class TagFilterModal {
                                 <h4>관계</h4>
                                 <div id="filter-col-rel" class="filter-item-list"></div>
                             </div>
+                        </div>
+                        <!-- 상호작용 가능한 민감한 콘텐츠 토글 스위치 -->
+                        <div style="margin-top: 1rem; border-top: 1px solid #eaeaea; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.9rem; font-weight: 600; color: #333;">민감한 콘텐츠 표시</span>
+                            <label class="switch" style="position: relative; display: inline-block; width: 40px; height: 22px; cursor: pointer;">
+                                <input type="checkbox" id="filterSensitiveSwitch" style="opacity: 0; width: 0; height: 0;">
+                                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 22px;"></span>
+                            </label>
                         </div>
                         <div class="filter-modal-footer">
                             <button type="button" id="filter-modal-apply-btn" class="filter-apply-btn">확인</button>
@@ -48,6 +56,7 @@ export class TagFilterModal {
         this.workListEl = document.getElementById('filter-col-work');
         this.charListEl = document.getElementById('filter-col-char');
         this.relListEl = document.getElementById('filter-col-rel');
+        this.sensitiveToggle = document.getElementById('filterSensitiveSwitch');
     }
 
     initEvents() {
@@ -56,7 +65,8 @@ export class TagFilterModal {
             if (e.target === this.modal) this.close();
         });
         this.applyBtn.addEventListener('click', () => {
-            this.onApplyCallback(this.filterState);
+            this.showSensitive = this.sensitiveToggle ? this.sensitiveToggle.checked : false;
+            this.onApplyCallback(this.filterState, { showSensitive: this.showSensitive });
             this.close();
         });
     }
@@ -70,6 +80,7 @@ export class TagFilterModal {
     }
 
     renderTags(posts) {
+        if (this.options.hideTags) return;
         this.allPosts = posts || [];
         const works = new Set();
 
@@ -80,16 +91,13 @@ export class TagFilterModal {
             }
         });
 
-        // 가나다 오름차순 정렬
         const sortedWorks = Array.from(works).sort((a, b) => a.localeCompare(b, 'ko'));
         this.populateWorkColumn(sortedWorks);
         this.renderSubColumns();
     }
 
-    // 1열(작품): Tri-state 체크박스 적용
     populateWorkColumn(workList) {
         this.workListEl.innerHTML = '';
-        
         workList.forEach(tag => {
             const row = document.createElement('div');
             row.className = 'filter-row-item';
@@ -141,7 +149,6 @@ export class TagFilterModal {
             btn.classList.add('exclude');
             btn.classList.remove('include');
             this.filterState[tag] = 'exclude';
-            // 장르가 제외로 바뀌면 하위 캐릭터/관계 선택도 초기화 또는 숨김 처리 필요 시 대응 가능
         } else {
             btn.dataset.state = 'none';
             btn.textContent = '';
@@ -149,15 +156,11 @@ export class TagFilterModal {
             delete this.filterState[tag];
         }
 
-        // 장르 상태가 바뀔 때마다 하위 2, 3열 렌더링 갱신
         this.renderSubColumns();
     }
 
-    // 장르(작품) 중 '포함(include)' 상태인 항목이 정확히 1개 이상 있을 때만 캐릭터와 관계 열을 활성화/표시
     renderSubColumns() {
-        // 현재 'include' 상태인 장르들 추출
         const includedWorks = Object.keys(this.filterState).filter(tag => {
-            // 이 태그가 작품(1열)에 속하는지 확인
             const isWork = Array.from(this.workListEl.querySelectorAll('.tri-state-checkbox')).some(el => el.dataset.tag === tag);
             return isWork && this.filterState[tag] === 'include';
         });
@@ -171,7 +174,6 @@ export class TagFilterModal {
         const characters = new Set();
         const relationships = new Set();
 
-        // 포함된 장르들에 속한 카드들로부터 캐릭터 및 관계 태그 수집
         this.allPosts.forEach(p => {
             const tags = p.tags || [];
             if (tags.length > 0 && includedWorks.includes(tags[0])) {
@@ -185,7 +187,6 @@ export class TagFilterModal {
             }
         });
 
-        // 가나다 오름차순 정렬
         const sortedChars = Array.from(characters).sort((a, b) => a.localeCompare(b, 'ko'));
         const sortedRels = Array.from(relationships).sort((a, b) => a.localeCompare(b, 'ko'));
 
@@ -193,10 +194,8 @@ export class TagFilterModal {
         this.populateTriStateColumn(this.relListEl, sortedRels);
     }
 
-    // 2, 3열(캐릭터, 관계): Tri-state 체크박스 열 생성
     populateTriStateColumn(container, tagList) {
         container.innerHTML = '';
-
         if (tagList.length === 0) {
             container.innerHTML = '<p style="color:#aaa; font-size:0.85rem;">해당 태그가 없습니다.</p>';
             return;

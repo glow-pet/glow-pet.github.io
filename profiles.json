@@ -1,8 +1,21 @@
 [
     {
+        "id": 10,
+        "name": "쿠리야마 시구레",
+        "foreignName": "栗山 時雨",
+        "title": "",
+        "age": "28",
+        "gender": "여성",
+        "height": "170",
+        "thumbnail": "",
+        "portrait": "",
+        "description": "",
+        "date": "2026-10-27"
+    },
+    {
         "id": 9,
         "name": "새비지",
-        "foreignName": "",
+        "foreignName": "Savage",
         "title": "",
         "age": "",
         "gender": "",
@@ -15,7 +28,7 @@
     {
         "id": 8,
         "name": "그리즐리",
-        "foreignName": "",
+        "foreignName": "Grizzly",
         "title": "",
         "age": "",
         "gender": "",
@@ -28,7 +41,7 @@
     {
         "id": 7,
         "name": "지지",
-        "foreignName": "",
+        "foreignName": "Gigi",
         "title": "",
         "age": "",
         "gender": "",
@@ -54,7 +67,7 @@
     {
         "id": 5,
         "name": "마치",
-        "foreignName": "",
+        "foreignName": "March",
         "title": "",
         "age": "",
         "gender": "",
@@ -67,7 +80,7 @@
     {
         "id": 4,
         "name": "제인 에이버리",
-        "foreignName": "",
+        "foreignName": "Jane Avery",
         "title": "",
         "age": "",
         "gender": "",
@@ -80,7 +93,7 @@
     {
         "id": 3,
         "name": "마켈라",
-        "foreignName": "",
+        "foreignName": "Makella",
         "title": "",
         "age": "",
         "gender": "",
@@ -93,7 +106,7 @@
     {
         "id": 2,
         "name": "프레데리케",
-        "foreignName": "",
+        "foreignName": "Frederike",
         "title": "",
         "age": "",
         "gender": "",

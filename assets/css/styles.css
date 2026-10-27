@@ -385,6 +385,24 @@ a {
 /* ==========================================================================
    5. 모달 슬라이더 (우측 캡션 + 스크롤바)
    ========================================================================== */
+
+.oc-modal, .image-modal, .filter-modal-overlay {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+.oc-modal .oc-modal-body,
+.image-modal .modal-body-container {
+    transform: translateZ(0);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
 .image-modal {
   display: none;
   position: fixed;
@@ -698,18 +716,13 @@ a {
   padding: 0 6px;
   background: #fff;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 50%;
   font-size: 0.9rem;
   color: #444;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.pagination-container button:hover:not(:disabled) {
-  background-color: #f4f4f4;
-  border-color: #bbb;
 }
 
 .pagination-container button.active {
@@ -720,8 +733,8 @@ a {
 }
 
 .pagination-container button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  opacity: 0;
+  cursor: default;
 }
 
 
@@ -883,7 +896,7 @@ a {
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
-    height: 300px;
+    min-height: 250px;
 }
 
 .image-path-preview {
@@ -920,12 +933,29 @@ a {
     color: #666;
 }
 
+body:has(.admin-layout-wrapper),
+body:has(.admin-navbar) {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+html:has(.admin-layout-wrapper),
+html:has(.admin-navbar) {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
 .admin-layout-wrapper {
     display: grid;
     grid-template-columns: 240px 480px 1fr;
+    width: 100vw;
     height: calc(100vh - 61px);
     overflow: hidden;
-    width: 100vw;
+    box-sizing: border-box;
 }
 
 /* 열머리 스타일 통일 (높이, 패딩, 보더 일치) */
@@ -974,7 +1004,11 @@ a {
 .admin-editor-pane {
     background: #fafafa;
     padding: 0rem 1.5rem 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
+
 
 .admin-menu-btn {
     width: 100%;
@@ -1439,7 +1473,8 @@ a {
 
 /* 본문(body)에 active 클래스가 붙거나 모달이 뜰 때 배경 스크롤 방지 */
 body.modal-open {
-  overflow: hidden;
+    overflow: hidden;
+    width: 100%;
 }
 
 /* ==========================================================================

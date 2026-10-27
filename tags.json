@@ -6,13 +6,13 @@
                 {
                     "name": "노엘",
                     "relations": [
-                        "노엘+디셈버"
+                        "노엘x디셈버"
                     ]
                 },
                 {
                     "name": "디셈버",
                     "relations": [
-                        "노엘+디셈버"
+                        "노엘x디셈버"
                     ]
                 }
             ]
@@ -60,6 +60,21 @@
                 },
                 {
                     "name": "프리스크",
+                    "relations": []
+                }
+            ]
+        },
+        {
+            "name": "이거 그리고 죽어",
+            "characters": [
+                {
+                    "name": "레이",
+                    "relations": [
+                        "아이x레이"
+                    ]
+                },
+                {
+                    "name": "아이",
                     "relations": []
                 }
             ]
