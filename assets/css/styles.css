@@ -34,7 +34,7 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0.5rem 1.5rem 0.6rem 1.5rem; /* 위아래 패딩 축소 */
   background-color: #ffffff;
   border-bottom: 1px solid #eee;
   position: sticky;
@@ -203,7 +203,7 @@ a {
 
 .footer {
   text-align: center;
-  padding: 1rem;
+  padding: 0.5rem 1rem 1rem 1rem; /* 위쪽 패딩 줄임 */
   color: #999;
   font-size: 0.8rem;
   border-top: 1px solid #eee;
@@ -245,27 +245,27 @@ a {
 }
 
 .grid-cols-4 {
-  gap: 25px;
+  gap: 15px;
   grid-template-columns: repeat(1, 1fr);
 }
 
 @media (min-width: 600px) {
   .grid-cols-4 {
-    gap: 25px;
+    gap: 15px;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
 @media (min-width: 480px) {
   .grid-cols-5 {
-    gap: 13px;
+    gap: 15px;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
 
 @media (min-width: 1200px) {
   .grid-cols-5 {
-    gap: 13px;
+    gap: 15px;
     grid-template-columns: repeat(5, 1fr);
   }
 }
@@ -386,8 +386,22 @@ a {
    5. 모달 슬라이더 (우측 캡션 + 스크롤바)
    ========================================================================== */
 
+.image-modal, .oc-modal {
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.7s ease, visibility 0.7s ease;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.image-modal.active, .oc-modal.active {
+  visibility: visible;
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.92);
+}
+
 .oc-modal, .image-modal, .filter-modal-overlay {
-    position: fixed !important;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
@@ -599,7 +613,6 @@ a {
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .filter-modal-header {
@@ -692,14 +705,27 @@ a {
 }
 
 .filter-apply-btn {
-  padding: 0.5rem 1.5rem;
-  background-color: #222;
+  padding: 0.5rem 2rem;
+  background-color: #333;
   color: #fff;
   border: none;
   border-radius: 4px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* 필터 열기 버튼 스타일 통일 */
+.filter-open-btn {
+  padding: 0.5rem 1.4rem;        /* 가로 패딩을 넓혀서 눈에 잘 띄게 설정 */
+  background-color: #333;       /* 어두운 회색 배경 */
+  color: #fff;                  /* 흰색 글자 */
+  font-weight: 600;             /* 두껍게 */
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .pagination-container {
@@ -1631,4 +1657,70 @@ body.modal-open {
   cursor: pointer;
   z-index: 10050;
   padding: 5px;
+}
+
+/* 민감한 콘텐츠 및 비공개 썸네일 커서 기본값 적용 */
+.card-thumb.text-thumb {
+  cursor: default;
+}
+
+/* 필터 모달 내부 민감한 콘텐츠 토글 영역 정렬 및 하단 마진 추가 */
+.filter-modal-content {
+  padding-bottom: 2rem;
+}
+
+.filter-modal-content > div:has(#filterSensitiveSwitch) {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid #eaeaea;
+  padding-top: 1.2rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 민감한 콘텐츠 스위치 트랜지션 제거 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 22px;
+  /* transition 제거됨 */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  /* transition 제거됨 */
+}
+
+input:checked + .slider {
+  background-color: #222;
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
 }

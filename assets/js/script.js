@@ -6,8 +6,54 @@ let filteredPosts = [];
 let currentPage = 1;
 const itemsPerPage = 12;
 let tagFilterModal = null;
+let profilesData = [];
 
-// 1. 헤더 및 필터 열기 버튼 추가 (태그 필터 버튼 명칭을 '필터'로 변경)
+// [공통 유틸리티] 이미지 리사이징 경로 처리
+function getResizedImageUrl(src, targetWidth = 400) {
+  if (!src || src.startsWith('http')) return src;
+  return src;
+}
+
+// [공통 유틸리티] 정렬 로직 (최신순)
+window.currentSortMode = 'latest';
+function getSortedData(dataArray) {
+  if (!Array.isArray(dataArray)) return [];
+  const list = [...dataArray];
+
+  return list.sort((a, b) => {
+    const dateA = new Date(a.date || 0);
+    const dateB = new Date(b.date || 0);
+    if (dateB - dateA !== 0) {
+      return dateB - dateA;
+    }
+    return (b.id || 0) - (a.id || 0);
+  });
+}
+
+// [핵심 통합 함수] fanworks 및 ocs 공통 필터링 로직
+// 규칙:
+// 1. private === true 인 게시물은 민감한 콘텐츠 토글 여부와 상관없이 항상 제외
+// 2. sensitive === true 인 게시물은 window.showSensitiveGlobal 이 false일 때 썸네일을 가리거나 필터링 조건에 맞춰 처리
+// 3. activeFilters (태그 조건) 적용
+function getFilteredAndProcessedData(rawData, activeFilters = {}) {
+  return (rawData || []).filter(item => {
+    // 1. 비공개 게시물(private)은 토글 상관없이 항상 제외
+    if (item.private) return false;
+
+    // 2. 태그 필터링 (include / exclude)
+    const postTags = item.tags || [];
+    for (const [tag, state] of Object.entries(activeFilters)) {
+      const hasTag = postTags.includes(tag);
+      if (state === 'include' && !hasTag) return false;
+      if (state === 'exclude' && hasTag) return false;
+    }
+
+    return true;
+  });
+}
+
+// 1. 헤더 및 필터 열기 버튼 (컨테이너 오른쪽 정렬)
+// 1. 헤더 및 필터 열기 버튼 (스타일을 CSS로 분리 및 우측 정렬)
 function renderHeader() {
   const headerEl = document.querySelector('.header');
   const mainGrid = document.querySelector('.grid-cols-4, .grid-cols-5, .grid-cols-3');
@@ -16,13 +62,12 @@ function renderHeader() {
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'controls-wrapper';
     controlsWrapper.style.display = 'flex';
-    controlsWrapper.style.justifyContent = 'space-between';
+    controlsWrapper.style.justifyContent = 'flex-end'; // 오른쪽 정렬
     controlsWrapper.style.alignItems = 'center';
     controlsWrapper.style.marginBottom = '1.5rem';
 
-    // 최신순 드롭다운을 없애고 필터 버튼만 남김
     controlsWrapper.innerHTML = `
-      <button type="button" id="open-filter-modal-btn" class="filter-open-btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">필터</button>
+      <button type="button" id="open-filter-modal-btn" class="filter-open-btn">필터</button>
     `;
     headerEl.insertAdjacentElement('afterend', controlsWrapper);
 
@@ -32,23 +77,42 @@ function renderHeader() {
   }
 }
 
-// [기존 script.js 구조를 해치지 않는 1차 창작 프로필 연동부]
+// 2. OCs 카드 HTML 생성 (비공개 및 민감 콘텐츠 썸네일 보안 통합)
+function createOcCardHTML(item, showSensitiveOverride = false) {
+  const isPrivate = item.private;
+  const isSensitive = item.sensitive;
+  const thumbSrc = getResizedImageUrl(item.thumbnail || item.portrait || '', 300);
 
-let profilesData = [];
+  let thumbsHTML = '';
+  let cardClasses = "card";
+  let datasetAttr = "";
 
-// 1차 창작 카드 HTML 생성 (5열 그리드)
-// 1차 창작 카드 HTML 생성 (클래스명을 .open-oc-modal과 .oc-card로 일치시킴)
-function createOcCardHTML(item) {
-  const thumbSrc = item.thumbnail || item.portrait || '';
-  return `
-    <article class="card oc-card open-oc-modal" data-oc-id="${item.id}" style="cursor: pointer;">
+  // 비공개이거나, 민감한 콘텐츠이면서 토글이 꺼져 있는 경우
+  if (isPrivate || (isSensitive && !showSensitiveOverride)) {
+    const labelText = isPrivate ? '비공개' : '민감한 콘텐츠';
+    thumbsHTML = `
+      <div class="card-thumb text-thumb" style="background-color: #555; color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: default;">
+        <span>${labelText}</span>
+      </div>
+    `;
+  } else {
+    cardClasses += " open-oc-modal";
+    datasetAttr = `data-oc-id="${item.id}"`;
+    thumbsHTML = `
       <div class="card-thumb">
         <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.style.display='none';">
       </div>
+    `;
+  }
+
+  return `
+    <article class="${cardClasses}" ${datasetAttr} style="cursor: ${(isPrivate || (isSensitive && !showSensitiveOverride)) ? 'default' : 'pointer'};">
+      ${thumbsHTML}
     </article>
   `;
 }
 
+// 3. OCs 모달 초기화 (어디든 클릭 시 자연스럽게 닫히도록 수정)
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
@@ -91,7 +155,7 @@ function initOcLightbox() {
     document.getElementById('ocGender').innerText = character.gender || '';
     document.getElementById('ocHeight').innerText = character.height ? `${character.height}cm` : '';
 
-    document.getElementById('ocPortrait').src = character.portrait || character.thumbnail || '';
+    document.getElementById('ocPortrait').src = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
     document.getElementById('ocDetailText').innerText = character.description || '';
 
     ocModal.classList.add('active');
@@ -108,11 +172,10 @@ function initOcLightbox() {
     closeOcModal();
   };
   
+  // 모달 영역 어디든 클릭하면 닫기
   ocModal.onclick = (e) => {
-    if (e.target === ocModal) closeOcModal();
+    closeOcModal();
   };
-  
-  ocModal.querySelector('.oc-modal-body').onclick = (e) => e.stopPropagation();
 
   const gridContainer = document.querySelector('.grid-cols-5');
   if (gridContainer) {
@@ -126,17 +189,21 @@ function initOcLightbox() {
   }
 }
 
-// 1차 창작 페이지 전용 로더 (기존 initApp 내부에 분기 추가용)
 async function initOcApp() {
   const isProfilePage = document.querySelector('.grid-cols-5');
   if (isProfilePage) {
+    renderHeader();
     try {
       const jsonPath = window.location.pathname.includes('/pages/') ? '../profiles.json' : 'profiles.json';
       const res = await fetch(jsonPath);
       if (res.ok) {
         profilesData = await res.json();
         isProfilePage.classList.add('crop-square');
-        isProfilePage.innerHTML = profilesData.map(createOcCardHTML).join('');
+        const showSens = window.showSensitiveGlobal || false;
+        
+        // 공통 필터 함수 적용
+        const activeOcData = getFilteredAndProcessedData(profilesData);
+        isProfilePage.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
         initOcLightbox();
       }
     } catch (e) {
@@ -145,8 +212,7 @@ async function initOcApp() {
   }
 }
 
-// 2. 카드 HTML 생성 (갤러리 카드에서는 태그와 날짜 제거, 썸네일과 페이지 수 뱃지만 표시)
-// createCardHTML 내부 썸네일 생성 시 수량 배지 코드 삭제 및 상태 처리 반영
+// 4. Fanworks 카드 HTML 생성
 function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
@@ -155,6 +221,8 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
     thumbSrc = item['thumbnail-image'] || '';
   }
   
+  thumbSrc = getResizedImageUrl(thumbSrc, 400);
+
   const textThumb = item['thumbnail-text'] || '';
   let linkSrc = item.link || '';
   const altText = item.alt || '';
@@ -171,9 +239,9 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   }
 
   let thumbsHTML = '';
-  // 비공개 혹은 민감한 콘텐츠이며 필터에서 해제되지 않은 경우
-  if ((isPrivate || isSensitive) && !showSensitiveOverride) {
-    const labelText = isPrivate ? '비공개' : '민감한 콘텐츠'; // 비공개 우선
+  // 비공개이거나, 민감한 콘텐츠이면서 토글이 꺼져 있는 경우
+  if (isPrivate || (isSensitive && !showSensitiveOverride)) {
+    const labelText = isPrivate ? '비공개' : '민감한 콘텐츠';
     thumbsHTML = `
       <div class="card-thumb text-thumb" style="background-color: #555; color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
         <span>${labelText}</span>
@@ -191,13 +259,13 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
       : [thumbSrc];
 
     let processedImages = rawImages.map(img => {
-      if (isPagesFolder && img && !img.startsWith('../') && !img.startsWith('http')) {
-        return '../' + img;
+      let processed = getResizedImageUrl(img, 400);
+      if (isPagesFolder && processed && !processed.startsWith('../') && !processed.startsWith('http')) {
+        return '../' + processed;
       }
-      return img;
+      return processed;
     });
 
-    // 모달 출력을 위해 data 속성 반드시 포함
     const modalAttrs = `
       data-images='${JSON.stringify(processedImages)}' 
       data-caption="${encodeURIComponent(altText)}" 
@@ -207,12 +275,12 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
 
     thumbsHTML = `
       <div class="card-thumb" ${modalAttrs}>
-        <img src="${processedImages[0]}" alt="" loading="lazy">
+        <img src="${processedImages[0]}" alt="" loading="lazy" srcset="${processedImages[0]} 400w" sizes="(max-width: 600px) 100vw, 400px">
       </div>
     `;
   }
 
-  if (linkSrc && !((isPrivate || isSensitive) && !showSensitiveOverride)) {
+  if (linkSrc && !(isPrivate || (isSensitive && !showSensitiveOverride))) {
     const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
     const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
     thumbsHTML = `<a href="${linkSrc}" class="card-thumb-link" ${targetAttr}>${thumbsHTML}</a>`;
@@ -225,22 +293,7 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   `;
 }
 
-window.currentSortMode = 'latest';
-
-function getSortedData(dataArray) {
-  if (!Array.isArray(dataArray)) return [];
-  const list = [...dataArray];
-
-  return list.sort((a, b) => {
-    const dateA = new Date(a.date || 0);
-    const dateB = new Date(b.date || 0);
-    if (dateB - dateA !== 0) {
-      return dateB - dateA;
-    }
-    return (b.id || 0) - (a.id || 0);
-  });
-}
-
+// 5. 페이지네이션 렌더링
 function renderPagination(totalItems) {
   const containerEl = document.querySelector('.container');
   if (!containerEl) return;
@@ -279,6 +332,7 @@ function renderPagination(totalItems) {
   });
 }
 
+// 6. Fanworks 렌더링 실행
 function executeRender() {
   const mainContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   const isPagesFolder = window.location.pathname.includes('/pages/');
@@ -298,12 +352,12 @@ function executeRender() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const slicedData = dataList.slice(startIndex, startIndex + itemsPerPage);
     
-    mainContainer.innerHTML = slicedData.map(item => createCardHTML(item, isPagesFolder)).join('');
+    mainContainer.innerHTML = slicedData.map(item => createCardHTML(item, isPagesFolder, window.showSensitiveGlobal)).join('');
     renderPagination(dataList.length);
   }
 }
 
-// 4. 라이트박스 (모달창: 배경 클릭 시 닫기, 닫기 버튼 배치, 2열 레이아웃)
+// 7. Fanworks 라이트박스 모달
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
@@ -345,7 +399,7 @@ function initLightbox() {
 
   function updateModalImage() {
     if (currentImages.length > 0) {
-      modalImg.src = currentImages[currentIndex];
+      modalImg.src = getResizedImageUrl(currentImages[currentIndex], 1200);
       
       if (currentImages.length <= 1) {
         prevBtn.style.display = 'none';
@@ -428,54 +482,74 @@ function initLightbox() {
     closeModal();
   };
 
-  // 모달 영역 아무 곳이나 클릭해도 닫히도록 처리
+  // 모달 영역 어디든 클릭하면 닫기
   modal.onclick = (e) => {
     closeModal();
   };
 }
 
+// 8. 메인 애플리케이션 초기화
 async function initApp() {
-  // 1차 창작 페이지(.grid-cols-5가 있는 경우)라면 profiles.json을 렌더링한 후 posts.json 로딩을 타지 않고 종료합니다.
   const isProfilePage = document.querySelector('.grid-cols-5');
   if (isProfilePage) {
     await initOcApp();
-    return; // <-- 이 부분이 핵심입니다. 이로 인해 posts.json이 덮어씌우는 것을 방지합니다.
   }
 
   renderHeader();
 
+  const isPagesFolder = window.location.pathname.includes('/pages/');
+  const jsonPath = isProfilePage 
+    ? (isPagesFolder ? '../profiles.json' : 'profiles.json')
+    : (isPagesFolder ? '../posts.json' : 'posts.json');
+
   try {
-    const jsonPath = window.location.pathname.includes('/pages/') ? '../posts.json' : 'posts.json';
     const response = await fetch(jsonPath);
     if (response.ok) {
-      const posts = await response.json();
-      window.galleryData = posts.filter(p => p.status !== 'private');
+      const data = await response.json();
+      if (isProfilePage) {
+        window.ocData = getFilteredAndProcessedData(data);
+      } else {
+        window.galleryData = getFilteredAndProcessedData(data);
+      }
     }
   } catch (e) {
-    console.error('posts.json 로드 실패', e);
+    console.error('데이터 로드 실패', e);
   }
 
-  tagFilterModal = new TagFilterModal((activeFilters) => {
+  window.showSensitiveGlobal = false;
+
+  const filterOptions = isProfilePage ? { hideTags: true } : {};
+
+  // 태그 필터 모달 이벤트 콜백
+  tagFilterModal = new TagFilterModal((activeFilters, options) => {
     window.isFiltered = true;
-    filteredPosts = (window.galleryData || []).filter(post => {
-      const postTags = post.tags || [];
-      for (const [tag, state] of Object.entries(activeFilters)) {
-        const hasTag = postTags.includes(tag);
-        if (state === 'include' && !hasTag) return false;
-        if (state === 'exclude' && hasTag) return false;
-      }
-      return true;
-    });
-    currentPage = 1;
-    executeRender();
-  });
+    window.showSensitiveGlobal = options.showSensitive || false;
 
-  if (window.galleryData) {
+    if (isProfilePage) {
+      // OCs 페이지: 공통 필터 함수로 정제 후 렌더링
+      const mainContainer = document.querySelector('.grid-cols-5');
+      if (mainContainer) {
+        const processedOcData = getFilteredAndProcessedData(profilesData, activeFilters);
+        mainContainer.innerHTML = processedOcData.map(item => createOcCardHTML(item, window.showSensitiveGlobal)).join('');
+      }
+    } else {
+      // Fanworks 페이지: 공통 필터 함수로 정제 후 렌더링
+      filteredPosts = getFilteredAndProcessedData(window.galleryData, activeFilters);
+      currentPage = 1;
+      executeRender();
+    }
+  }, filterOptions);
+
+  if (!isProfilePage && window.galleryData) {
     tagFilterModal.renderTags(window.galleryData);
+  } else if (isProfilePage && window.ocData) {
+    tagFilterModal.renderTags([]);
   }
 
-  executeRender();
-  initLightbox();
+  if (!isProfilePage) {
+    executeRender();
+    initLightbox();
+  }
 }
 
 window.loadGallery = initApp;

@@ -1,5 +1,6 @@
 let postsData = [];
 let profilesData = [];
+let favsData = [];
 let tagsData = { works: [] };
 let currentImages = [];
 let initialFormState = '';
@@ -23,13 +24,15 @@ const GENRE_FOLDER_MAP = {
 
 async function loadData() {
     try {
-        const [postsRes, profilesRes, tagsRes] = await Promise.all([
+        const [postsRes, profilesRes, favsRes, tagsRes] = await Promise.all([
             fetch('posts.json'),
             fetch('profiles.json').catch(() => ({ ok: false })),
+            fetch('favs.json').catch(() => ({ ok: false })),
             fetch('tags.json')
         ]);
         if (postsRes.ok) postsData = await postsRes.json();
         if (profilesRes && profilesRes.ok) profilesData = await profilesRes.json();
+        if (favsRes && favsRes.ok) favsData = await favsRes.json();
         if (tagsRes.ok) tagsData = await tagsRes.json();
     } catch (e) {
         console.error('데이터 로드 실패', e);
@@ -58,7 +61,6 @@ window.selectCategory = function(category) {
     renderGrid();
 };
 
-// admin.js 파일의 renderGrid 함수 내 정렬 로직 부분 수정
 function renderGrid() {
     const grid = document.getElementById('cardGrid');
     if (!grid || !currentSelectedCategory) return;
@@ -66,6 +68,8 @@ function renderGrid() {
     let targetData = [];
     if (currentSelectedCategory === '1차창작') {
         targetData = [...profilesData].sort((a, b) => (b.id || 0) - (a.id || 0));
+    } else if (currentSelectedCategory === '관심작품') {
+        targetData = [...favsData].sort((a, b) => (b.id || 0) - (a.id || 0));
     } else {
         targetData = [...postsData].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
     }
@@ -85,6 +89,11 @@ function renderGrid() {
     if (currentSelectedCategory === '1차창작') {
         grid.innerHTML = slicedData.map(item => {
             const thumb = item.thumbnail || item.portrait || '';
+            const statusBadges = [];
+            if (item.private) statusBadges.push('비공개');
+            if (item.sensitive) statusBadges.push('민감한 콘텐츠');
+            const statusHtml = statusBadges.length > 0 ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">${statusBadges.join(' | ')}</div>` : '';
+
             return `
                 <div class="admin-card-item">
                     <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
@@ -97,25 +106,45 @@ function renderGrid() {
                     <div class="admin-card-info" style="flex: 1; min-width: 0;">
                         <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 2px;">${item.name || ''} (${item.foreignName || ''})</div>
                         <div class="admin-card-meta" style="font-size: 0.75rem; color: #666;">${item.title || ''} | ${item.age ? item.age + '세' : ''} ${item.gender || ''}</div>
+                        ${statusHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else if (currentSelectedCategory === '관심작품') {
+        grid.innerHTML = slicedData.map(item => {
+            const details = [item.media, item.character, item.relation].filter(Boolean).join(' / ');
+            return `
+                <div class="admin-card-item" style="padding: 12px 16px;">
+                    <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                        <button class="admin-action-btn" onclick="openEditEditor(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
+                        <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+                    </div>
+                    <div class="admin-card-info" style="flex: 1; min-width: 0;">
+                        <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 4px;">${item.title || ''}</div>
+                        <div class="admin-card-meta" style="font-size: 0.8rem; color: #666;">${details}</div>
                     </div>
                 </div>
             `;
         }).join('');
     } else {
         grid.innerHTML = slicedData.map(post => {
-            // postsData 원본 배열에서의 정확한 위치(인덱스)를 찾아서 전달
-            const globalIdx = postsData.indexOf(post);
             const images = (post.images && post.images.length > 0) ? post.images : [post['thumbnail-image'] || ''];
             const firstImg = images[0] || '';
             const badge = images.length > 1 ? `<div class="admin-badge">${images.length}p</div>` : '';
             const tagsHtml = (post.tags || []).map(t => `<span style="font-size: 0.8rem; color: #666; margin-right: 6px;">#${t}</span>`).join('');
             const dateText = post.date || '';
+            
+            const statusBadges = [];
+            if (post.private) statusBadges.push('비공개');
+            if (post.sensitive) statusBadges.push('민감한 콘텐츠');
+            const statusHtml = statusBadges.length > 0 ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">${statusBadges.join(' | ')}</div>` : '';
 
             return `
                 <div class="admin-card-item">
                     <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
-                        <button class="admin-action-btn" onclick="openEditEditor(${globalIdx})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
-                        <button class="admin-action-btn" onclick="deleteCard(${globalIdx})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+                        <button class="admin-action-btn" onclick="openEditEditor(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
+                        <button class="admin-action-btn" onclick="deleteCard(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
                     </div>
                     <div class="admin-thumb-preview">
                         ${badge}
@@ -124,6 +153,7 @@ function renderGrid() {
                     <div class="admin-card-info" style="flex: 1; min-width: 0;">
                         <div class="admin-card-meta" style="font-size: 0.8rem; color: #666; margin-bottom: 2px; font-weight: 500;">${dateText}</div>
                         <div class="admin-card-tags" style="display: flex; flex-wrap: wrap; gap: 2px; row-gap: 0.2rem;">${tagsHtml}</div>
+                        ${statusHtml}
                     </div>
                 </div>
             `;
@@ -161,25 +191,105 @@ function renderAdminPagination(totalItems) {
     });
 }
 
-window.openEditEditor = function(index) {
+function getFormState() {
+    return JSON.stringify({
+        category: document.getElementById('cardCategory').value,
+        tags: document.getElementById('cardTags').value,
+        alt: document.getElementById('cardAlt').value,
+        date: document.getElementById('cardDate').value,
+        images: [...currentImages],
+        private: document.getElementById('cardPrivate').checked,
+        sensitive: document.getElementById('cardSensitive').checked
+    });
+}
+
+function getOcFormState() {
+    return JSON.stringify({
+        name: document.getElementById('ocName').value,
+        foreignName: document.getElementById('ocForeignName').value,
+        title: document.getElementById('ocTitle').value,
+        age: document.getElementById('ocAge').value,
+        gender: document.getElementById('ocGender').value,
+        height: document.getElementById('ocHeight').value,
+        thumbnail: document.getElementById('ocThumbnail').value,
+        portrait: document.getElementById('ocPortrait').value,
+        description: document.getElementById('ocDescription').value,
+        private: document.getElementById('ocPrivate').checked,
+        sensitive: document.getElementById('ocSensitive').checked
+    });
+}
+
+function getFavFormState() {
+    return JSON.stringify({
+        title: document.getElementById('favTitle').value,
+        media: document.getElementById('favMedia').value,
+        character: document.getElementById('favCharacter').value,
+        relation: document.getElementById('favRelation').value
+    });
+}
+
+function checkFormChanges() {
+    const saveBtn = document.getElementById('saveBtn');
+    if (!saveBtn) return;
+    if (getFormState() !== initialFormState) {
+        saveBtn.removeAttribute('disabled');
+        saveBtn.style.opacity = '1';
+    } else {
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.style.opacity = '0.5';
+    }
+}
+
+function checkOcFormChanges() {
+    const saveBtn = document.getElementById('ocSaveBtn');
+    if (!saveBtn) return;
+    if (getOcFormState() !== initialFormState) {
+        saveBtn.removeAttribute('disabled');
+        saveBtn.style.opacity = '1';
+    } else {
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.style.opacity = '0.5';
+    }
+}
+
+function checkFavFormChanges() {
+    const saveBtn = document.getElementById('favSaveBtn');
+    if (!saveBtn) return;
+    if (getFavFormState() !== initialFormState) {
+        saveBtn.removeAttribute('disabled');
+        saveBtn.style.opacity = '1';
+    } else {
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.style.opacity = '0.5';
+    }
+}
+
+window.openEditEditor = function(id) {
     const editForm = document.getElementById('editForm');
     const ocForm = document.getElementById('ocForm');
+    const favForm = document.getElementById('favForm');
     const saveBtn = document.getElementById('saveBtn');
     const ocSaveBtn = document.getElementById('ocSaveBtn');
+    const favSaveBtn = document.getElementById('favSaveBtn');
+    const idDisplay = document.getElementById('editorIdDisplay');
 
     if (currentSelectedCategory === '1차창작') {
         if (editForm) editForm.style.display = 'none';
         if (ocForm) ocForm.style.display = 'flex';
+        if (favForm) favForm.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'none';
         if (ocSaveBtn) ocSaveBtn.style.display = 'inline-block';
+        if (favSaveBtn) favSaveBtn.style.display = 'none';
 
-        const item = profilesData.find(p => p.id === index);
+        const item = profilesData.find(p => p.id === id);
         const ocPrivateEl = document.getElementById('ocPrivate');
         const ocSensitiveEl = document.getElementById('ocSensitive');
 
         if (item) {
             document.getElementById('editorTitle').innerText = `프로필 수정`;
-            document.getElementById('ocId').value = item.id;
+            if (idDisplay) idDisplay.innerText = `(ID: ${item.id})`;
+            window.editingTargetId = item.id;
+            
             document.getElementById('ocName').value = item.name || '';
             document.getElementById('ocForeignName').value = item.foreignName || '';
             document.getElementById('ocTitle').value = item.title || '';
@@ -193,41 +303,81 @@ window.openEditEditor = function(index) {
             if (ocSensitiveEl) ocSensitiveEl.checked = !!item.sensitive;
         } else {
             document.getElementById('editorTitle').innerText = `새 캐릭터 프로필 추가`;
+            const maxId = profilesData.reduce((max, p) => Math.max(max, p.id || 0), 0);
+            const newId = maxId + 1;
+            if (idDisplay) idDisplay.innerText = `(ID: ${newId})`;
+            window.editingTargetId = null;
+
             if (ocForm) ocForm.reset();
-            document.getElementById('ocId').value = '';
             if (ocPrivateEl) ocPrivateEl.checked = false;
             if (ocSensitiveEl) ocSensitiveEl.checked = false;
         }
 
         initialFormState = getOcFormState();
         checkOcFormChanges();
+    } else if (currentSelectedCategory === '관심작품') {
+        if (editForm) editForm.style.display = 'none';
+        if (ocForm) ocForm.style.display = 'none';
+        if (favForm) favForm.style.display = 'flex';
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (ocSaveBtn) ocSaveBtn.style.display = 'none';
+        if (favSaveBtn) favSaveBtn.style.display = 'inline-block';
+
+        const item = favsData.find(p => p.id === id);
+
+        if (item) {
+            document.getElementById('editorTitle').innerText = `관심 작품 수정`;
+            if (idDisplay) idDisplay.innerText = `(ID: ${item.id})`;
+            window.editingTargetId = item.id;
+
+            document.getElementById('favTitle').value = item.title || '';
+            document.getElementById('favMedia').value = item.media || '';
+            document.getElementById('favCharacter').value = item.character || '';
+            document.getElementById('favRelation').value = item.relation || '';
+        } else {
+            document.getElementById('editorTitle').innerText = `새 관심 작품 추가`;
+            const maxId = favsData.reduce((max, p) => Math.max(max, p.id || 0), 0);
+            const newId = maxId + 1;
+            if (idDisplay) idDisplay.innerText = `(ID: ${newId})`;
+            window.editingTargetId = null;
+
+            if (favForm) favForm.reset();
+        }
+
+        initialFormState = getFavFormState();
+        checkFavFormChanges();
     } else {
         if (ocForm) ocForm.style.display = 'none';
+        if (favForm) favForm.style.display = 'none';
         if (editForm) editForm.style.display = 'flex';
         if (ocSaveBtn) ocSaveBtn.style.display = 'none';
+        if (favSaveBtn) favSaveBtn.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'inline-block';
 
-        // 날짜 대조 없이 인덱스로 정확한 게시물 객체 지정
-        const post = (typeof index === 'number' && postsData[index]) ? postsData[index] : null;
+        const post = postsData.find(p => p.id === id);
         const cardPrivateEl = document.getElementById('cardPrivate');
         const cardSensitiveEl = document.getElementById('cardSensitive');
 
-        // 현재 편집 중인 데이터의 인덱스를 전역에 기억
-        window.editingPostIndex = (post ? index : -1);
-
         if (post) {
             document.getElementById('editorTitle').innerText = `카드 수정`;
+            if (idDisplay) idDisplay.innerText = `(ID: ${post.id})`;
+            window.editingTargetId = post.id;
+
             document.getElementById('cardCategory').value = post.category || currentSelectedCategory;
             document.getElementById('cardTags').value = (post.tags || []).join(', ');
             document.getElementById('cardAlt').value = post.alt || '';
             document.getElementById('cardDate').value = post.date || '';
-            
             if (cardPrivateEl) cardPrivateEl.checked = !!post.private;
             if (cardSensitiveEl) cardSensitiveEl.checked = !!post.sensitive;
             
             currentImages = post.images ? [...post.images] : (post['thumbnail-image'] ? [post['thumbnail-image']] : []);
         } else {
             document.getElementById('editorTitle').innerText = `새 카드 추가`;
+            const maxId = postsData.reduce((max, p) => Math.max(max, p.id || 0), 0);
+            const newId = maxId + 1;
+            if (idDisplay) idDisplay.innerText = `(ID: ${newId})`;
+            window.editingTargetId = null;
+
             document.getElementById('cardCategory').value = currentSelectedCategory || '2차창작';
             document.getElementById('cardTags').value = '';
             document.getElementById('cardAlt').value = '';
@@ -613,70 +763,6 @@ function syncFilterStateFromInput() {
     renderAdminTagSelector();
 }
 
-function getFormState() {
-    const categoryEl = document.getElementById('cardCategory');
-    const tagsEl = document.getElementById('cardTags');
-    const altEl = document.getElementById('cardAlt');
-    const dateEl = document.getElementById('cardDate');
-    const privateEl = document.getElementById('cardPrivate');
-    const sensitiveEl = document.getElementById('cardSensitive');
-
-    return JSON.stringify({
-        category: categoryEl ? categoryEl.value : '',
-        tags: tagsEl ? tagsEl.value : '',
-        alt: altEl ? altEl.value : '',
-        date: dateEl ? dateEl.value : '',
-        images: [...currentImages],
-        private: privateEl ? privateEl.checked : false,
-        sensitive: sensitiveEl ? sensitiveEl.checked : false
-    });
-}
-
-function getOcFormState() {
-    const isPrivateEl = document.getElementById('ocPrivate') || document.getElementById('isPrivate');
-    const isSensitiveEl = document.getElementById('ocSensitive') || document.getElementById('isSensitive');
-    return JSON.stringify({
-        id: document.getElementById('ocId').value,
-        name: document.getElementById('ocName').value,
-        foreignName: document.getElementById('ocForeignName').value,
-        title: document.getElementById('ocTitle').value,
-        age: document.getElementById('ocAge').value,
-        gender: document.getElementById('ocGender').value,
-        height: document.getElementById('ocHeight').value,
-        thumbnail: document.getElementById('ocThumbnail').value,
-        portrait: document.getElementById('ocPortrait').value,
-        description: document.getElementById('ocDescription').value,
-        private: isPrivateEl ? isPrivateEl.checked : false,
-        sensitive: isSensitiveEl ? isSensitiveEl.checked : false
-    });
-}
-
-function checkFormChanges() {
-    const saveBtn = document.getElementById('saveBtn');
-    if (!saveBtn) return;
-    if (getFormState() !== initialFormState) {
-        saveBtn.removeAttribute('disabled');
-        saveBtn.style.opacity = '1';
-    } else {
-        saveBtn.setAttribute('disabled', 'true');
-        saveBtn.style.opacity = '0.5';
-    }
-}
-
-function checkOcFormChanges() {
-    const saveBtn = document.getElementById('ocSaveBtn');
-    if (!saveBtn) return;
-    
-    const currentState = getOcFormState();
-    if (currentState !== initialFormState) {
-        saveBtn.removeAttribute('disabled');
-        saveBtn.style.opacity = '1';
-    } else {
-        saveBtn.setAttribute('disabled', 'true');
-        saveBtn.style.opacity = '0.5';
-    }
-}
-
 function renderImages() {
     const listEl = document.getElementById('imageList');
     if (!listEl) return;
@@ -734,7 +820,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    ['cardAlt', 'cardDate'].forEach(id => {
+    ['cardAlt', 'cardDate', 'cardPrivate', 'cardSensitive'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', checkFormChanges);
@@ -742,7 +828,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    ['ocName', 'ocForeignName', 'ocTitle', 'ocAge', 'ocGender', 'ocHeight', 'ocThumbnail', 'ocPortrait', 'ocDescription', 'ocDate'].forEach(id => {
+    ['ocName', 'ocForeignName', 'ocTitle', 'ocAge', 'ocGender', 'ocHeight', 'ocThumbnail', 'ocPortrait', 'ocDescription', 'ocPrivate', 'ocSensitive'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', checkOcFormChanges);
@@ -750,14 +836,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 비공개 및 민감한 콘텐츠 체크박스 변경 감지 추가
-    ['isPrivate', 'isSensitive'].forEach(id => {
+    ['favTitle', 'favMedia', 'favCharacter', 'favRelation'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('change', () => {
-                checkFormChanges();
-                checkOcFormChanges();
-            });
+            el.addEventListener('input', checkFavFormChanges);
+            el.addEventListener('change', checkFavFormChanges);
         }
     });
 
@@ -765,15 +848,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (editForm) {
         editForm.onsubmit = (e) => {
             e.preventDefault();
-            
-            // 기존 객체를 참조하지 않고 완전히 새로운 객체를 생성하여 데이터 오염 방지
             const cardData = {
+                id: window.editingTargetId !== null ? window.editingTargetId : (postsData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
                 category: document.getElementById('cardCategory').value,
                 tags: document.getElementById('cardTags').value.split(',').map(t => t.trim()).filter(Boolean),
                 alt: document.getElementById('cardAlt').value,
                 date: document.getElementById('cardDate').value,
-                private: document.getElementById('cardPrivate') ? document.getElementById('cardPrivate').checked : false,
-                sensitive: document.getElementById('cardSensitive') ? document.getElementById('cardSensitive').checked : false,
+                private: document.getElementById('cardPrivate').checked,
+                sensitive: document.getElementById('cardSensitive').checked,
                 status: "public"
             };
 
@@ -784,13 +866,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            if (typeof window.editingPostIndex === 'number' && window.editingPostIndex >= 0 && postsData[window.editingPostIndex]) {
-                postsData[window.editingPostIndex] = cardData;
+            const existingIdx = postsData.findIndex(p => p.id === cardData.id);
+            if (existingIdx !== -1) {
+                postsData[existingIdx] = cardData;
             } else {
                 postsData.unshift(cardData);
             }
 
-            window.editingPostIndex = null;
+            window.editingTargetId = null;
             closeEditor();
             renderGrid();
         };
@@ -800,13 +883,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (ocForm) {
         ocForm.onsubmit = (e) => {
             e.preventDefault();
-            const inputId = parseInt(document.getElementById('ocId').value);
-            
-            if (isNaN(inputId)) {
-                alert('유효한 ID 숫자를 입력해주세요.');
-                return;
-            }
-
             const formatOcImgPath = (val) => {
                 if (!val) return '';
                 const cleanName = val.trim().replace(/^assets\/images\/ocs\//, '').replace(/\.[^/.]+$/, '');
@@ -814,7 +890,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
 
             const ocData = {
-                id: inputId,
+                id: window.editingTargetId !== null ? window.editingTargetId : (profilesData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
                 name: document.getElementById('ocName').value,
                 foreignName: document.getElementById('ocForeignName').value,
                 title: document.getElementById('ocTitle').value,
@@ -824,8 +900,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 thumbnail: formatOcImgPath(document.getElementById('ocThumbnail').value),
                 portrait: formatOcImgPath(document.getElementById('ocPortrait').value),
                 description: document.getElementById('ocDescription').value,
-                private: document.getElementById('isPrivate').checked,
-                sensitive: document.getElementById('isSensitive').checked
+                private: document.getElementById('ocPrivate').checked,
+                sensitive: document.getElementById('ocSensitive').checked
             };
 
             const existingIdx = profilesData.findIndex(p => p.id === ocData.id);
@@ -835,6 +911,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                 profilesData.push(ocData);
             }
 
+            window.editingTargetId = null;
+            closeEditor();
+            renderGrid();
+        };
+    }
+
+    const favForm = document.getElementById('favForm');
+    if (favForm) {
+        favForm.onsubmit = (e) => {
+            e.preventDefault();
+            const favData = {
+                id: window.editingTargetId !== null ? window.editingTargetId : (favsData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
+                title: document.getElementById('favTitle').value,
+                media: document.getElementById('favMedia').value,
+                character: document.getElementById('favCharacter').value,
+                relation: document.getElementById('favRelation').value
+            };
+
+            const existingIdx = favsData.findIndex(p => p.id === favData.id);
+            if (existingIdx !== -1) {
+                favsData[existingIdx] = favData;
+            } else {
+                favsData.unshift(favData);
+            }
+
+            window.editingTargetId = null;
             closeEditor();
             renderGrid();
         };
@@ -859,12 +961,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-window.deleteCard = function(index) {
+window.deleteCard = function(id) {
     if (confirm('정말 이 항목을 삭제하시겠습니까?')) {
         if (currentSelectedCategory === '1차창작') {
-            profilesData = profilesData.filter(p => p.id !== index);
+            profilesData = profilesData.filter(p => p.id !== id);
+        } else if (currentSelectedCategory === '관심작품') {
+            favsData = favsData.filter(p => p.id !== id);
         } else {
-            postsData.splice(index, 1);
+            postsData.splice(postsData.findIndex(p => p.id === id), 1);
         }
         renderGrid();
     }
@@ -885,6 +989,16 @@ window.downloadProfileJson = function() {
     const a = document.createElement('a');
     a.setAttribute("href", profilesStr);
     a.setAttribute("download", "profiles.json");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+};
+
+window.downloadFavsJson = function() {
+    const favsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(favsData, null, 4));
+    const a = document.createElement('a');
+    a.setAttribute("href", favsStr);
+    a.setAttribute("download", "favs.json");
     document.body.appendChild(a);
     a.click();
     a.remove();

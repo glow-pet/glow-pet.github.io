@@ -17,20 +17,20 @@
         <div style="display: flex; gap: 8px;">
             <button onclick="downloadJson()" class="admin-dark-btn" style="padding: 0.5rem 1.2rem;" title="posts.json 저장">posts.json 저장</button>
             <button onclick="downloadProfileJson()" class="admin-dark-btn" style="padding: 0.5rem 1.2rem;" title="profiles.json 저장">profiles.json 저장</button>
+            <button onclick="downloadFavsJson()" class="admin-dark-btn" style="padding: 0.5rem 1.2rem;" title="favs.json 저장">favs.json 저장</button>
         </div>
     </nav>
 
     <div class="admin-layout-wrapper" id="adminLayoutWrapper">
-        <!-- 1열: 사이드바 -->
         <aside class="admin-sidebar">
             <div class="admin-column-header">카테고리</div>
             <div class="admin-sidebar-menu-list">
                 <button class="admin-menu-btn" onclick="selectCategory('1차창작')">1차 창작</button>
                 <button class="admin-menu-btn" onclick="selectCategory('2차창작')">2차 창작</button>
+                <button class="admin-menu-btn" onclick="selectCategory('관심작품')">관심 작품</button>
             </div>
         </aside>
 
-        <!-- 2열: 콘텐츠 목록 영역 -->
         <main class="admin-content-pane" id="contentPane">
             <div id="contentPaneInner" style="display: none; flex-direction: column; height: 100%;">
                 <div class="admin-column-header">
@@ -38,7 +38,6 @@
                     <button onclick="openEditEditor(null)" class="admin-dark-btn" id="addNewBtn">+ 새 항목</button>
                 </div>
                 <div class="admin-card-list" id="cardGrid" style="flex: 1; overflow-y: scroll;"></div>
-                <!-- 2열 하단 페이지네이션 -->
                 <div id="adminPagination" class="pagination-container" style="margin: 1rem 0 0 0;"></div>
             </div>
             <div id="contentPanePlaceholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #aaa; font-size: 0.9rem;">
@@ -46,24 +45,23 @@
             </div>
         </main>
 
-        <!-- 3열: 수정 / 추가 에디터 패널 -->
         <aside class="admin-editor-pane" id="editorPane">
-            <!-- 3열: 수정 / 추가 에디터 패널 내부 (editorPaneInner 부분 수정) -->
             <div id="editorPaneInner" style="display: none; flex-direction: column; height: 100%;">
                 <div class="admin-column-header">
-                    <span id="editorTitle">항목 수정</span>
-                    <!-- '적용' 버튼을 열머리 가장 오른쪽으로 이동 -->
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="editorTitle">항목 수정</span>
+                        <span id="editorIdDisplay" style="font-size: 0.8rem; color: #888; font-weight: normal;"></span>
+                    </div>
                     <div>
-                        <button type="submit" form="editForm" id="saveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem;" disabled>적용</button>
+                        <button type="submit" form="editForm" id="saveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem; display: none;" disabled>적용</button>
                         <button type="submit" form="ocForm" id="ocSaveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem; display: none;" disabled>적용</button>
+                        <button type="submit" form="favForm" id="favSaveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem; display: none;" disabled>적용</button>
                     </div>
                 </div>
 
-                <!-- 스크롤이 가능하도록 내부 폼 영역을 감싸는 스크롤 박스 -->
                 <div style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
-                    <!-- 2차 창작(posts) 전용 폼 -->
+                    <!-- 2차 창작 폼 -->
                     <form id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
-                        <!-- 기존 폼 내부 내용 동일 (하단의 적용 버튼 div는 삭제하거나 숨김 처리) -->
                         <input type="hidden" id="cardId">
                         <div class="form-group" style="display:none;">
                             <label>카테고리</label>
@@ -72,14 +70,7 @@
                                 <option value="2차창작" selected>2차창작</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
-                                <button type="button" class="admin-dark-btn" onclick="openTagHierarchyModal()">수정</button>
-                            </div>
-                            <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
-                            <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
-                        </div>
+                        
                         <div class="form-group">
                             <label>이미지 추가</label>
                             <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
@@ -89,30 +80,42 @@
                             </div>
                             <div id="imageList" class="image-list"></div>
                         </div>
+
+                        <!-- 항목명 추가된 옵션 설정 -->
                         <div class="form-group">
-                            <label>alt (캡션)</label>
-                            <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
+                            <label>옵션 설정</label>
+                            <div style="display: flex; gap: 2rem; align-items: center; margin-top: 4px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                    <input type="checkbox" id="cardPrivate" style="width: 16px; height: 16px;"> 비공개
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                    <input type="checkbox" id="cardSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
+                                </label>
+                            </div>
                         </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
+                                <button type="button" class="admin-dark-btn" onclick="openTagHierarchyModal()">수정</button>
+                            </div>
+                            <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
+                            <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
+                        </div>
+
                         <div class="form-group">
                             <label>날짜</label>
                             <input type="date" id="cardDate" style="width: 35%;">
                         </div>
-                        <div class="form-group" style="margin-top: 20px; margin-bottom: 100px; display: flex; gap: 2rem; align-items: center;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="isPrivate" style="width: 16px; height: 16px;"> 비공개
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="isSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
-                            </label>
+
+                        <div class="form-group" style="margin-bottom: 100px;">
+                            <label>alt (캡션)</label>
+                            <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
                         </div>
                     </form>
 
-                    <!-- 1차 창작 프로필 전용 폼 -->
+                    <!-- 1차 창작 프로필 폼 -->
                     <form id="ocForm" style="display: none; flex-direction: column; gap: 12px;">
-                        <div class="form-group">
-                            <label>ID (고유 번호)</label>
-                            <input type="text" id="ocId" style="width: 20%;"required placeholder="예: 1">
-                        </div>
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                             <div class="form-group">
                                 <label>성명</label>
@@ -155,13 +158,38 @@
                             <label>세부 정보</label>
                             <textarea id="ocDescription" rows="8" style="resize: none; height: 300px;"></textarea>
                         </div>
-                        <div class="form-group" style="margin-top: 20px; margin-bottom: 100px; display: flex; gap: 2rem; align-items: center;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="isPrivate" style="width: 16px; height: 16px;"> 비공개
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="isSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
-                            </label>
+                        
+                        <!-- 항목명 추가된 옵션 설정 -->
+                        <div class="form-group" style="margin-top: 20px; margin-bottom: 100px;">
+                            <label>옵션 설정</label>
+                            <div style="display: flex; gap: 2rem; align-items: center; margin-top: 4px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                    <input type="checkbox" id="ocPrivate" style="width: 16px; height: 16px;"> 비공개
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                    <input type="checkbox" id="ocSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- 관심 작품 폼 -->
+                    <form id="favForm" style="display: none; flex-direction: column; gap: 12px; margin-bottom: 100px;">
+                        <div class="form-group">
+                            <label>작품명 (Title)</label>
+                            <input type="text" id="favTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>매체 / 장르 (Media)</label>
+                            <input type="text" id="favMedia" placeholder="예: 애니(TVA, 신극장판)">
+                        </div>
+                        <div class="form-group">
+                            <label>캐릭터 (Character)</label>
+                            <input type="text" id="favCharacter" placeholder="예: 나나">
+                        </div>
+                        <div class="form-group">
+                            <label>관계 / 커플링 (Relation)</label>
+                            <input type="text" id="favRelation" placeholder="예: 나나+카렌">
                         </div>
                     </form>
                 </div>

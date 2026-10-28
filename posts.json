@@ -10,6 +10,8 @@
         ],
         "alt": "",
         "date": "2026-10-25",
+        "private": false,
+        "sensitive": true,
         "status": "public",
         "thumbnail-image": "assets/images/fanworks/draw-this-then-die/bafkreia6f3j7abf2fb6c5bl7j6wgg2ysqlgwvlwmhlwhnpwtzbfllsm2w4.webp"
     },
@@ -29,12 +31,15 @@
     },
     {
         "id": 18,
+        "category": "2차창작",
         "tags": [
             "델타룬",
             "디셈버"
         ],
         "alt": "",
         "date": "2026-10-24",
+        "private": true,
+        "sensitive": false,
         "status": "public",
         "thumbnail-image": "assets/images/fanworks/deltarune/bafkreicarjvk6qoy4v5zkickpoprhgfzjfm3cyicrdp4ptt24l3ns6itzy.webp"
     },
@@ -79,6 +84,7 @@
     },
     {
         "id": 14,
+        "category": "2차창작",
         "tags": [
             "안녕 라라",
             "라라",
@@ -87,6 +93,8 @@
         ],
         "alt": "라라x마리. (운동중) 마리: 낑낑. 라라: ... (복근. 불끈.) 라라: 마리, 복근 대단하다. 마리: 응? 라라도 복근 만들어 볼래? 제과도 체력이 중요하잖아. 라라: 응... 있지, 마리. 만져봐도 돼? 마리: 뭐, 니 마음대로 해라. 라라: ?",
         "date": "2026-10-10",
+        "private": false,
+        "sensitive": true,
         "status": "public",
         "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreihjdg3hrvkryk7y7ozd4sntuetnj3czjrvchzf2uastvgxj6i3owy.webp",
         "images": [
@@ -108,16 +116,18 @@
     },
     {
         "id": 11,
-        "date": "2026-10-01",
-        "status": "public",
+        "category": "2차창작",
         "tags": [
             "안녕 라라",
             "라라",
             "마리",
             "라라x마리"
         ],
-        "link": "",
         "alt": "라라x마리. 라라가 상기된 표정으로 문을 거칠게 열어재끼며 외친다. 라라: 나, 나왔다아...!! 그리고 그 바로 뒤를 따르는 것은 고개를 푹 숙인 마리다. 어째서인지 알몸에 셔츠 한 장만 걸치고 땀은 뻘뻘, 달뜬 숨을 내쉬면서 붙잡은 라라의 손을 따라 이끌려 나오고 있다. 옆문에 종이 안내문이 한 장 붙어 있다. ...X하지 않으면 못 나가는 방. 왼쪽 위 모서리의 테이프가 떨어져서 앞쪽 글자가 가려졌다.",
+        "date": "2026-10-01",
+        "private": false,
+        "sensitive": true,
+        "status": "public",
         "thumbnail-image": "assets/images/fanworks/goodbye-lara/bafkreifiaaaax2mu7q2m5kj42fsajqmmhibzpyikep7co7g5m7ldkx3vze.webp"
     },
     {

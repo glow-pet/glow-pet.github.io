@@ -1,54 +1,5 @@
-// favs.js
-const favsRawText = `
-
-소녀★가극 레뷰 스타라이트
-애니(TVA, 신극장판)
-나나
-나나+카렌
-
-안녕, 라라
-애니
-리사
-드림주+리사
-
-서머타임 렌더링
-애니
-
-델타룬
-게임(챕터1-4)
-노엘
-노엘+디셈버
-
-하이바네 연맹
-애니
-레키
-드림주+레키
-
-아포칼립스 호텔
-애니
-야치요
-야치요x폰코
-
-이거 그리고 죽어
-애니(1기) / 만화
-레이
-레이+아이
-
-주식회사 마지루미에
-만화
-히토미
-
-언더테일 옐로우
-게임
-마틀렛
-
-동굴 이야기
-게임(2004)
-
-`;
-
 // assets/js/favs.js
-
+let favsData = [];
 let currentDisplayLimit = 12; // 초기 표시 개수 12개
 const itemsPerBatch = 12;     // 더보기 클릭 시 추가되는 개수 12개
 
@@ -69,14 +20,12 @@ function setupFavsLoadMore(totalItems) {
     `;
     containerEl.appendChild(loadMoreWrapper);
 
-    // 오직 더보기 버튼을 클릭할 때만 실행되도록 설정 (무한 스크롤 제거)
     document.getElementById('load-more-btn').addEventListener('click', () => {
       currentDisplayLimit += itemsPerBatch;
       renderFavsData();
     });
   }
 
-  // 모든 항목이 표시된 경우 '더보기' 버튼 숨김
   const btn = document.getElementById('load-more-btn');
   if (btn) {
     if (currentDisplayLimit >= totalItems) {
@@ -91,32 +40,41 @@ function renderFavsData() {
   const container = document.getElementById('favs-list');
   if (!container) return;
 
-  if (typeof favsRawText === 'undefined') {
-    console.error("favsRawText 데이터를 찾을 수 없습니다. favs.js를 확인해 주세요.");
-    return;
-  }
+  const slicedBlocks = favsData.slice(0, currentDisplayLimit);
 
-  const cleanText = favsRawText.replace(/\r/g, '');
-  const blocks = cleanText.split(/\n\s*\n/).filter(block => block.trim() !== '');
+  const html = slicedBlocks.map(item => {
+    const title = item.title || '';
+    const details = [];
 
-  // 현재 제한된 개수까지만 잘라내어 렌더링
-  const slicedBlocks = blocks.slice(0, currentDisplayLimit);
+    if (item.media) details.push(item.media);
+    if (item.character) details.push(item.character);
+    if (item.relation) details.push(item.relation);
 
-  const html = slicedBlocks.map(block => {
-    const lines = block.trim().split('\n');
-    const title = lines[0] || '';
-    const content = lines.slice(1).map(line => line.trim()).join('<br>');
+    const contentHtml = details.join('<br>');
 
     return `
       <article class="favs-block">
         <h2 class="title">${title}</h2>
-        <p class="line">${content}</p>
+        <p class="line">${contentHtml}</p>
       </article>
     `;
   }).join('');
 
   container.innerHTML = html;
-  setupFavsLoadMore(blocks.length);
+  setupFavsLoadMore(favsData.length);
 }
 
-document.addEventListener("DOMContentLoaded", renderFavsData);
+async function initFavs() {
+  try {
+    const jsonPath = window.location.pathname.includes('/pages/') ? '../favs.json' : 'favs.json';
+    const res = await fetch(jsonPath);
+    if (res.ok) {
+      favsData = await res.json();
+      renderFavsData();
+    }
+  } catch (e) {
+    console.error('favs.json 로드 실패', e);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initFavs);
