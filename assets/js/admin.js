@@ -71,7 +71,7 @@ function renderGrid() {
     } else if (currentSelectedCategory === '관심작품') {
         targetData = [...favsData].sort((a, b) => (b.id || 0) - (a.id || 0));
     } else {
-        targetData = [...postsData].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+        targetData = [...postsData].sort((a, b) => new Date(b.date || 0) - new Date(b.date || 0));
     }
 
     if (targetData.length === 0) {
@@ -91,7 +91,9 @@ function renderGrid() {
             const thumb = item.thumbnail || item.portrait || '';
             const statusBadges = [];
             if (item.private) statusBadges.push('비공개');
-            if (item.sensitive) statusBadges.push('민감한 콘텐츠');
+            if (item.rating === 'warning') statusBadges.push('성인물(경고)');
+            if (item.rating === 'external') statusBadges.push('성인물(외부링크)');
+            if (!item.rating && item.sensitive) statusBadges.push('성인물(경고)');
             const statusHtml = statusBadges.length > 0 ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">${statusBadges.join(' | ')}</div>` : '';
 
             return `
@@ -105,7 +107,7 @@ function renderGrid() {
                     </div>
                     <div class="admin-card-info" style="flex: 1; min-width: 0;">
                         <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 2px;">${item.name || ''} (${item.foreignName || ''})</div>
-                        <div class="admin-card-meta" style="font-size: 0.75rem; color: #666;">${item.title || ''} | ${item.age ? item.age + '세' : ''} ${item.gender || ''}</div>
+                        <div class="admin-card-meta" style="font-size: 0.75rem; color: #666;">${item.title || ''} | ${item.age ? item.age : ''} ${item.gender || ''}</div>
                         ${statusHtml}
                     </div>
                 </div>
@@ -137,7 +139,9 @@ function renderGrid() {
             
             const statusBadges = [];
             if (post.private) statusBadges.push('비공개');
-            if (post.sensitive) statusBadges.push('민감한 콘텐츠');
+            if (post.rating === 'warning') statusBadges.push('성인물(경고)');
+            if (post.rating === 'external') statusBadges.push('성인물(외부링크)');
+            if (!post.rating && post.sensitive) statusBadges.push('성인물(경고)');
             const statusHtml = statusBadges.length > 0 ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">${statusBadges.join(' | ')}</div>` : '';
 
             return `
@@ -191,7 +195,56 @@ function renderAdminPagination(totalItems) {
     });
 }
 
+function updateRatingStatesBasedOnInputs() {
+    const warningInput = document.getElementById('cardWarningContent');
+    const externalInput = document.getElementById('cardExternalLink');
+    const radioAll = document.querySelector('input[name="admin-rating"][value="all"]');
+    const radioWarning = document.querySelector('input[name="admin-rating"][value="warning"]');
+    const radioExternal = document.querySelector('input[name="admin-rating"][value="external"]');
+
+    if (warningInput && radioWarning) {
+        const hasWarning = warningInput.value.trim().length > 0;
+        radioWarning.checked = hasWarning;
+        if (hasWarning && radioAll) radioAll.checked = false;
+    }
+
+    if (externalInput && radioExternal) {
+        const hasExternal = externalInput.value.trim().length > 0;
+        radioExternal.checked = hasExternal;
+        if (hasExternal && radioAll) radioAll.checked = false;
+    }
+
+    if (!warningInput?.value.trim() && !externalInput?.value.trim() && radioAll) {
+        radioAll.checked = true;
+    }
+}
+
+function updateOcRatingStatesBasedOnInputs() {
+    const warningInput = document.getElementById('ocWarningContent');
+    const radioAll = document.querySelector('input[name="oc-admin-rating"][value="all"]');
+    const radioWarning = document.querySelector('input[name="oc-admin-rating"][value="warning"]');
+
+    if (warningInput && radioWarning) {
+        const hasWarning = warningInput.value.trim().length > 0;
+        radioWarning.checked = hasWarning;
+        if (hasWarning && radioAll) radioAll.checked = false;
+    }
+
+    if (!warningInput?.value.trim() && radioAll) {
+        radioAll.checked = true;
+    }
+}
+
 function getFormState() {
+    const warningContentInput = document.getElementById('cardWarningContent');
+    const externalLinkInput = document.getElementById('cardExternalLink');
+    const warningVal = warningContentInput ? warningContentInput.value.trim() : '';
+    const linkVal = externalLinkInput ? externalLinkInput.value.trim() : '';
+    
+    let ratingVal = 'all';
+    if (warningVal) ratingVal = 'warning';
+    else if (linkVal) ratingVal = 'external';
+
     return JSON.stringify({
         category: document.getElementById('cardCategory').value,
         tags: document.getElementById('cardTags').value,
@@ -199,23 +252,31 @@ function getFormState() {
         date: document.getElementById('cardDate').value,
         images: [...currentImages],
         private: document.getElementById('cardPrivate').checked,
-        sensitive: document.getElementById('cardSensitive').checked
+        rating: ratingVal,
+        warningContent: warningVal,
+        link: linkVal
     });
 }
 
 function getOcFormState() {
+    const privateEl = document.getElementById('ocPrivate');
+    const warningContentInput = document.getElementById('ocWarningContent');
+    const warningVal = warningContentInput ? warningContentInput.value.trim() : '';
+    const ratingVal = warningVal ? 'warning' : 'all';
+
     return JSON.stringify({
-        name: document.getElementById('ocName').value,
-        foreignName: document.getElementById('ocForeignName').value,
-        title: document.getElementById('ocTitle').value,
-        age: document.getElementById('ocAge').value,
-        gender: document.getElementById('ocGender').value,
-        height: document.getElementById('ocHeight').value,
-        thumbnail: document.getElementById('ocThumbnail').value,
-        portrait: document.getElementById('ocPortrait').value,
-        description: document.getElementById('ocDescription').value,
-        private: document.getElementById('ocPrivate').checked,
-        sensitive: document.getElementById('ocSensitive').checked
+        name: document.getElementById('ocName') ? document.getElementById('ocName').value : '',
+        foreignName: document.getElementById('ocForeignName') ? document.getElementById('ocForeignName').value : '',
+        title: document.getElementById('ocTitle') ? document.getElementById('ocTitle').value : '',
+        age: document.getElementById('ocAge') ? document.getElementById('ocAge').value : '',
+        gender: document.getElementById('ocGender') ? document.getElementById('ocGender').value : '',
+        height: document.getElementById('ocHeight') ? document.getElementById('ocHeight').value : '',
+        thumbnail: document.getElementById('ocThumbnail') ? document.getElementById('ocThumbnail').value : '',
+        portrait: document.getElementById('ocPortrait') ? document.getElementById('ocPortrait').value : '',
+        description: document.getElementById('ocDescription') ? document.getElementById('ocDescription').value : '',
+        private: privateEl ? privateEl.checked : false,
+        rating: ratingVal,
+        warningContent: warningVal
     });
 }
 
@@ -283,11 +344,10 @@ window.openEditEditor = function(id) {
 
         const item = profilesData.find(p => p.id === id);
         const ocPrivateEl = document.getElementById('ocPrivate');
-        const ocSensitiveEl = document.getElementById('ocSensitive');
 
         if (item) {
             document.getElementById('editorTitle').innerText = `프로필 수정`;
-            if (idDisplay) idDisplay.innerText = `(ID: ${item.id})`;
+            if (idDisplay) idDisplay.innerText = `(ID: ${id})`;
             window.editingTargetId = item.id;
             
             document.getElementById('ocName').value = item.name || '';
@@ -300,7 +360,10 @@ window.openEditEditor = function(id) {
             document.getElementById('ocPortrait').value = item.portrait || '';
             document.getElementById('ocDescription').value = item.description || '';
             if (ocPrivateEl) ocPrivateEl.checked = !!item.private;
-            if (ocSensitiveEl) ocSensitiveEl.checked = !!item.sensitive;
+
+            const warningInput = document.getElementById('ocWarningContent');
+            if (warningInput) warningInput.value = item.warningContent || '';
+            updateOcRatingStatesBasedOnInputs();
         } else {
             document.getElementById('editorTitle').innerText = `새 캐릭터 프로필 추가`;
             const maxId = profilesData.reduce((max, p) => Math.max(max, p.id || 0), 0);
@@ -310,7 +373,7 @@ window.openEditEditor = function(id) {
 
             if (ocForm) ocForm.reset();
             if (ocPrivateEl) ocPrivateEl.checked = false;
-            if (ocSensitiveEl) ocSensitiveEl.checked = false;
+            updateOcRatingStatesBasedOnInputs();
         }
 
         initialFormState = getOcFormState();
@@ -356,7 +419,8 @@ window.openEditEditor = function(id) {
 
         const post = postsData.find(p => p.id === id);
         const cardPrivateEl = document.getElementById('cardPrivate');
-        const cardSensitiveEl = document.getElementById('cardSensitive');
+        const externalLinkInput = document.getElementById('cardExternalLink');
+        const warningContentInput = document.getElementById('cardWarningContent');
 
         if (post) {
             document.getElementById('editorTitle').innerText = `카드 수정`;
@@ -368,8 +432,11 @@ window.openEditEditor = function(id) {
             document.getElementById('cardAlt').value = post.alt || '';
             document.getElementById('cardDate').value = post.date || '';
             if (cardPrivateEl) cardPrivateEl.checked = !!post.private;
-            if (cardSensitiveEl) cardSensitiveEl.checked = !!post.sensitive;
             
+            if (warningContentInput) warningContentInput.value = post.warningContent || '';
+            if (externalLinkInput) externalLinkInput.value = post.link || '';
+            updateRatingStatesBasedOnInputs();
+
             currentImages = post.images ? [...post.images] : (post['thumbnail-image'] ? [post['thumbnail-image']] : []);
         } else {
             document.getElementById('editorTitle').innerText = `새 카드 추가`;
@@ -383,7 +450,10 @@ window.openEditEditor = function(id) {
             document.getElementById('cardAlt').value = '';
             document.getElementById('cardDate').value = new Date().toISOString().split('T')[0];
             if (cardPrivateEl) cardPrivateEl.checked = false;
-            if (cardSensitiveEl) cardSensitiveEl.checked = false;
+            if (warningContentInput) warningContentInput.value = '';
+            if (externalLinkInput) externalLinkInput.value = '';
+            updateRatingStatesBasedOnInputs();
+
             currentImages = [];
         }
 
@@ -820,19 +890,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    ['cardAlt', 'cardDate', 'cardPrivate', 'cardSensitive'].forEach(id => {
+    ['cardAlt', 'cardDate', 'cardPrivate', 'cardWarningContent', 'cardExternalLink'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('input', checkFormChanges);
-            el.addEventListener('change', checkFormChanges);
+            el.addEventListener('input', () => {
+                updateRatingStatesBasedOnInputs();
+                checkFormChanges();
+            });
+            el.addEventListener('change', () => {
+                updateRatingStatesBasedOnInputs();
+                checkFormChanges();
+            });
         }
     });
 
-    ['ocName', 'ocForeignName', 'ocTitle', 'ocAge', 'ocGender', 'ocHeight', 'ocThumbnail', 'ocPortrait', 'ocDescription', 'ocPrivate', 'ocSensitive'].forEach(id => {
+    ['ocName', 'ocForeignName', 'ocTitle', 'ocAge', 'ocGender', 'ocHeight', 'ocThumbnail', 'ocPortrait', 'ocDescription', 'ocPrivate', 'ocWarningContent'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('input', checkOcFormChanges);
-            el.addEventListener('change', checkOcFormChanges);
+            el.addEventListener('input', () => {
+                updateOcRatingStatesBasedOnInputs();
+                checkOcFormChanges();
+            });
+            el.addEventListener('change', () => {
+                updateOcRatingStatesBasedOnInputs();
+                checkOcFormChanges();
+            });
         }
     });
 
@@ -848,6 +930,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (editForm) {
         editForm.onsubmit = (e) => {
             e.preventDefault();
+            const warningVal = document.getElementById('cardWarningContent') ? document.getElementById('cardWarningContent').value.trim() : '';
+            const linkVal = document.getElementById('cardExternalLink') ? document.getElementById('cardExternalLink').value.trim() : '';
+            
+            let selectedRating = 'all';
+            if (warningVal) selectedRating = 'warning';
+            else if (linkVal) selectedRating = 'external';
+
             const cardData = {
                 id: window.editingTargetId !== null ? window.editingTargetId : (postsData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
                 category: document.getElementById('cardCategory').value,
@@ -855,7 +944,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alt: document.getElementById('cardAlt').value,
                 date: document.getElementById('cardDate').value,
                 private: document.getElementById('cardPrivate').checked,
-                sensitive: document.getElementById('cardSensitive').checked,
+                rating: selectedRating,
+                warningContent: warningVal,
+                link: linkVal,
+                sensitive: (selectedRating === 'warning' || selectedRating === 'external'),
                 status: "public"
             };
 
@@ -886,8 +978,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const formatOcImgPath = (val) => {
                 if (!val) return '';
                 const cleanName = val.trim().replace(/^assets\/images\/ocs\//, '').replace(/\.[^/.]+$/, '');
-                return `assets/images/ocs/${cleanName}.png`;
+                return `assets/images/ocs/${cleanName}.webp`;
             };
+
+            const warningVal = document.getElementById('ocWarningContent') ? document.getElementById('ocWarningContent').value.trim() : '';
+            const selectedOcRating = warningVal ? 'warning' : 'all';
 
             const ocData = {
                 id: window.editingTargetId !== null ? window.editingTargetId : (profilesData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
@@ -901,7 +996,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 portrait: formatOcImgPath(document.getElementById('ocPortrait').value),
                 description: document.getElementById('ocDescription').value,
                 private: document.getElementById('ocPrivate').checked,
-                sensitive: document.getElementById('ocSensitive').checked
+                rating: selectedOcRating,
+                warningContent: warningVal,
+                sensitive: (selectedOcRating === 'warning')
             };
 
             const existingIdx = profilesData.findIndex(p => p.id === ocData.id);

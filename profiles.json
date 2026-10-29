@@ -1,5 +1,21 @@
 [
     {
+        "id": 11,
+        "name": "파이널 덱스",
+        "foreignName": "Finall Deccks",
+        "title": "보드게임 오타쿠",
+        "age": "7 얼터니안 스윕",
+        "gender": "여성",
+        "height": "170",
+        "thumbnail": "assets/images/ocs/bafkreif34gfru5hus5bvivihxssilo7gl7dlrqly4jzo6takcmb4rsamta.webp",
+        "portrait": "",
+        "description": "",
+        "private": false,
+        "rating": "all",
+        "warningContent": "",
+        "sensitive": false
+    },
+    {
         "id": 10,
         "name": "쿠리야마 시구레",
         "foreignName": "栗山 時雨",
@@ -81,6 +97,8 @@
         "portrait": "",
         "description": "",
         "private": false,
+        "rating": "warning",
+        "warningContent": "폭력",
         "sensitive": true
     },
     {
@@ -109,7 +127,9 @@
         "portrait": "",
         "description": "",
         "private": false,
-        "sensitive": false
+        "rating": "warning",
+        "warningContent": "폭력",
+        "sensitive": true
     },
     {
         "id": 2,
@@ -123,7 +143,9 @@
         "portrait": "",
         "description": "",
         "private": false,
-        "sensitive": false
+        "rating": "warning",
+        "warningContent": "폭력",
+        "sensitive": true
     },
     {
         "id": 1,
@@ -136,6 +158,9 @@
         "thumbnail": "",
         "portrait": "",
         "description": "function openOcModal(character) {\n    document.getElementById('ocName').innerText = character.name || '';\n    document.getElementById('ocForeignName').innerText = character.foreignName || '';\n    document.getElementById('ocTitle').innerText = character.title || '';\n    \n    document.getElementById('ocAge').innerText = character.age ? `${character.age}세` : '';\n    document.getElementById('ocGender').innerText = character.gender || '';\n    document.getElementById('ocHeight').innerText = character.height ? `${character.height}cm` : '';\n\n    document.getElementById('ocPortrait').src = character.portrait || character.thumbnail || '';\n    document.getElementById('ocDetailText').innerText = character.description || '';\n\n    ocModal.classList.add('active');\n    \n    // 블루스카이처럼 모달 떴을 때 배경 스크롤바를 완전히 숨김\n    document.body.classList.add('modal-open');\n  }\n\n  function closeOcModal() {\n    ocModal.classList.remove('active');\n    \n    // 모달 닫힐 때 배경 스크롤 복구\n    document.body.classList.remove('modal-open');\n  }",
-        "date": "2026-10-26"
+        "private": false,
+        "rating": "warning",
+        "warningContent": "폭력",
+        "sensitive": true
     }
 ]

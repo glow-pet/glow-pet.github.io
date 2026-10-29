@@ -8,9 +8,17 @@ const itemsPerPage = 12;
 let tagFilterModal = null;
 let profilesData = [];
 
-// [공통 유틸리티] 이미지 리사이징 경로 처리
+// [공통 유틸리티] 이미지 리사이징 경로 처리 (상대 경로 및 IPFS 해시 경로 예외 처리 보완)
 function getResizedImageUrl(src, targetWidth = 400) {
-  if (!src || src.startsWith('http')) return src;
+  if (!src) return '';
+  // 외부 URL, 절대 경로, 혹은 이미 올바른 상대 경로(`../` 등)인 경우 그대로 반환
+  if (src.startsWith('http') || src.startsWith('/') || src.startsWith('../') || src.startsWith('data:')) {
+    return src;
+  }
+  // 만약 pages/ 하위 폴더에서 실행 중인데 경로가 assets/...로 시작한다면 상위 폴더 경로 보정
+  if (window.location.pathname.includes('/pages/') && src.startsWith('assets/')) {
+    return '../' + src;
+  }
   return src;
 }
 
@@ -31,16 +39,10 @@ function getSortedData(dataArray) {
 }
 
 // [핵심 통합 함수] fanworks 및 ocs 공통 필터링 로직
-// 규칙:
-// 1. private === true 인 게시물은 민감한 콘텐츠 토글 여부와 상관없이 항상 제외
-// 2. sensitive === true 인 게시물은 window.showSensitiveGlobal 이 false일 때 썸네일을 가리거나 필터링 조건에 맞춰 처리
-// 3. activeFilters (태그 조건) 적용
 function getFilteredAndProcessedData(rawData, activeFilters = {}) {
   return (rawData || []).filter(item => {
-    // 1. 비공개 게시물(private)은 토글 상관없이 항상 제외
     if (item.private) return false;
 
-    // 2. 태그 필터링 (include / exclude)
     const postTags = item.tags || [];
     for (const [tag, state] of Object.entries(activeFilters)) {
       const hasTag = postTags.includes(tag);
@@ -53,7 +55,6 @@ function getFilteredAndProcessedData(rawData, activeFilters = {}) {
 }
 
 // 1. 헤더 및 필터 열기 버튼 (컨테이너 오른쪽 정렬)
-// 1. 헤더 및 필터 열기 버튼 (스타일을 CSS로 분리 및 우측 정렬)
 function renderHeader() {
   const headerEl = document.querySelector('.header');
   const mainGrid = document.querySelector('.grid-cols-4, .grid-cols-5, .grid-cols-3');
@@ -62,7 +63,7 @@ function renderHeader() {
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'controls-wrapper';
     controlsWrapper.style.display = 'flex';
-    controlsWrapper.style.justifyContent = 'flex-end'; // 오른쪽 정렬
+    controlsWrapper.style.justifyContent = 'flex-end';
     controlsWrapper.style.alignItems = 'center';
     controlsWrapper.style.marginBottom = '1.5rem';
 
@@ -77,27 +78,33 @@ function renderHeader() {
   }
 }
 
-// 2. OCs 카드 HTML 생성 (비공개 및 민감 콘텐츠 썸네일 보안 통합)
+// 2. OCs 카드 HTML 생성 (뒤에 이미지가 존재함을 인지할 수 있는 글라스모피즘 썸네일 적용)
 function createOcCardHTML(item, showSensitiveOverride = false) {
   const isPrivate = item.private;
-  const isSensitive = item.sensitive;
+  const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
   const thumbSrc = getResizedImageUrl(item.thumbnail || item.portrait || '', 300);
 
   let thumbsHTML = '';
-  let cardClasses = "card";
-  let datasetAttr = "";
+  let cardClasses = "card open-oc-modal";
+  let datasetAttr = `data-oc-id="${item.id}"`;
 
-  // 비공개이거나, 민감한 콘텐츠이면서 토글이 꺼져 있는 경우
-  if (isPrivate || (isSensitive && !showSensitiveOverride)) {
-    const labelText = isPrivate ? '비공개' : '민감한 콘텐츠';
+  if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background-color: #555; color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: default;">
-        <span>${labelText}</span>
+      <div class="card-thumb text-thumb" style="background: rgba(40, 40, 40, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+        <span>비공개</span>
+      </div>
+    `;
+  } else if (isSensitive && !showSensitiveOverride) {
+    const warningText = item.warningContent ? item.warningContent : '민감한 콘텐츠';
+    thumbsHTML = `
+      <div class="card-thumb" style="position: relative; aspect-ratio: 1/1; overflow: hidden;">
+        <img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);" onerror="this.style.display='none';">
+        <div style="position: absolute; inset: 0; background: rgba(30, 30, 30, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #fff;">
+          <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
+        </div>
       </div>
     `;
   } else {
-    cardClasses += " open-oc-modal";
-    datasetAttr = `data-oc-id="${item.id}"`;
     thumbsHTML = `
       <div class="card-thumb">
         <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.style.display='none';">
@@ -106,13 +113,13 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
   }
 
   return `
-    <article class="${cardClasses}" ${datasetAttr} style="cursor: ${(isPrivate || (isSensitive && !showSensitiveOverride)) ? 'default' : 'pointer'};">
+    <article class="${cardClasses}" ${datasetAttr}>
       ${thumbsHTML}
     </article>
   `;
 }
 
-// 3. OCs 모달 초기화 (어디든 클릭 시 자연스럽게 닫히도록 수정)
+// 3. OCs 모달 초기화 (1열 이미지 영역에만 글라스모피즘 가림막 및 보기/외부링크 버튼 적용)
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
@@ -132,7 +139,9 @@ function initOcLightbox() {
               <span id="ocHeight"></span>
             </div>
           </div>
-          <img class="oc-modal-portrait" id="ocPortrait" src="" alt="초상화">
+          <div id="ocPortraitContainer" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; position:relative;">
+            <img class="oc-modal-portrait" id="ocPortrait" src="" alt="초상화">
+          </div>
         </div>
         <div class="oc-modal-right-pane">
           <div class="oc-modal-right-pane-scrollable">
@@ -150,13 +159,64 @@ function initOcLightbox() {
     document.getElementById('ocName').innerText = character.name || '';
     document.getElementById('ocForeignName').innerText = character.foreignName || '';
     document.getElementById('ocTitle').innerText = character.title || '';
-    
-    document.getElementById('ocAge').innerText = character.age ? `${character.age}세` : '';
+    document.getElementById('ocAge').innerText = character.age ? `${character.age}` : '';
     document.getElementById('ocGender').innerText = character.gender || '';
     document.getElementById('ocHeight').innerText = character.height ? `${character.height}cm` : '';
-
-    document.getElementById('ocPortrait').src = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
     document.getElementById('ocDetailText').innerText = character.description || '';
+
+    const portraitImg = document.getElementById('ocPortrait');
+    const portraitContainer = document.getElementById('ocPortraitContainer');
+    
+    // 기존 1열 가림막 제거
+    const existingMask = portraitContainer.querySelector('.oc-glass-mask');
+    if (existingMask) existingMask.remove();
+
+    const isSensitive = character.rating === 'warning' || character.rating === 'external' || character.sensitive;
+    const warningText = character.warningContent ? character.warningContent : '민감한 콘텐츠';
+    const linkUrl = character.link || (character.rating === 'external' ? character.externalLink : '');
+
+    if (isSensitive && !window.showSensitiveGlobal) {
+      portraitImg.style.display = 'none';
+
+      // 모달 바디(.oc-modal-body) 위에 스티커처럼 얹는 1열짜리 오버레이 층
+      const modalBody = ocModal.querySelector('.oc-modal-body');
+      const mask = document.createElement('div');
+      mask.className = 'oc-glass-mask';
+      mask.style.cssText = `
+        position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 14px; text-align: center;
+        background: rgba(20, 20, 20, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        color: #fff; z-index: 100; border-radius: inherit; box-sizing: border-box; padding: 2rem;
+      `;
+      modalBody.style.position = 'relative';
+      modalBody.appendChild(mask);
+
+      let actionBtnHTML = '';
+      if (linkUrl) {
+        actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">외부 링크</a>`;
+      } else {
+        actionBtnHTML = `<button type="button" class="oc-reveal-btn" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">보기</button>`;
+      }
+
+      mask.innerHTML = `
+        <div style="font-size: 0.9rem; opacity: 0.9; word-break: keep-all;">${warningText}</div>
+        ${actionBtnHTML}
+      `;
+
+      const revealBtn = mask.querySelector('.oc-reveal-btn');
+      if (revealBtn) {
+        revealBtn.onclick = () => {
+          portraitImg.style.display = 'block';
+          portraitImg.src = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
+          mask.remove();
+        };
+      }
+
+      portraitContainer.appendChild(mask);
+    } else {
+      portraitImg.style.display = 'block';
+      portraitImg.src = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
+    }
 
     ocModal.classList.add('active');
     document.body.classList.add('modal-open');
@@ -172,9 +232,11 @@ function initOcLightbox() {
     closeOcModal();
   };
   
-  // 모달 영역 어디든 클릭하면 닫기
+// 모달 바깥 배경(여백)을 클릭했을 때만 닫기 (내부 버튼 클릭 예외 처리)
   ocModal.onclick = (e) => {
-    closeOcModal();
+    if (e.target === ocModal) {
+      closeOcModal();
+    }
   };
 
   const gridContainer = document.querySelector('.grid-cols-5');
@@ -201,7 +263,6 @@ async function initOcApp() {
         isProfilePage.classList.add('crop-square');
         const showSens = window.showSensitiveGlobal || false;
         
-        // 공통 필터 함수 적용
         const activeOcData = getFilteredAndProcessedData(profilesData);
         isProfilePage.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
         initOcLightbox();
@@ -212,7 +273,7 @@ async function initOcApp() {
   }
 }
 
-// 4. Fanworks 카드 HTML 생성
+// 4. Fanworks 카드 HTML 생성 (뒤에 이미지가 흐릿하게 보이는 글라스모피즘 썸네일 적용)
 function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
@@ -220,17 +281,15 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   } else {
     thumbSrc = item['thumbnail-image'] || '';
   }
-  
   thumbSrc = getResizedImageUrl(thumbSrc, 400);
 
   const textThumb = item['thumbnail-text'] || '';
-  let linkSrc = item.link || '';
   const altText = item.alt || '';
   const dateStr = item.date || '';
   const tags = item.tags || [];
 
   const isPrivate = item.private;
-  const isSensitive = item.sensitive;
+  const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
 
   if (isPagesFolder) {
     if (thumbSrc && !thumbSrc.startsWith('../') && !thumbSrc.startsWith('http')) {
@@ -238,52 +297,54 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
     }
   }
 
+  let rawImages = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [thumbSrc];
+  let processedImages = rawImages.map(img => {
+    let processed = getResizedImageUrl(img, 400);
+    if (isPagesFolder && processed && !processed.startsWith('../') && !processed.startsWith('http')) {
+      return '../' + processed;
+    }
+    return processed;
+  });
+
+  const modalAttrs = `
+    data-images='${JSON.stringify(processedImages)}' 
+    data-caption="${encodeURIComponent(altText)}" 
+    data-date="${encodeURIComponent(dateStr)}" 
+    data-tags='${JSON.stringify(tags)}'
+    data-sensitive="${isSensitive ? 'true' : 'false'}"
+    data-warning="${encodeURIComponent(item.warningContent || '')}"
+    data-link="${encodeURIComponent(item.link || '')}"
+  `;
+
   let thumbsHTML = '';
-  // 비공개이거나, 민감한 콘텐츠이면서 토글이 꺼져 있는 경우
-  if (isPrivate || (isSensitive && !showSensitiveOverride)) {
-    const labelText = isPrivate ? '비공개' : '민감한 콘텐츠';
+  if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background-color: #555; color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
-        <span>${labelText}</span>
+      <div class="card-thumb text-thumb" style="background: rgba(40, 40, 40, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+        <span>비공개</span>
+      </div>
+    `;
+  } else if (isSensitive && !showSensitiveOverride) {
+    const warningText = item.warningContent ? item.warningContent : '민감한 콘텐츠';
+    thumbsHTML = `
+      <div class="card-thumb" ${modalAttrs} style="position: relative; aspect-ratio: 1/1; overflow: hidden; cursor: pointer;">
+        <img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);">
+        <div style="position: absolute; inset: 0; background: rgba(30, 30, 30, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #fff;">
+          <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
+        </div>
       </div>
     `;
   } else if (textThumb) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" role="img" aria-label="${textThumb}">
+      <div class="card-thumb text-thumb" ${modalAttrs} role="img" aria-label="${textThumb}" style="cursor: pointer;">
         <span>${textThumb}</span>
       </div>
     `;
   } else {
-    let rawImages = (item.images && Array.isArray(item.images) && item.images.length > 0) 
-      ? item.images 
-      : [thumbSrc];
-
-    let processedImages = rawImages.map(img => {
-      let processed = getResizedImageUrl(img, 400);
-      if (isPagesFolder && processed && !processed.startsWith('../') && !processed.startsWith('http')) {
-        return '../' + processed;
-      }
-      return processed;
-    });
-
-    const modalAttrs = `
-      data-images='${JSON.stringify(processedImages)}' 
-      data-caption="${encodeURIComponent(altText)}" 
-      data-date="${encodeURIComponent(dateStr)}" 
-      data-tags='${JSON.stringify(tags)}'
-    `;
-
     thumbsHTML = `
-      <div class="card-thumb" ${modalAttrs}>
+      <div class="card-thumb" ${modalAttrs} style="cursor: pointer;">
         <img src="${processedImages[0]}" alt="" loading="lazy" srcset="${processedImages[0]} 400w" sizes="(max-width: 600px) 100vw, 400px">
       </div>
     `;
-  }
-
-  if (linkSrc && !(isPrivate || (isSensitive && !showSensitiveOverride))) {
-    const isExternal = linkSrc.startsWith('http') || linkSrc.startsWith('https');
-    const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
-    thumbsHTML = `<a href="${linkSrc}" class="card-thumb-link" ${targetAttr}>${thumbsHTML}</a>`;
   }
 
   return `
@@ -357,7 +418,7 @@ function executeRender() {
   }
 }
 
-// 7. Fanworks 라이트박스 모달
+// 7. Fanworks 라이트박스 모달 (1열 이미지 영역에만 가림막 및 보기/외부링크 버튼 적용)
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
@@ -369,7 +430,7 @@ function initLightbox() {
     modal.innerHTML = `
       <button type="button" class="modal-close-btn" aria-label="모달 닫기">✕</button>
       <div class="modal-body-container">
-        <div class="modal-image-container">
+        <div class="modal-image-container" id="modalImageWrapper" style="position:relative;">
           <button type="button" class="modal-arrow modal-prev" aria-label="이전 이미지">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
@@ -434,10 +495,57 @@ function initLightbox() {
       const currentCaption = decodeURIComponent(thumbContainer.getAttribute('data-caption') || '');
       const currentDate = decodeURIComponent(thumbContainer.getAttribute('data-date') || '');
       const currentTags = JSON.parse(thumbContainer.getAttribute('data-tags') || '[]');
+      const isSensitive = thumbContainer.getAttribute('data-sensitive') === 'true';
+      const warningContent = decodeURIComponent(thumbContainer.getAttribute('data-warning') || '');
+      const linkUrl = decodeURIComponent(thumbContainer.getAttribute('data-link') || '');
 
       if (currentImages.length > 0) {
         currentIndex = 0;
-        updateModalImage();
+        
+        const imgContainer = document.getElementById('modalImageWrapper');
+        const existingMask = imgContainer.querySelector('.fanwork-glass-mask');
+        if (existingMask) existingMask.remove();
+
+        if (isSensitive && !window.showSensitiveGlobal) {
+          modalImg.style.display = 'none';
+
+          const mask = document.createElement('div');
+          mask.className = 'fanwork-glass-mask';
+          mask.style.cssText = `
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 12px; padding: 1rem; text-align: center;
+            background: rgba(30, 30, 30, 0.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            color: #fff; z-index: 10; width: 100%; height: 100%; box-sizing: border-box;
+          `;
+
+          const displayText = warningContent ? warningContent : '민감한 콘텐츠';
+          let actionBtnHTML = '';
+
+          if (linkUrl) {
+            actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">외부 링크</a>`;
+          } else {
+            actionBtnHTML = `<button type="button" class="fanwork-reveal-btn" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">보기</button>`;
+          }
+
+          mask.innerHTML = `
+            <div style="font-size: 0.95rem; opacity: 0.9; word-break: keep-all;">${displayText}</div>
+            ${actionBtnHTML}
+          `;
+
+          const revealBtn = mask.querySelector('.fanwork-reveal-btn');
+          if (revealBtn) {
+            revealBtn.onclick = () => {
+              modalImg.style.display = 'block';
+              updateModalImage();
+              mask.remove();
+            };
+          }
+
+          imgContainer.appendChild(mask);
+        } else {
+          modalImg.style.display = 'block';
+          updateModalImage();
+        }
 
         const dateHtml = `<div class="modal-meta-date">${currentDate || '날짜 없음'}</div>`;
         const tagsText = currentTags.length > 0 ? currentTags.map(t => `#${t}`).join(' ') : '태그 없음';
@@ -482,9 +590,11 @@ function initLightbox() {
     closeModal();
   };
 
-  // 모달 영역 어디든 클릭하면 닫기
-  modal.onclick = (e) => {
-    closeModal();
+  // 모달 바깥 배경(여백)을 클릭했을 때만 닫기 (내부 버튼 클릭 예외 처리)
+  Modal.onclick = (e) => {
+    if (e.target === ocModal) {
+      closeOcModal();
+    }
   };
 }
 
@@ -520,20 +630,17 @@ async function initApp() {
 
   const filterOptions = isProfilePage ? { hideTags: true } : {};
 
-  // 태그 필터 모달 이벤트 콜백
   tagFilterModal = new TagFilterModal((activeFilters, options) => {
     window.isFiltered = true;
     window.showSensitiveGlobal = options.showSensitive || false;
 
     if (isProfilePage) {
-      // OCs 페이지: 공통 필터 함수로 정제 후 렌더링
       const mainContainer = document.querySelector('.grid-cols-5');
       if (mainContainer) {
         const processedOcData = getFilteredAndProcessedData(profilesData, activeFilters);
         mainContainer.innerHTML = processedOcData.map(item => createOcCardHTML(item, window.showSensitiveGlobal)).join('');
       }
     } else {
-      // Fanworks 페이지: 공통 필터 함수로 정제 후 렌더링
       filteredPosts = getFilteredAndProcessedData(window.galleryData, activeFilters);
       currentPage = 1;
       executeRender();

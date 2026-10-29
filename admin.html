@@ -60,61 +60,8 @@
                 </div>
 
                 <div style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
-                    <!-- 2차 창작 폼 -->
-                    <form id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
-                        <input type="hidden" id="cardId">
-                        <div class="form-group" style="display:none;">
-                            <label>카테고리</label>
-                            <select id="cardCategory">
-                                <option value="1차창작">1차창작</option>
-                                <option value="2차창작" selected>2차창작</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>이미지 추가</label>
-                            <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
-                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                                <input type="text" id="newImgFilename" placeholder="파일명 (확장자 제외)" style="flex: 1;">
-                                <button type="button" onclick="addImagePath()" class="admin-dark-btn">추가</button>
-                            </div>
-                            <div id="imageList" class="image-list"></div>
-                        </div>
-
-                        <!-- 항목명 추가된 옵션 설정 -->
-                        <div class="form-group">
-                            <label>옵션 설정</label>
-                            <div style="display: flex; gap: 2rem; align-items: center; margin-top: 4px;">
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                                    <input type="checkbox" id="cardPrivate" style="width: 16px; height: 16px;"> 비공개
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                                    <input type="checkbox" id="cardSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
-                                <button type="button" class="admin-dark-btn" onclick="openTagHierarchyModal()">수정</button>
-                            </div>
-                            <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
-                            <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>날짜</label>
-                            <input type="date" id="cardDate" style="width: 35%;">
-                        </div>
-
-                        <div class="form-group" style="margin-bottom: 100px;">
-                            <label>alt (캡션)</label>
-                            <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
-                        </div>
-                    </form>
-
                     <!-- 1차 창작 프로필 폼 -->
+<!-- 1차 창작 프로필 폼 -->
                     <form id="ocForm" style="display: none; flex-direction: column; gap: 12px;">
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                             <div class="form-group">
@@ -159,19 +106,91 @@
                             <textarea id="ocDescription" rows="8" style="resize: none; height: 300px;"></textarea>
                         </div>
                         
-                        <!-- 항목명 추가된 옵션 설정 -->
-                        <div class="form-group" style="margin-top: 20px; margin-bottom: 100px;">
-                            <label>옵션 설정</label>
-                            <div style="display: flex; gap: 2rem; align-items: center; margin-top: 4px;">
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                                    <input type="checkbox" id="ocPrivate" style="width: 16px; height: 16px;"> 비공개
+                        <!-- 1차창작 표시 설정 영역 (ID 및 name을 oc 전용으로 완벽 분리) -->
+                        <div class="form-group" style="margin-top: 1rem; padding-top: 0.5rem;">
+                            <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
+                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" id="ocPrivate"> 비공개
                                 </label>
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                                    <input type="checkbox" id="ocSensitive" style="width: 16px; height: 16px;"> 민감한 콘텐츠
+                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="radio" name="oc-admin-rating" value="all" checked> 전연령
                                 </label>
+                                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
+                                        <input type="radio" name="oc-admin-rating" value="warning"> 성인물(경고)
+                                    </label>
+                                    <input type="text" id="ocWarningContent" placeholder="콘텐츠 내용 입력 시 성인물(경고) 자동 적용" style="flex: 1; padding: 4px 6px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
                             </div>
                         </div>
                     </form>
+                                        
+                    <!-- 2차 창작 폼 -->
+                    <form id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
+                        <input type="hidden" id="cardId">
+                        <div class="form-group" style="display:none;">
+                            <label>카테고리</label>
+                            <select id="cardCategory">
+                                <option value="1차창작">1차창작</option>
+                                <option value="2차창작" selected>2차창작</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>이미지 추가</label>
+                            <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" id="newImgFilename" placeholder="파일명 (확장자 제외)" style="flex: 1;">
+                                <button type="button" onclick="addImagePath()" class="admin-dark-btn">추가</button>
+                            </div>
+                            <div id="imageList" class="image-list"></div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 1rem; padding-top: 0.5rem;">
+                            <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
+                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" id="cardPrivate"> 비공개
+                                </label>
+                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="radio" name="admin-rating" value="all" checked> 전연령
+                                </label>
+                                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
+                                        <input type="radio" name="admin-rating" value="warning"> 성인물(경고)
+                                    </label>
+                                    <input type="text" id="cardWarningContent" placeholder="콘텐츠 내용 (예: Insect, Violence)" style="flex: 1; padding: 4px 6px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
+                                        <input type="radio" name="admin-rating" value="external" id="cardRadioExternal"> 성인물(외부링크)
+                                    </label>
+                                        <input type="text" id="cardExternalLink" placeholder="외부 링크" style="flex: 1; padding: 4px 6px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
+                                <button type="button" class="admin-dark-btn" onclick="openTagHierarchyModal()">수정</button>
+                            </div>
+                            <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
+                            <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>날짜</label>
+                            <input type="date" id="cardDate" style="width: 35%;">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 100px;">
+                            <label>alt (캡션)</label>
+                            <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
+                        </div>
+                    </form>
+
 
                     <!-- 관심 작품 폼 -->
                     <form id="favForm" style="display: none; flex-direction: column; gap: 12px; margin-bottom: 100px;">

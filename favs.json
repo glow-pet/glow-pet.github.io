@@ -11,7 +11,7 @@
         "title": "안녕, 라라",
         "media": "애니",
         "character": "리사",
-        "relation": "드림주+리사"
+        "relation": "드림주x리사"
     },
     {
         "id": 8,
@@ -25,14 +25,14 @@
         "title": "델타룬",
         "media": "게임(챕터1-4)",
         "character": "노엘",
-        "relation": "노엘+디셈버"
+        "relation": "노엘x디셈버"
     },
     {
         "id": 6,
         "title": "하이바네 연맹",
         "media": "애니",
         "character": "레키",
-        "relation": "드림주+레키"
+        "relation": "드림주x레키"
     },
     {
         "id": 5,
@@ -46,14 +46,14 @@
         "title": "이거 그리고 죽어",
         "media": "애니(1기) / 만화",
         "character": "레이",
-        "relation": "레이+아이"
+        "relation": "아이x레이"
     },
     {
         "id": 3,
         "title": "주식회사 마지루미에",
         "media": "만화",
         "character": "히토미",
-        "relation": ""
+        "relation": "드림주x히토미"
     },
     {
         "id": 2,
