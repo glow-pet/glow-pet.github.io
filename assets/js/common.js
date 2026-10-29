@@ -54,7 +54,7 @@ class CommonLayout extends HTMLElement {
                     </ul>
                 </div>
                 <div class="nav-right" style="margin-left: auto;">
-                    <a href="${isPagesFolder ? '../admin.html' : 'admin.html'}" class="admin-link-btn" style="font-size: 0.8rem; padding: 0.3rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; color: #555; background: #fff; text-decoration: none;">관리</a>
+                    <a href="${isPagesFolder ? '../admin.html' : 'admin.html'}" class="admin-link-btn" style="font-size: 0.8rem; padding: 0.3rem 0.6rem; border: 1px solid #ccc; border-radius: 4px; color: #555; background: #fff; text-decoration: none;">관리자</a>
                 </div>
             </nav>
 
