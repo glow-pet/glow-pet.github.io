@@ -34,11 +34,11 @@
         <main class="admin-content-pane" id="contentPane">
             <div id="contentPaneInner" style="display: none; flex-direction: column; height: 100%;">
                 <div class="admin-column-header">
-                    <span id="currentTabTitle">콘텐츠 목록</span>
+                    <span id="currentTabTitle">목록</span>
                     <button onclick="openEditEditor(null)" class="admin-dark-small-btn" id="addNewBtn">+ 추가</button>
                 </div>
                 <div class="admin-card-list" id="cardGrid"></div>
-                <div id="adminPagination" class="pagination-container" style="margin: 1rem 0 0 0;"></div>
+                <div id="adminPagination" class="pagination-container"></div>
             </div>
             <div id="contentPanePlaceholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #aaa; font-size: 0.9rem;">
                 카테고리를 선택해주세요.
@@ -49,7 +49,7 @@
             <div id="editorPaneInner" style="display: none; flex-direction: column; height: 100%;">
                 <div class="admin-column-header">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span id="editorTitle">항목 수정</span>
+                        <span id="editorTitle">수정</span>
                         <span id="editorIdDisplay" style="font-size: 0.8rem; color: #888; font-weight: normal;"></span>
                     </div>
                     <div>
@@ -61,7 +61,7 @@
 
                 <div style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
                     <!-- 1차 창작 프로필 폼 -->
-                    <form id="ocForm" style="display: none; flex-direction: column; gap: 12px;">
+                    <form class="edit" id="ocForm" style="display: none; flex-direction: column; gap: 12px;">
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                             <div class="form-group">
                                 <label>성명</label>
@@ -126,7 +126,7 @@
                     </form>
                                         
                     <!-- 2차 창작 폼 -->
-                    <form id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
+                    <form class="edit" id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
                         <input type="hidden" id="cardId">
                         <div class="form-group" style="display:none;">
                             <label>카테고리</label>
@@ -139,14 +139,14 @@
                         <div class="form-group">
                             <label>이미지 추가</label>
                             <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
-                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <div style="display: flex; gap: 8px;">
                                 <input type="text" id="newImgFilename" placeholder="파일명 (확장자 제외)" style="flex: 1;">
                                 <button type="button" onclick="addImagePath()" class="admin-dark-small-btn">추가</button>
                             </div>
                             <div id="imageList" class="image-list"></div>
                         </div>
 
-                        <div class="form-group" style="margin-top: 1rem; padding-top: 0.5rem;">
+                        <div class="form-group">
                             <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
                             <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
                                 <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
@@ -173,7 +173,7 @@
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                 <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
-                                <button type="button" class="admin-dark-small-btn" onclick="openTagHierarchyModal()">수정</button>
+                                <button type="button" class="admin-dark-small-btn" onclick="openTagHierarchyModal()">태그 필터 편집</button>
                             </div>
                             <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
                             <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
@@ -184,7 +184,7 @@
                             <input type="date" id="cardDate" style="width: 35%;">
                         </div>
 
-                        <div class="form-group" style="margin-bottom: 100px;">
+                        <div class="form-group">
                             <label>alt (캡션)</label>
                             <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
                         </div>

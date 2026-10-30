@@ -712,7 +712,8 @@ a {
   justify-content: center;
   align-items: center;
   gap: 6px;
-  margin: 3rem 0 2rem 0;
+  padding: 15px 0;
+  border-top: solid 1px #eee;
 }
 
 .pagination-container button {
@@ -751,14 +752,6 @@ a {
     padding: 2rem 1.5rem;
 }
 
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #eaeaea;
-    padding-bottom: 1rem;
-}
 .admin-card {
     background: #ffffff;
     border: 1px solid #eaeaea;
@@ -827,8 +820,12 @@ a {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     overflow-y: auto;
 }
+
+.edit {
+  padding: 1rem 2rem 50px 2rem;
+}
 .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 .form-group label {
     display: block;
@@ -929,26 +926,14 @@ a {
     color: #666;
 }
 
-body:has(.admin-layout-wrapper),
-body:has(.navbar) {
+html:has(.admin-layout-wrapper) {
     overflow: hidden;
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-}
-
-html:has(.admin-layout-wrapper),
-html:has(.navbar) {
-    overflow: hidden;
-    width: 100vw;
-    height: 100vh;
 }
 
 .admin-layout-wrapper {
     display: grid;
     grid-template-columns: 200px 480px 1fr;
-    width: 100vw;
+    width: 100%;
     height: calc(100vh - 61px);
     overflow: hidden;
     box-sizing: border-box;
@@ -961,7 +946,7 @@ html:has(.navbar) {
     font-weight: 600;
     color: #222;
     border-bottom: 1px solid #eaeaea;
-    padding: 0 0.5rem;
+    padding: 0 1rem;
     margin-bottom: 0;
     display: flex;
     justify-content: space-between;
@@ -972,7 +957,7 @@ html:has(.navbar) {
 /* 각 열 컨테이너 및 스크롤바 Gutter 항상 확보 (overflow-y: scroll) */
 .admin-sidebar, .admin-content-pane, .admin-editor-pane {
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -981,7 +966,6 @@ html:has(.navbar) {
 .admin-sidebar {
     background: #fdfdfd;
     border-right: 1px solid #eaeaea;
-    padding: 0 0.5rem 1.5rem;
 }
 
 .admin-sidebar-menu-list {
@@ -994,21 +978,18 @@ html:has(.navbar) {
 .admin-content-pane {
     background: #ffffff;
     border-right: 1px solid #eaeaea;
-    padding: 0rem 1rem 1.5rem;
 }
 
 .admin-editor-pane {
     background: #fafafa;
-    padding: 0 30px;
     width: 100%;
     box-sizing: border-box;
-    overflow-y: hidden;
 }
 
 .admin-menu-btn {
     width: 100%;
     text-align: left;
-    padding: 0.5rem 0.8rem;
+    padding: 0.5rem 1rem;
     background: transparent;
     border: none;
     border-radius: 5px;
@@ -1043,7 +1024,7 @@ html:has(.navbar) {
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    padding: 14px 0px;
+    padding: 14px 1rem;
     background: #fff;
     border-bottom: 1px solid #f0f0f0;
     position: relative;
