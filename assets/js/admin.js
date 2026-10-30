@@ -52,7 +52,7 @@ window.selectCategory = function(category) {
         }
     });
 
-    document.getElementById('currentTabTitle').innerText = `${category} 목록`;
+    document.getElementById('currentTabTitle').innerText = `목록`;
     
     document.getElementById('contentPaneInner').style.display = 'flex';
     document.getElementById('contentPanePlaceholder').style.display = 'none';
@@ -94,7 +94,7 @@ function renderGrid() {
             if (item.rating === 'warning') statusBadges.push('성인물(경고)');
             if (item.rating === 'external') statusBadges.push('성인물(외부링크)');
             if (!item.rating && item.sensitive) statusBadges.push('성인물(경고)');
-            const statusHtml = statusBadges.length > 0 ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">${statusBadges.join(' | ')}</div>` : '';
+            const statusHtml = statusBadges.length > 0 ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">${statusBadges.join(' • ')}</div>` : '';
 
             return `
                 <div class="admin-card-item">
@@ -105,9 +105,9 @@ function renderGrid() {
                     <div class="admin-thumb-preview">
                         ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
                     </div>
-                    <div class="admin-card-info" style="flex: 1; min-width: 0;">
-                        <div style="font-weight: bold; font-size: 0.9rem; margin-bottom: 2px;">${item.name || ''} (${item.foreignName || ''})</div>
-                        <div class="admin-card-meta" style="font-size: 0.75rem; color: #666;">${item.title || ''} | ${item.age ? item.age : ''} ${item.gender || ''}</div>
+                    <div class="admin-card-info">
+                        <div>${item.name || ''}</div>
+                        <div class="admin-card-meta">${item.title || ''} / ${item.age ? item.age : ''} ${item.gender || ''}</div>
                         ${statusHtml}
                     </div>
                 </div>
@@ -346,7 +346,7 @@ window.openEditEditor = function(id) {
         const ocPrivateEl = document.getElementById('ocPrivate');
 
         if (item) {
-            document.getElementById('editorTitle').innerText = `프로필 수정`;
+            document.getElementById('editorTitle').innerText = `수정`;
             if (idDisplay) idDisplay.innerText = `(ID: ${id})`;
             window.editingTargetId = item.id;
             
@@ -389,7 +389,7 @@ window.openEditEditor = function(id) {
         const item = favsData.find(p => p.id === id);
 
         if (item) {
-            document.getElementById('editorTitle').innerText = `관심 작품 수정`;
+            document.getElementById('editorTitle').innerText = `수정`;
             if (idDisplay) idDisplay.innerText = `(ID: ${item.id})`;
             window.editingTargetId = item.id;
 
@@ -423,7 +423,7 @@ window.openEditEditor = function(id) {
         const warningContentInput = document.getElementById('cardWarningContent');
 
         if (post) {
-            document.getElementById('editorTitle').innerText = `카드 수정`;
+            document.getElementById('editorTitle').innerText = `수정`;
             if (idDisplay) idDisplay.innerText = `(ID: ${post.id})`;
             window.editingTargetId = post.id;
 

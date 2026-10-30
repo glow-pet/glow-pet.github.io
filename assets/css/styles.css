@@ -14,7 +14,7 @@ html {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif; 
-  background-color: #f9f9f9;
+  background-color: #fff;
   color: #444;
   line-height: 1.75;
   letter-spacing: -0.02em;
@@ -34,12 +34,22 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  padding: 0.5rem 1.5rem 0.6rem 1.5rem; /* 위아래 패딩 축소 */
-  background-color: #ffffff;
-  border-bottom: 1px solid #eee;
+  padding: 0.5rem 1rem 0.6rem 1rem; /* 위아래 패딩 축소 */
+  background-color: #fff;
+  border-bottom: 1px solid #eaeaea;
+  box-shadow: 0 0 15px 7px rgba(0, 0, 0, 0.02);
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+
+.admin-link-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem 0.3rem 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: #555;
+  background: #fff;
 }
 
 .logo {
@@ -48,7 +58,7 @@ a {
 
 .logo a {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1rem;
   letter-spacing: 0.05em;
 }
 
@@ -68,7 +78,7 @@ a {
 }
 
 .nav-links a {
-  color: #666;
+  color: #777;
   padding: 0 1rem;
 }
 
@@ -76,13 +86,12 @@ a {
   content: "";
   display: inline-block;
   width: 1px;
-  height: 12px;
+  height: 15px;
   background-color: #ddd;
 }
 
 .nav-links a.active {
   color: #000;
-  text-shadow: 0 0 0.5px #000; 
 }
 
 .sidebar-toggle-btn, .sidebar-close-btn {
@@ -168,37 +177,21 @@ a {
 .header {
   position: relative;
   margin-bottom: 1rem;
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.3rem;
   border-bottom: 1px solid #eaeaea;
 }
 
 .header h1 {
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 1rem;
-  color: #333;
+  margin-bottom: 0.4rem;
+  color: #111;
 }
 
 .header p {
-  color: #666;
+  color: #777;
   font-size: 0.9rem;
-  line-height: 1.7;
-}
-
-.sort-dropdown-wrapper {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1.5rem;
-}
-
-.sort-select {
-  padding: 0.4rem 0.4rem;
-  font-size: 0.85rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #333;
-  cursor: pointer;
+  line-height: 1.6;
 }
 
 .footer {
@@ -206,7 +199,6 @@ a {
   padding: 0.5rem 1rem 1rem 1rem; /* 위쪽 패딩 줄임 */
   color: #999;
   font-size: 0.8rem;
-  border-top: 1px solid #eee;
   margin-top: 5rem;
 }
 
@@ -312,8 +304,9 @@ a {
    ========================================================================== */
 .card {
   background: #ffffff;
-  border: 1px solid #eaeaea;
-  border-radius: 8px;
+  border: solid 1px #eaeaea;
+  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
+  border-radius: 5px;
   overflow: hidden;
   cursor: pointer;
   display: flex;
@@ -474,30 +467,12 @@ a {
   color: #eee;
   padding: 1.5rem;
   margin-left: 1.5rem;
-  border-radius: 6px;
+  border-radius: 5px;
   font-size: 0.95rem;
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-all;
   cursor: default;
-}
-
-.modal-close-btn {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  border: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 3200;
 }
 
 @media (max-width: 768px) {
@@ -578,7 +553,7 @@ a {
 .favs-block {
   background-color: #fff;
   border: 1px solid #eaeaea;
-  border-radius: 8px;
+  border-radius: 5px;
   padding: 1rem 1.3rem 1.2rem;
 }
 
@@ -614,7 +589,7 @@ a {
   width: 750px;
   max-width: 90vw;
   max-height: 80vh;
-  border-radius: 8px;
+  border-radius: 5px;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
@@ -680,7 +655,7 @@ a {
   width: 20px;
   height: 20px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
   background: #fff;
   cursor: pointer;
   display: flex;
@@ -714,7 +689,7 @@ a {
   background-color: #333;
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -722,15 +697,14 @@ a {
 
 /* 필터 열기 버튼 스타일 통일 */
 .filter-open-btn {
-  padding: 0.5rem 1.4rem;        /* 가로 패딩을 넓혀서 눈에 잘 띄게 설정 */
+  padding: 0.4rem 1.5rem 0.5rem 1.5rem;        /* 가로 패딩을 넓혀서 눈에 잘 띄게 설정 */
   background-color: #333;       /* 어두운 회색 배경 */
   color: #fff;                  /* 흰색 글자 */
   font-weight: 600;             /* 두껍게 */
   font-size: 0.85rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .pagination-container {
@@ -757,10 +731,9 @@ a {
 }
 
 .pagination-container button.active {
-  background-color: #222;
+  background-color: #444;
   color: #fff;
-  border-color: #222;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .pagination-container button:disabled {
@@ -777,6 +750,7 @@ a {
     margin: 0 auto;
     padding: 2rem 1.5rem;
 }
+
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -788,7 +762,7 @@ a {
 .admin-card {
     background: #ffffff;
     border: 1px solid #eaeaea;
-    border-radius: 8px;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -798,7 +772,6 @@ a {
 .admin-thumb-preview {
     width: 80px;
     height: 80px;
-    min-width: 80px;
     aspect-ratio: 1 / 1;
     border: 1px solid #ddd;
     display: flex;
@@ -806,12 +779,16 @@ a {
     justify-content: center;
     overflow: hidden;
     position: relative;
-    border-radius: 4px;
+    border-radius: 5px;
 }
 .admin-thumb-preview img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+.admin-card-list {
+  flex: 1;
+  overflow-y: scroll;
 }
 .admin-card-info {
     flex-grow: 1;
@@ -824,7 +801,7 @@ a {
 .admin-card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 3px;
 }
 .modal {
     display: none;
@@ -843,7 +820,7 @@ a {
     width: 600px;
     max-width: 90vw;
     max-height: 85vh;
-    border-radius: 8px;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
     padding: 1.5rem;
@@ -855,7 +832,7 @@ a {
 }
 .form-group label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
     margin-bottom: 4px;
     color: #333;
@@ -864,7 +841,7 @@ a {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
     font-size: 0.9rem;
 }
 .image-list {
@@ -879,7 +856,7 @@ a {
     width: 70px;
     height: 70px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
     overflow: hidden;
     position: relative;
 }
@@ -895,8 +872,8 @@ a {
     background: #444;
     color: #fff;
     font-size: 0.65rem;
-    padding: 1px 8px;
-    border-bottom-right-radius: 4px;
+    padding: 1px 7px 1px 6px;
+    border-radius: 5px;
     font-weight: bold;
     z-index: 2;
 }
@@ -926,7 +903,7 @@ a {
     padding: 8px;
     background: #f9f9f9;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
     min-height: 250px;
 }
 
@@ -940,24 +917,12 @@ a {
 /* ==========================================================================
    Admin Refined Layout & Custom Tag Modal Styles (요청 사항 반영 수정)
    ========================================================================== */
-.admin-navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    background-color: #ffffff;
-    border-bottom: 1px solid #eee;
-    height: 61px;
-    box-sizing: border-box;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
 
 .admin-nav-home {
     color: #333;
     text-decoration: none;
     font-weight: 700;
+    margin-left: 10px;
 }
 
 .admin-nav-title {
@@ -965,7 +930,7 @@ a {
 }
 
 body:has(.admin-layout-wrapper),
-body:has(.admin-navbar) {
+body:has(.navbar) {
     overflow: hidden;
     width: 100vw;
     height: 100vh;
@@ -974,7 +939,7 @@ body:has(.admin-navbar) {
 }
 
 html:has(.admin-layout-wrapper),
-html:has(.admin-navbar) {
+html:has(.navbar) {
     overflow: hidden;
     width: 100vw;
     height: 100vh;
@@ -982,7 +947,7 @@ html:has(.admin-navbar) {
 
 .admin-layout-wrapper {
     display: grid;
-    grid-template-columns: 240px 480px 1fr;
+    grid-template-columns: 200px 480px 1fr;
     width: 100vw;
     height: calc(100vh - 61px);
     overflow: hidden;
@@ -1034,12 +999,11 @@ html:has(.admin-navbar) {
 
 .admin-editor-pane {
     background: #fafafa;
-    padding: 0rem 1.5rem 1.5rem;
+    padding: 0 30px;
     width: 100%;
     box-sizing: border-box;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
-
 
 .admin-menu-btn {
     width: 100%;
@@ -1047,7 +1011,7 @@ html:has(.admin-navbar) {
     padding: 0.5rem 0.8rem;
     background: transparent;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     font-size: 0.9rem;
     font-weight: 500;
     color: #444;
@@ -1055,23 +1019,22 @@ html:has(.admin-navbar) {
 }
 
 /* 3열 수정 버튼 뱃지 여백 늘리고 폰트 키우기 */
-.admin-save-btn, .admin-dark-btn {
+.admin-dark-big-btn, .admin-dark-small-btn{
     background: #444;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     font-weight: 600;
     cursor: pointer;
 }
 
-.admin-save-btn {
-    width: 100%;
-    padding: 0.3rem 2rem 0.5rem 2rem;
-    font-size: 0.9rem;
+.admin-dark-big-btn {
+    padding: 0.4rem 0.9rem 0.6rem 0.9rem;
+    font-size: 0.8rem;
 }
 
-.admin-dark-btn {
-    padding: 0.35rem 0.8rem;
+.admin-dark-small-btn {
+    padding: 0.3rem 0.8rem 0.4rem 0.9rem;
     font-size: 0.8rem;
 }
 
@@ -1079,8 +1042,8 @@ html:has(.admin-navbar) {
 .admin-card-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 6px 4px;
+    gap: 15px;
+    padding: 14px 0px;
     background: #fff;
     border-bottom: 1px solid #f0f0f0;
     position: relative;
@@ -1123,7 +1086,7 @@ html:has(.admin-navbar) {
     background: #444;
     color: #fff;
     padding: 5px 8px;
-    border-radius: 4px;
+    border-radius: 5px;
     margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
@@ -1165,7 +1128,7 @@ html:has(.admin-navbar) {
 .tag-add-modal-card {
     background: #fff;
     padding: 1.25rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 5px;
     width: 300px;
     display: flex;
     flex-direction: column;
@@ -1182,7 +1145,7 @@ html:has(.admin-navbar) {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
     font-size: 0.85rem;
     box-sizing: border-box;
 }
@@ -1215,7 +1178,7 @@ html:has(.admin-navbar) {
     width: 800px;
     max-width: 90vw;
     height: 75vh;
-    border-radius: 8px;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
     padding: 1.5rem;
@@ -1250,7 +1213,7 @@ html:has(.admin-navbar) {
 .tag-edit-col {
     background: #fdfdfd;
     border: 1px solid #eee;
-    border-radius: 6px;
+    border-radius: 5px;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -1265,7 +1228,7 @@ html:has(.admin-navbar) {
     background: #444;
     color: #fff;
     padding: 5px 8px;
-    border-radius: 4px;
+    border-radius: 5px;
     margin-bottom: 6px;
     text-align: center;
 }
@@ -1277,7 +1240,7 @@ html:has(.admin-navbar) {
     background: #fff;
     border: 1px solid #eaeaea;
     padding: 6px 8px;
-    border-radius: 4px;
+    border-radius: 5px;
     font-size: 0.85rem;
 }
 
@@ -1293,7 +1256,7 @@ html:has(.admin-navbar) {
     cursor: pointer;
     font-size: 0.9rem;
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: 5px;
     background: #f0f2f5;
     color: #333;
 }
@@ -1335,7 +1298,7 @@ html:has(.admin-navbar) {
 .work-delete-modal-card {
     background: #fff;
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 5px;
     width: 320px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     display: flex;
@@ -1359,7 +1322,7 @@ html:has(.admin-navbar) {
     align-items: center;
     background: #e5e7eb;
     border: 1px dashed #d1d5db;
-    border-radius: 4px;
+    border-radius: 5px;
     height: 36px;
     font-size: 1.1rem;
     font-weight: bold;
@@ -1376,7 +1339,7 @@ html:has(.admin-navbar) {
     box-sizing: border-box;
     background: #fff;
     border: 1px solid #3b82f6;
-    border-radius: 4px;
+    border-radius: 5px;
     padding: 6px 8px;
     font-size: 0.85rem;
     outline: none;
@@ -1606,8 +1569,6 @@ body.modal-open {
   color: #eeeeee;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden; /* 2열 자체에는 스크롤을 주지 않고 내부 컨테이너로 제어 */
   position: relative;
 }
 
@@ -1632,7 +1593,7 @@ body.modal-open {
 }
 
 /* 팬웍스와 동일한 닫기 버튼 스타일 (오른쪽 상단 고정, 스크롤바가 이 위를 침범하지 않음) */
-.oc-modal-close-btn {
+.modal-close-btn {
   position: fixed;
   top: 15px;
   right: 15px;

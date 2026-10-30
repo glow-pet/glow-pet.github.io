@@ -126,7 +126,7 @@ function initOcLightbox() {
     ocModal = document.createElement('div');
     ocModal.className = 'oc-modal';
     ocModal.innerHTML = `
-      <button type="button" class="oc-modal-close-btn" aria-label="닫기">✕</button>
+      <button type="button" class="modal-close-btn" aria-label="닫기">✕</button>
       <div class="oc-modal-body">
         <div class="oc-modal-left-pane">
           <div class="oc-modal-basic-info">
@@ -153,7 +153,7 @@ function initOcLightbox() {
     document.body.appendChild(ocModal);
   }
 
-  const closeBtn = ocModal.querySelector('.oc-modal-close-btn');
+  const closeBtn = ocModal.querySelector('.modal-close-btn');
 
   function openOcModal(character) {
     document.getElementById('ocName').innerText = character.name || '';

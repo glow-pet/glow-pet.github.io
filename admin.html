@@ -9,15 +9,15 @@
 </head>
 <body>
 
-    <nav class="admin-navbar">
+    <nav class="navbar">
         <div style="display: flex; align-items: center; gap: 2rem;">
             <a href="index.html" class="admin-nav-home">홈</a>
             <span class="admin-nav-title">관리</span>
         </div>
         <div style="display: flex; gap: 8px;">
-            <button onclick="downloadJson()" class="admin-dark-btn" style="padding: 0.5rem 1.2rem;" title="posts.json 저장">posts.json 저장</button>
-            <button onclick="downloadProfileJson()" class="admin-dark-btn" style="padding: 0.5rem 1.2rem;" title="profiles.json 저장">profiles.json 저장</button>
-            <button onclick="downloadFavsJson()" class="admin-dark-btn" style="padding: 0.5rem 1.2rem;" title="favs.json 저장">favs.json 저장</button>
+            <button onclick="downloadJson()" class="admin-dark-big-btn" title="posts.json 저장">posts.json 저장</button>
+            <button onclick="downloadProfileJson()" class="admin-dark-big-btn" title="profiles.json 저장">profiles.json 저장</button>
+            <button onclick="downloadFavsJson()" class="admin-dark-big-btn" title="favs.json 저장">favs.json 저장</button>
         </div>
     </nav>
 
@@ -35,9 +35,9 @@
             <div id="contentPaneInner" style="display: none; flex-direction: column; height: 100%;">
                 <div class="admin-column-header">
                     <span id="currentTabTitle">콘텐츠 목록</span>
-                    <button onclick="openEditEditor(null)" class="admin-dark-btn" id="addNewBtn">+ 새 항목</button>
+                    <button onclick="openEditEditor(null)" class="admin-dark-small-btn" id="addNewBtn">+ 추가</button>
                 </div>
-                <div class="admin-card-list" id="cardGrid" style="flex: 1; overflow-y: scroll;"></div>
+                <div class="admin-card-list" id="cardGrid"></div>
                 <div id="adminPagination" class="pagination-container" style="margin: 1rem 0 0 0;"></div>
             </div>
             <div id="contentPanePlaceholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #aaa; font-size: 0.9rem;">
@@ -53,15 +53,14 @@
                         <span id="editorIdDisplay" style="font-size: 0.8rem; color: #888; font-weight: normal;"></span>
                     </div>
                     <div>
-                        <button type="submit" form="editForm" id="saveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem; display: none;" disabled>적용</button>
-                        <button type="submit" form="ocForm" id="ocSaveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem; display: none;" disabled>적용</button>
-                        <button type="submit" form="favForm" id="favSaveBtn" class="admin-dark-btn" style="padding: 0.35rem 1rem; display: none;" disabled>적용</button>
+                        <button type="submit" form="editForm" id="saveBtn" class="admin-dark-small-btn" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="ocForm" id="ocSaveBtn" class="admin-dark-small-btn" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="favForm" id="favSaveBtn" class="admin-dark-small-btn" style="display: none;" disabled>적용</button>
                     </div>
                 </div>
 
                 <div style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
                     <!-- 1차 창작 프로필 폼 -->
-<!-- 1차 창작 프로필 폼 -->
                     <form id="ocForm" style="display: none; flex-direction: column; gap: 12px;">
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                             <div class="form-group">
@@ -107,8 +106,8 @@
                         </div>
                         
                         <!-- 1차창작 표시 설정 영역 (ID 및 name을 oc 전용으로 완벽 분리) -->
-                        <div class="form-group" style="margin-top: 1rem; padding-top: 0.5rem;">
-                            <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
+                        <div class="form-group">
+                            <label>표시 설정</label>
                             <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
                                 <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
                                     <input type="checkbox" id="ocPrivate"> 비공개
@@ -142,7 +141,7 @@
                             <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
                             <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                                 <input type="text" id="newImgFilename" placeholder="파일명 (확장자 제외)" style="flex: 1;">
-                                <button type="button" onclick="addImagePath()" class="admin-dark-btn">추가</button>
+                                <button type="button" onclick="addImagePath()" class="admin-dark-small-btn">추가</button>
                             </div>
                             <div id="imageList" class="image-list"></div>
                         </div>
@@ -174,7 +173,7 @@
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                 <label style="margin-bottom: 0;">태그 (필터에서 선택)</label>
-                                <button type="button" class="admin-dark-btn" onclick="openTagHierarchyModal()">수정</button>
+                                <button type="button" class="admin-dark-small-btn" onclick="openTagHierarchyModal()">수정</button>
                             </div>
                             <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="아래 태그 필터에서 선택하세요">
                             <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
@@ -224,7 +223,7 @@
         <div class="tag-edit-modal-content" onclick="event.stopPropagation()">
             <div class="tag-edit-modal-header">
                 <h3>태그 위계 구조 관리</h3>
-                <button type="button" class="admin-dark-btn" onclick="applyTagHierarchyModal()">저장</button>
+                <button type="button" class="admin-dark-small-btn" onclick="applyTagHierarchyModal()">저장</button>
             </div>
             <div class="tag-edit-columns-wrapper">
                 <div class="tag-edit-col">
@@ -248,8 +247,8 @@
         <div class="work-delete-modal-card" onclick="event.stopPropagation()">
             <div class="work-delete-modal-text">정말로 삭제하시겠습니까?<br>하위 항목들까지 모두 삭제됩니다.</div>
             <div style="display: flex; gap: 8px; justify-content: center;">
-                <button type="button" class="admin-dark-btn" style="padding: 0.4rem 1rem; background: #e74c3c;" onclick="confirmDeleteWork()">삭제</button>
-                <button type="button" class="admin-dark-btn" style="padding: 0.4rem 1rem; background: #888;" onclick="closeWorkDeleteModal()">취소</button>
+                <button type="button" class="admin-dark-small-btn" style='background: #e74c3c;" onclick="confirmDeleteWork()">삭제</button>
+                <button type="button" class="admin-dark-small-btn" style="background: #888;" onclick="closeWorkDeleteModal()">취소</button>
             </div>
         </div>
     </div>
