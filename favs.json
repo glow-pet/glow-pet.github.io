@@ -1,79 +1,79 @@
 [
     {
         "id": 11,
-        "title": "홈스턱",
-        "media": "원작",
-        "character": "테레지",
-        "relation": "테레지x드림주"
-    },
-    {
-        "id": 10,
         "title": "소녀★가극 레뷰 스타라이트",
         "media": "애니(TVA, 신극장판)",
         "character": "나나",
         "relation": "나나x카렌"
     },
     {
-        "id": 9,
+        "id": 10,
         "title": "안녕, 라라",
         "media": "애니",
         "character": "리사",
         "relation": "드림주x리사"
     },
     {
-        "id": 8,
+        "id": 9,
         "title": "서머타임 렌더링",
         "media": "애니",
         "character": "-",
         "relation": "-"
     },
     {
-        "id": 7,
+        "id": 8,
         "title": "델타룬",
         "media": "게임(챕터1-4)",
         "character": "노엘",
         "relation": "노엘x디셈버"
     },
     {
-        "id": 6,
+        "id": 7,
         "title": "하이바네 연맹",
         "media": "애니",
         "character": "레키",
         "relation": "드림주x레키"
     },
     {
-        "id": 5,
+        "id": 6,
         "title": "아포칼립스 호텔",
         "media": "애니",
         "character": "야치요",
         "relation": "야치요x폰코"
     },
     {
-        "id": 4,
+        "id": 5,
         "title": "이거 그리고 죽어",
         "media": "애니(1기) / 만화",
         "character": "레이",
         "relation": "아이x레이"
     },
     {
-        "id": 3,
+        "id": 4,
         "title": "주식회사 마지루미에",
         "media": "만화",
         "character": "히토미",
         "relation": "드림주x히토미"
     },
     {
-        "id": 2,
+        "id": 3,
         "title": "언더테일 옐로우",
         "media": "게임",
         "character": "마틀렛",
         "relation": "-"
     },
     {
-        "id": 1,
+        "id": 2,
         "title": "동굴 이야기",
         "media": "게임(2004)",
         "character": "-",
         "relation": "-"
+    },
+    {
+        "id": 1,
+        "title": "홈스턱",
+        "media": "원작",
+        "character": "테레지",
+        "relation": "테레지x드림주"
     }
 ]
