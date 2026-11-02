@@ -1,4 +1,4 @@
-let postsData = [];
+let fanworksData = [];
 let profilesData = [];
 let favsData = [];
 let tagsData = { works: [] };
@@ -24,13 +24,13 @@ const GENRE_FOLDER_MAP = {
 
 async function loadData() {
     try {
-        const [postsRes, profilesRes, favsRes, tagsRes] = await Promise.all([
-            fetch('posts.json'),
+        const [fanworksRes, profilesRes, favsRes, tagsRes] = await Promise.all([
+            fetch('fanworks.json'),
             fetch('profiles.json').catch(() => ({ ok: false })),
             fetch('favs.json').catch(() => ({ ok: false })),
             fetch('tags.json')
         ]);
-        if (postsRes.ok) postsData = await postsRes.json();
+        if (fanworksRes.ok) fanworksData = await fanworksRes.json();
         if (profilesRes && profilesRes.ok) profilesData = await profilesRes.json();
         if (favsRes && favsRes.ok) favsData = await favsRes.json();
         if (tagsRes.ok) tagsData = await tagsRes.json();
@@ -41,11 +41,13 @@ async function loadData() {
 }
 
 window.selectCategory = function(category) {
-    currentSelectedCategory = category;
+    // 카테고리명 공백 제거하여 정규화 저장
+    currentSelectedCategory = category ? category.replace(/\s+/g, '') : '';
     currentAdminPage = 1;
 
     document.querySelectorAll('.admin-menu-btn').forEach(btn => {
-        if (btn.textContent.includes(category)) {
+        const btnText = btn.textContent.replace(/\s+/g, '');
+        if (btnText.includes(currentSelectedCategory)) {
             btn.classList.add('active');
         } else {
             btn.classList.remove('active');
@@ -57,6 +59,16 @@ window.selectCategory = function(category) {
     document.getElementById('contentPaneInner').style.display = 'flex';
     document.getElementById('contentPanePlaceholder').style.display = 'none';
 
+    // 2차창작인 경우 정렬 버튼 숨기기, 1차창작/관심작품인 경우 보이기
+    const orderBtn = document.getElementById('orderBtn');
+    if (orderBtn) {
+        if (currentSelectedCategory === '2차창작') {
+            orderBtn.style.display = 'none';
+        } else {
+            orderBtn.style.display = 'inline-block';
+        }
+    }
+
     closeEditor();
     renderGrid();
 };
@@ -65,13 +77,24 @@ function renderGrid() {
     const grid = document.getElementById('cardGrid');
     if (!grid || !currentSelectedCategory) return;
 
+    const activeCategory = currentSelectedCategory.replace(/\s+/g, '');
     let targetData = [];
-    if (currentSelectedCategory === '1차창작') {
-        targetData = [...profilesData].sort((a, b) => (b.id || 0) - (a.id || 0));
-    } else if (currentSelectedCategory === '관심작품') {
-        targetData = [...favsData].sort((a, b) => (b.id || 0) - (a.id || 0));
+
+    if (activeCategory === '1차창작') {
+        // order 값 기준 오름차순 정렬 (order가 없으면 id 기준 대체)
+        targetData = [...profilesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    } else if (activeCategory === '관심작품') {
+        targetData = [...favsData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     } else {
-        targetData = [...postsData].sort((a, b) => new Date(b.date || 0) - new Date(b.date || 0));
+        // 2차창작은 기존대로 날짜 내림차순 유지
+        targetData = [...fanworksData].sort((a, b) => {
+            const dateA = new Date(a.date || 0);
+            const dateB = new Date(b.date || 0);
+            if (dateB - dateA !== 0) {
+                return dateB - dateA;
+            }
+            return (b.id || 0) - (a.id || 0);
+        });
     }
 
     if (targetData.length === 0) {
@@ -86,7 +109,7 @@ function renderGrid() {
     const startIndex = (currentAdminPage - 1) * adminItemsPerPage;
     const slicedData = targetData.slice(startIndex, startIndex + adminItemsPerPage);
 
-    if (currentSelectedCategory === '1차창작') {
+    if (activeCategory === '1차창작') {
         grid.innerHTML = slicedData.map(item => {
             const thumb = item.thumbnail || item.portrait || '';
             const statusBadges = [];
@@ -113,7 +136,7 @@ function renderGrid() {
                 </div>
             `;
         }).join('');
-    } else if (currentSelectedCategory === '관심작품') {
+    } else if (activeCategory === '관심작품') {
         grid.innerHTML = slicedData.map(item => {
             const details = [item.media, item.character, item.relation].filter(Boolean).join(' / ');
             return `
@@ -146,7 +169,7 @@ function renderGrid() {
 
             return `
                 <div class="admin-card-item">
-                    <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                    <div style="position: absolute; top: 14px; right: 1rem; display: flex; gap: 16px; align-items: center; z-index: 5;">
                         <button class="admin-action-btn" onclick="openEditEditor(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
                         <button class="admin-action-btn" onclick="deleteCard(${post.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
                     </div>
@@ -155,8 +178,8 @@ function renderGrid() {
                         ${firstImg ? `<img src="${firstImg}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
                     </div>
                     <div class="admin-card-info" style="flex: 1; min-width: 0;">
-                        <div class="admin-card-meta" style="font-size: 0.8rem; color: #666; margin-bottom: 2px; font-weight: 500;">${dateText}</div>
-                        <div class="admin-card-tags" style="display: flex; flex-wrap: wrap; gap: 2px; row-gap: 0.2rem;">${tagsHtml}</div>
+                        <div class="admin-card-meta" style="font-size: 0.8rem; color: #666; margin-bottom: 2px; font-weight: 500; line-height: 1;">${dateText}</div>
+                        <div class="admin-card-tags" style="display: flex; flex-wrap: wrap; gap: 2px; row-gap: 0.2rem; margin-top: 6px;">${tagsHtml}</div>
                         ${statusHtml}
                     </div>
                 </div>
@@ -326,7 +349,7 @@ function checkFavFormChanges() {
 }
 
 window.openEditEditor = function(id) {
-    const editForm = document.getElementById('editForm');
+    const fanworkForm = document.getElementById('fanworkForm');
     const ocForm = document.getElementById('ocForm');
     const favForm = document.getElementById('favForm');
     const saveBtn = document.getElementById('saveBtn');
@@ -335,7 +358,7 @@ window.openEditEditor = function(id) {
     const idDisplay = document.getElementById('editorIdDisplay');
 
     if (currentSelectedCategory === '1차창작') {
-        if (editForm) editForm.style.display = 'none';
+        if (fanworkForm) fanworkForm.style.display = 'none';
         if (ocForm) ocForm.style.display = 'flex';
         if (favForm) favForm.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'none';
@@ -379,7 +402,7 @@ window.openEditEditor = function(id) {
         initialFormState = getOcFormState();
         checkOcFormChanges();
     } else if (currentSelectedCategory === '관심작품') {
-        if (editForm) editForm.style.display = 'none';
+        if (fanworkForm) fanworkForm.style.display = 'none';
         if (ocForm) ocForm.style.display = 'none';
         if (favForm) favForm.style.display = 'flex';
         if (saveBtn) saveBtn.style.display = 'none';
@@ -412,12 +435,12 @@ window.openEditEditor = function(id) {
     } else {
         if (ocForm) ocForm.style.display = 'none';
         if (favForm) favForm.style.display = 'none';
-        if (editForm) editForm.style.display = 'flex';
+        if (fanworkForm) fanworkForm.style.display = 'flex';
         if (ocSaveBtn) ocSaveBtn.style.display = 'none';
         if (favSaveBtn) favSaveBtn.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'inline-block';
 
-        const post = postsData.find(p => p.id === id);
+        const post = fanworksData.find(p => p.id === id);
         const cardPrivateEl = document.getElementById('cardPrivate');
         const externalLinkInput = document.getElementById('cardExternalLink');
         const warningContentInput = document.getElementById('cardWarningContent');
@@ -440,7 +463,7 @@ window.openEditEditor = function(id) {
             currentImages = post.images ? [...post.images] : (post['thumbnail-image'] ? [post['thumbnail-image']] : []);
         } else {
             document.getElementById('editorTitle').innerText = `새 카드 추가`;
-            const maxId = postsData.reduce((max, p) => Math.max(max, p.id || 0), 0);
+            const maxId = fanworksData.reduce((max, p) => Math.max(max, p.id || 0), 0);
             const newId = maxId + 1;
             if (idDisplay) idDisplay.innerText = `(ID: ${newId})`;
             window.editingTargetId = null;
@@ -539,6 +562,130 @@ function renderAdminTagSelector() {
     document.getElementById('cardTags').value = selectedTags.join(', ');
     updateImagePathPreview();
 }
+
+// ==========================================
+// 1차창작 & 관심작품 순서 변경 모달 (즉시 반영 로직)
+// ==========================================
+
+let currentOrderCategory = null;
+let tempOrderData = []; // 모달 내에서 조작할 임시 배열
+
+// 정렬 모달 열기
+window.openOrderModal = function() {
+    const activeCategory = currentSelectedCategory ? currentSelectedCategory.replace(/\s+/g, '') : '';
+    if (activeCategory === '2차창작' || !activeCategory) return;
+    
+    currentOrderCategory = activeCategory;
+    
+    // 모달을 열 때 현재 원본 데이터를 복사하여 임시 배열 생성
+    const targetData = (currentOrderCategory === '1차창작') ? profilesData : favsData;
+    tempOrderData = [...targetData];
+
+    const modal = document.getElementById('orderModal');
+    const titleEl = document.getElementById('orderModalTitle');
+
+    if (!modal) return;
+    if (titleEl) titleEl.innerText = '정렬';
+
+    renderOrderList();
+    modal.classList.add('active');
+};
+
+// 정렬 모달 닫기 (취소 시 변경사항 반영 안 함)
+window.closeOrderModal = function() {
+    const modal = document.getElementById('orderModal');
+    if (modal) modal.classList.remove('active');
+    currentOrderCategory = null;
+    tempOrderData = [];
+};
+
+// 모달 목록 렌더링 (임시 배열 `tempOrderData` 기준)
+function renderOrderList() {
+    const container = document.getElementById('orderListContainer');
+    if (!container) return;
+
+    if (!tempOrderData || tempOrderData.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#888; padding:1rem;">항목이 없습니다.</p>';
+        return;
+    }
+
+    container.innerHTML = tempOrderData.map((item, index) => {
+        const label = currentOrderCategory === '1차창작' 
+            ? `${item.name || '무명'} (${item.title || '칭호 없음'})` 
+            : item.title || '제목 없음';
+
+        return `
+            <div class="tag-edit-row" draggable="true" data-index="${index}" style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 8px 12px; border: 1px solid #eee; border-radius: 4px; cursor: move;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.9rem; font-weight: 500;">${label}</span>
+                </div>
+                <div style="display: flex; gap: 4px;" onclick="event.stopPropagation()">
+                    <button type="button" class="admin-dark-small-btn" onclick="moveOrderItem(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'}>▲</button>
+                    <button type="button" class="admin-dark-small-btn" onclick="moveOrderItem(${index}, 1)" ${index === tempOrderData.length - 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'}>▼</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    let draggedIndex = null;
+    const rows = container.querySelectorAll('.tag-edit-row');
+    rows.forEach(row => {
+        row.addEventListener('dragstart', (e) => {
+            draggedIndex = parseInt(row.dataset.index);
+            e.dataTransfer.effectAllowed = 'move';
+            row.style.opacity = '0.5';
+        });
+
+        row.addEventListener('dragend', () => {
+            row.style.opacity = '1';
+        });
+
+        row.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        row.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const targetIndex = parseInt(row.dataset.index);
+            if (draggedIndex !== null && draggedIndex !== targetIndex) {
+                const movedItem = tempOrderData.splice(draggedIndex, 1)[0];
+                tempOrderData.splice(targetIndex, 0, movedItem);
+                renderOrderList();
+            }
+        });
+    });
+}
+
+// 모달 내부 화살표 이동 (임시 배열 조작)
+window.moveOrderItem = function(index, direction) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= tempOrderData.length) return;
+
+    const temp = tempOrderData[index];
+    tempOrderData[index] = tempOrderData[newIndex];
+    tempOrderData[newIndex] = temp;
+
+    renderOrderList();
+};
+
+// [적용] 버튼 클릭 시 원본 데이터에 반영하고 메인 목록 갱신
+window.applyOrderChanges = function() {
+    // 임시 배열의 순서대로 각 아이템에 새로운 order 값(0부터 시작)을 부여
+    const updatedData = tempOrderData.map((item, index) => ({
+        ...item,
+        order: index
+    }));
+
+    if (currentOrderCategory === '1차창작') {
+        profilesData = updatedData;
+    } else if (currentOrderCategory === '관심작품') {
+        favsData = updatedData;
+    }
+
+    renderGrid(); // 메인 화면 목록 즉시 반영
+    closeOrderModal(); // 모달 닫기
+};
 
 window.openTagHierarchyModal = function() {
     editingWorks = JSON.parse(JSON.stringify(tagsData.works));
@@ -926,9 +1073,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const editForm = document.getElementById('editForm');
-    if (editForm) {
-        editForm.onsubmit = (e) => {
+    const fanworkForm = document.getElementById('fanworkForm');
+    if (fanworkForm) {
+        fanworkForm.onsubmit = (e) => {
             e.preventDefault();
             const warningVal = document.getElementById('cardWarningContent') ? document.getElementById('cardWarningContent').value.trim() : '';
             const linkVal = document.getElementById('cardExternalLink') ? document.getElementById('cardExternalLink').value.trim() : '';
@@ -937,8 +1084,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (warningVal) selectedRating = 'warning';
             else if (linkVal) selectedRating = 'external';
 
-            const cardData = {
-                id: window.editingTargetId !== null ? window.editingTargetId : (postsData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
+            const fanworkData = {
+                id: window.editingTargetId !== null ? window.editingTargetId : (fanworksData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
                 category: document.getElementById('cardCategory').value,
                 tags: document.getElementById('cardTags').value.split(',').map(t => t.trim()).filter(Boolean),
                 alt: document.getElementById('cardAlt').value,
@@ -952,17 +1099,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
 
             if (currentImages.length > 0) {
-                cardData['thumbnail-image'] = currentImages[0];
+                fanworkData['thumbnail-image'] = currentImages[0];
                 if (currentImages.length > 1) {
-                    cardData.images = [...currentImages];
+                    fanworkData.images = [...currentImages];
                 }
             }
 
-            const existingIdx = postsData.findIndex(p => p.id === cardData.id);
+            const existingIdx = fanworksData.findIndex(p => p.id === fanworkData.id);
             if (existingIdx !== -1) {
-                postsData[existingIdx] = cardData;
+                fanworksData[existingIdx] = fanworkData;
             } else {
-                postsData.unshift(cardData);
+                fanworksData.unshift(fanworkData);
             }
 
             window.editingTargetId = null;
@@ -1005,7 +1152,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (existingIdx !== -1) {
                 profilesData[existingIdx] = ocData;
             } else {
-                profilesData.push(ocData);
+                // 맨 앞에 추가
+                profilesData.unshift(ocData);
+                // 전체 데이터의 order 값을 인덱스 순서대로 0부터 다시 부여
+                profilesData.forEach((item, index) => {
+                    item.order = index;
+                });
             }
 
             window.editingTargetId = null;
@@ -1030,7 +1182,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (existingIdx !== -1) {
                 favsData[existingIdx] = favData;
             } else {
+                // 맨 앞에 추가
                 favsData.unshift(favData);
+                // 전체 데이터의 order 값을 인덱스 순서대로 0부터 다시 부여
+                favsData.forEach((item, index) => {
+                    item.order = index;
+                });
             }
 
             window.editingTargetId = null;
@@ -1058,6 +1215,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// 사용자가 변경 사항을 저장하지 않고 페이지를 떠나려 할 때 경고창 표시
+window.addEventListener('beforeunload', (e) => {
+    // 2차 창작, 1차 창작, 관심 작품 중 어느 하나의 폼이라도 변경된 상태인지 확인
+    const isFanworkChanged = (document.getElementById('fanworkForm')?.style.display !== 'none') && (getFormState() !== initialFormState);
+    const isOcChanged = (document.getElementById('ocForm')?.style.display !== 'none') && (getOcFormState() !== initialFormState);
+    const isFavChanged = (document.getElementById('favForm')?.style.display !== 'none') && (getFavFormState() !== initialFormState);
+
+    if (isFanworkChanged || isOcChanged || isFavChanged) {
+        e.preventDefault();
+        e.returnValue = ''; // 표준에 따라 브라우저가 기본 확인 메시지를 띄우도록 설정
+    }
+});
+
 window.deleteCard = function(id) {
     if (confirm('정말 이 항목을 삭제하시겠습니까?')) {
         if (currentSelectedCategory === '1차창작') {
@@ -1065,17 +1235,17 @@ window.deleteCard = function(id) {
         } else if (currentSelectedCategory === '관심작품') {
             favsData = favsData.filter(p => p.id !== id);
         } else {
-            postsData.splice(postsData.findIndex(p => p.id === id), 1);
+            fanworksData.splice(fanworksData.findIndex(p => p.id === id), 1);
         }
         renderGrid();
     }
 };
 
 window.downloadJson = function() {
-    const postsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(postsData, null, 4));
+    const fanworksStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fanworksData, null, 4));
     const a = document.createElement('a');
-    a.setAttribute("href", postsStr);
-    a.setAttribute("download", "posts.json");
+    a.setAttribute("href", fanworksStr);
+    a.setAttribute("download", "fanworks.json");
     document.body.appendChild(a);
     a.click();
     a.remove();

@@ -11,11 +11,9 @@ let profilesData = [];
 // [공통 유틸리티] 이미지 리사이징 경로 처리 (상대 경로 및 IPFS 해시 경로 예외 처리 보완)
 function getResizedImageUrl(src, targetWidth = 400) {
   if (!src) return '';
-  // 외부 URL, 절대 경로, 혹은 이미 올바른 상대 경로(`../` 등)인 경우 그대로 반환
   if (src.startsWith('http') || src.startsWith('/') || src.startsWith('../') || src.startsWith('data:')) {
     return src;
   }
-  // 만약 pages/ 하위 폴더에서 실행 중인데 경로가 assets/...로 시작한다면 상위 폴더 경로 보정
   if (window.location.pathname.includes('/pages/') && src.startsWith('assets/')) {
     return '../' + src;
   }
@@ -54,7 +52,7 @@ function getFilteredAndProcessedData(rawData, activeFilters = {}) {
   });
 }
 
-// 1. 헤더 및 필터 열기 버튼 (컨테이너 오른쪽 정렬)
+// 1. 헤더 및 필터 열기 버튼
 function renderHeader() {
   const headerEl = document.querySelector('.header');
   const mainGrid = document.querySelector('.grid-cols-4, .grid-cols-5, .grid-cols-3');
@@ -78,15 +76,22 @@ function renderHeader() {
   }
 }
 
-// 2. OCs 카드 HTML 생성 (뒤에 이미지가 존재함을 인지할 수 있는 글라스모피즘 썸네일 적용)
+// 2. OCs 카드 HTML 생성
 function createOcCardHTML(item, showSensitiveOverride = false) {
   const isPrivate = item.private;
   const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
-  const thumbSrc = getResizedImageUrl(item.thumbnail || item.portrait || '', 300);
+  const rawSrc = item.thumbnail || item.portrait || '';
+  const thumbSrc = getResizedImageUrl(rawSrc, 300);
 
   let thumbsHTML = '';
   let cardClasses = "card open-oc-modal";
   let datasetAttr = `data-oc-id="${item.id}"`;
+
+  const emptyThumbHtml = `
+    <div class="card-thumb text-thumb" style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; text-align: center;">
+      <span>이미지 준비 중</span>
+    </div>
+  `;
 
   if (isPrivate) {
     thumbsHTML = `
@@ -98,16 +103,18 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
     const warningText = item.warningContent ? item.warningContent : '민감한 콘텐츠';
     thumbsHTML = `
       <div class="card-thumb" style="position: relative; aspect-ratio: 1/1; overflow: hidden;">
-        <img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);" onerror="this.style.display='none';">
+        ${thumbSrc ? `<img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);" onerror="this.style.display='none';">` : ''}
         <div style="position: absolute; inset: 0; background: rgba(30, 30, 30, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #fff;">
           <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
       </div>
     `;
+  } else if (!thumbSrc) {
+    thumbsHTML = emptyThumbHtml;
   } else {
     thumbsHTML = `
       <div class="card-thumb">
-        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.style.display='none';">
+        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#888;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
       </div>
     `;
   }
@@ -119,7 +126,7 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
   `;
 }
 
-// 3. OCs 모달 초기화 (1열 이미지 영역에만 글라스모피즘 가림막 및 보기/외부링크 버튼 적용)
+// 3. OCs 모달 초기화
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
@@ -167,7 +174,6 @@ function initOcLightbox() {
     const portraitImg = document.getElementById('ocPortrait');
     const portraitContainer = document.getElementById('ocPortraitContainer');
     
-    // 기존 1열 가림막 제거
     const existingMask = portraitContainer.querySelector('.oc-glass-mask');
     if (existingMask) existingMask.remove();
 
@@ -178,7 +184,6 @@ function initOcLightbox() {
     if (isSensitive && !window.showSensitiveGlobal) {
       portraitImg.style.display = 'none';
 
-      // 모달 바디(.oc-modal-body) 위에 스티커처럼 얹는 1열짜리 오버레이 층
       const modalBody = ocModal.querySelector('.oc-modal-body');
       const mask = document.createElement('div');
       mask.className = 'oc-glass-mask';
@@ -232,7 +237,6 @@ function initOcLightbox() {
     closeOcModal();
   };
   
-// 모달 바깥 배경(여백)을 클릭했을 때만 닫기 (내부 버튼 클릭 예외 처리)
   ocModal.onclick = (e) => {
     if (e.target === ocModal) {
       closeOcModal();
@@ -260,6 +264,9 @@ async function initOcApp() {
       const res = await fetch(jsonPath);
       if (res.ok) {
         profilesData = await res.json();
+        // order 값 기준 정렬
+        profilesData.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
         isProfilePage.classList.add('crop-square');
         const showSens = window.showSensitiveGlobal || false;
         
@@ -273,7 +280,7 @@ async function initOcApp() {
   }
 }
 
-// 4. Fanworks 카드 HTML 생성 (뒤에 이미지가 흐릿하게 보이는 글라스모피즘 썸네일 적용)
+// 4. Fanworks 카드 HTML 생성
 function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
@@ -327,7 +334,7 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
     const warningText = item.warningContent ? item.warningContent : '민감한 콘텐츠';
     thumbsHTML = `
       <div class="card-thumb" ${modalAttrs} style="position: relative; aspect-ratio: 1/1; overflow: hidden; cursor: pointer;">
-        <img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);">
+        ${processedImages[0] ? `<img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);">` : ''}
         <div style="position: absolute; inset: 0; background: rgba(30, 30, 30, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #fff;">
           <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
@@ -339,10 +346,16 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
         <span>${textThumb}</span>
       </div>
     `;
+  } else if (!processedImages[0]) {
+    thumbsHTML = `
+      <div class="card-thumb text-thumb" ${modalAttrs} style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer;">
+        <span>이미지 준비 중</span>
+      </div>
+    `;
   } else {
     thumbsHTML = `
       <div class="card-thumb" ${modalAttrs} style="cursor: pointer;">
-        <img src="${processedImages[0]}" alt="" loading="lazy" srcset="${processedImages[0]} 400w" sizes="(max-width: 600px) 100vw, 400px">
+        <img src="${processedImages[0]}" alt="" loading="lazy" srcset="${processedImages[0]} 400w" sizes="(max-width: 600px) 100vw, 400px" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#888;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
       </div>
     `;
   }
@@ -418,7 +431,7 @@ function executeRender() {
   }
 }
 
-// 7. Fanworks 라이트박스 모달 (1열 이미지 영역에만 가림막 및 보기/외부링크 버튼 적용)
+// 7. Fanworks 라이트박스 모달
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
@@ -590,10 +603,10 @@ function initLightbox() {
     closeModal();
   };
 
-  // 모달 바깥 배경(여백)을 클릭했을 때만 닫기 (내부 버튼 클릭 예외 처리)
-  Modal.onclick = (e) => {
-    if (e.target === ocModal) {
-      closeOcModal();
+  // 대문자 Modal -> 소문자 modal 수정
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      closeModal();
     }
   };
 }
@@ -610,7 +623,7 @@ async function initApp() {
   const isPagesFolder = window.location.pathname.includes('/pages/');
   const jsonPath = isProfilePage 
     ? (isPagesFolder ? '../profiles.json' : 'profiles.json')
-    : (isPagesFolder ? '../posts.json' : 'posts.json');
+    : (isPagesFolder ? '../fanworks.json' : 'fanworks.json');
 
   try {
     const response = await fetch(jsonPath);

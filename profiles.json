@@ -64,6 +64,38 @@
         "sensitive": false
     },
     {
+        "id": 13,
+        "name": "양배추",
+        "foreignName": "Cabbage",
+        "title": "양배추 인간",
+        "age": "2세",
+        "gender": "무성",
+        "height": "143",
+        "thumbnail": "",
+        "portrait": "",
+        "description": "실험실에서 만들어진 양배추 인간.\n\n걸을 때 양배추 소리가 난다. \"뻐득뻐득\"",
+        "private": false,
+        "rating": "all",
+        "warningContent": "",
+        "sensitive": false
+    },
+    {
+        "id": 12,
+        "name": ".",
+        "foreignName": ".",
+        "title": "고3",
+        "age": "18세",
+        "gender": "여성",
+        "height": "168",
+        "thumbnail": "",
+        "portrait": "",
+        "description": "지망대 합격 확인 0.1초 전 이세계로 전이됐다.",
+        "private": false,
+        "rating": "all",
+        "warningContent": "",
+        "sensitive": false
+    },
+    {
         "id": 3,
         "name": "로언",
         "foreignName": "Rowan",

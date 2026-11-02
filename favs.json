@@ -1,5 +1,12 @@
 [
     {
+        "id": 12,
+        "title": "언더테일",
+        "media": "게임",
+        "character": "-",
+        "relation": "-"
+    },
+    {
         "id": 11,
         "title": "소녀★가극 레뷰 스타라이트",
         "media": "애니(TVA, 신극장판)",
@@ -23,7 +30,7 @@
     {
         "id": 8,
         "title": "델타룬",
-        "media": "게임(챕터1-4)",
+        "media": "게임(챕터1-5)",
         "character": "노엘",
         "relation": "노엘x디셈버"
     },

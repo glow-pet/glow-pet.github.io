@@ -1,9 +1,18 @@
 /* ==========================================================================
    1. 기본 리셋 및 전역 스타일
    ========================================================================== */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 html {
   overflow-y: scroll;
 }
+
 
 * {
   box-sizing: border-box;
@@ -157,6 +166,15 @@ a {
   padding: 2rem 2.5rem;
 }
 
+.container .pagination-container {
+    margin-top: 30px;
+}
+
+.admin-content-pane .pagination-container {
+    margin-top: 0;
+    border-top: 1px solid #eee;
+}
+
 .back-button-wrapper {
   margin-bottom: 1.5rem;
 }
@@ -194,6 +212,7 @@ a {
 }
 
 .footer {
+  width: 100%;
   text-align: center;
   padding: 0.5rem 1rem 1rem 1rem; /* 위쪽 패딩 줄임 */
   color: #999;
@@ -343,6 +362,7 @@ a {
   word-break: break-all;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  cursor: pointer; /* 포인터 커서 추가 */
 }
 
 .card-thumb.text-thumb span {
@@ -712,7 +732,6 @@ a {
   align-items: center;
   gap: 6px;
   padding: 15px 0;
-  border-top: solid 1px #eee;
 }
 
 .pagination-container button {
@@ -745,22 +764,6 @@ a {
 /* ==========================================================================
    8. Admin Page Styles (Fixed 3-Column Layout & Modals)
    ========================================================================== */
-.admin-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-}
-
-.admin-card {
-    background: #ffffff;
-    border: 1px solid #eaeaea;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    gap: 16px;
-}
 .admin-thumb-preview {
     width: 80px;
     height: 80px;
@@ -938,14 +941,23 @@ html:has(.admin-layout-wrapper) {
     box-sizing: border-box;
 }
 
+/* 각 열 컨테이너 및 스크롤바 Gutter 항상 확보 (overflow-y: scroll) */
+.admin-sidebar, .admin-content-pane, .admin-editor-pane {
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
 /* 열머리 스타일 통일 (높이, 패딩, 보더 일치) */
 .admin-column-header {
-    height: 45px;
+    height: 43px;
     font-size: 1rem;
     font-weight: 600;
     color: #222;
     border-bottom: 1px solid #eaeaea;
-    padding: 0 1rem;
+    padding: 0 1.3rem;
     margin-bottom: 0;
     display: flex;
     justify-content: space-between;
@@ -953,14 +965,6 @@ html:has(.admin-layout-wrapper) {
     flex-shrink: 0;
 }
 
-/* 각 열 컨테이너 및 스크롤바 Gutter 항상 확보 (overflow-y: scroll) */
-.admin-sidebar, .admin-content-pane, .admin-editor-pane {
-    height: 100%;
-    overflow: hidden;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-}
 
 .admin-sidebar {
     background: #fdfdfd;
@@ -970,20 +974,10 @@ html:has(.admin-layout-wrapper) {
 .admin-sidebar-menu-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     margin-top: 1rem;
-}
-
-.admin-content-pane {
-    background: #ffffff;
-    border-right: 1px solid #eaeaea;
-}
-
-.admin-editor-pane {
-    background: #fafafa;
-    width: 100%;
-    box-sizing: border-box;
-}
+    padding: 0rem 1.2rem;
+  }    
 
 .admin-menu-btn {
     width: 100%;
@@ -998,6 +992,21 @@ html:has(.admin-layout-wrapper) {
     cursor: pointer;
 }
 
+.admin-menu-btn.active {
+    background-color: #eee; /* 어두운 배경색 */
+}
+
+  
+.admin-content-pane {
+    background: #ffffff;
+    border-right: 1px solid #eaeaea;
+}    
+
+.admin-editor-pane {
+    background: #fafafa;
+    width: 100%;
+    box-sizing: border-box;
+}    
 /* 3열 수정 버튼 뱃지 여백 늘리고 폰트 키우기 */
 .admin-dark-big-btn, .admin-dark-small-btn{
     background: #444;
@@ -1023,7 +1032,7 @@ html:has(.admin-layout-wrapper) {
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    padding: 14px 1rem;
+    padding: 14px 1.3rem;
     background: #fff;
     border-bottom: 1px solid #f0f0f0;
     position: relative;
@@ -1035,6 +1044,7 @@ html:has(.admin-layout-wrapper) {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    padding-top: 0; /* 상단 여백 제거하여 썸네일 상단과 일치시킴 */
 }
 
 .admin-card-meta {
@@ -1585,11 +1595,6 @@ body.modal-open {
   cursor: pointer;
   z-index: 10050;
   padding: 5px;
-}
-
-/* 민감한 콘텐츠 및 비공개 썸네일 커서 기본값 적용 */
-.card-thumb.text-thumb {
-  cursor: default;
 }
 
 /* 필터 모달 내부 민감한 콘텐츠 토글 영역 정렬 및 하단 마진 추가 */
