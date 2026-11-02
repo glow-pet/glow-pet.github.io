@@ -29,6 +29,11 @@ body {
   word-break: keep-all;
 }
 
+body.modal-open, 
+body.modal-open html {
+    overflow: hidden !important;
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -398,43 +403,7 @@ a {
    5. 모달 슬라이더 (우측 캡션 + 스크롤바)
    ========================================================================== */
 
-.image-modal, .oc-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.92);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.image-modal.active, .oc-modal.active {
-  display: flex;
-}
-
-.oc-modal, .image-modal, .filter-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    box-sizing: border-box;
-    backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
-}
-
-.oc-modal .oc-modal-body,
-.image-modal .modal-body-container {
-    transform: translateZ(0);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.image-modal {
+.fanworks-modal, .oc-modal {
   display: none;
   position: fixed;
   top: 0;
@@ -448,7 +417,126 @@ a {
   overscroll-behavior: contain;
 }
 
-.image-modal.active {
+.fanworks-modal.active, .oc-modal.active {
+  display: flex;
+}
+
+.fanworks-modal .modal-image-container, .oc-modal .modal-image-container {
+  display: flex;
+  width: 100vw;
+  width: 380px;
+  min-width: 300px;
+  max-width: 100%;
+  height: 100vh;
+  max-height: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border-radius: 0;
+  box-sizing: border-box;
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  overflow: hidden;
+  overflow-y: auto;
+  object-fit: contain;
+}
+
+/* OC 모달 전체를 덮는 성인물 경고 오버레이 */
+.oc-warning-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95); /* 혹은 어두운 배경일 경우 rgba(0, 0, 0, 0.9) */
+    z-index: 100; /* 콘텐츠 위를 완전히 덮도록 설정 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* "콘텐츠 경고" 볼드체 라벨 */
+.oc-warning-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+/* 상세 콘텐츠 (1행 나열) */
+.oc-warning-desc {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 20px;
+    white-space: nowrap; /* 1행으로 유지하려면 nowrap 사용 */
+}
+
+/* 보기 버튼 */
+.oc-warning-btn {
+    padding: 8px 20px;
+    cursor: pointer;
+    /* 버튼 디자인 스타일 추가 */
+}
+
+/* 모달 내부 컨테이너 */
+.modal-caption-container, .oc-modal-right-pane-scrollable {
+    overflow-y: auto; /* 내용이 넘칠 때만 내부 스크롤바 표시 */
+    max-height: 80vh; /* 최대 높이 지정 */
+}
+
+.fanworks-modal .modal-close-btn, .oc-modal .modal-close-btn {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 2.2rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 10050;
+    padding: 5px;
+}
+
+.oc-modal, .fanworks-modal, .filter-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+.oc-modal .oc-modal-body,
+.fanworks-modal .modal-body-container {
+    transform: translateZ(0);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.fanworks-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 3000;
+  justify-content: center;
+  align-items: center;
+  overscroll-behavior: contain;
+}
+
+.fanworks-modal.active {
   display: flex;
 }
 
@@ -468,7 +556,7 @@ a {
   max-height: 90vh;
 }
 
-.image-modal-content {
+.fanworks-modal-content {
   display: block;
   max-width: 65vw;
   max-height: 90vh;
@@ -478,28 +566,13 @@ a {
   outline: none;
 }
 
-.modal-caption-container {
-  width: 300px;
-  max-height: 85vh;
-  overflow-y: auto;
-  background-color: rgba(20, 20, 20, 0.85);
-  color: #eee;
-  padding: 1.5rem;
-  margin-left: 1.5rem;
-  border-radius: 5px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-all;
-  cursor: default;
-}
 
 @media (max-width: 768px) {
   .modal-body-container {
     flex-direction: column;
     max-height: 85vh;
   }
-  .image-modal-content {
+  .fanworks-modal-content {
     max-width: 85vw;
     max-height: 60vh;
   }
@@ -572,6 +645,7 @@ a {
 .favs-block {
   background-color: #fff;
   border: 1px solid #eaeaea;
+  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
   border-radius: 5px;
   padding: 1rem 1.3rem 1.2rem;
 }
@@ -974,9 +1048,8 @@ html:has(.admin-layout-wrapper) {
 .admin-sidebar-menu-list {
     display: flex;
     flex-direction: column;
-    gap: 3px;
     margin-top: 1rem;
-    padding: 0rem 1.2rem;
+    padding: 0rem 0.8rem;
   }    
 
 .admin-menu-btn {
@@ -1007,22 +1080,18 @@ html:has(.admin-layout-wrapper) {
     width: 100%;
     box-sizing: border-box;
 }    
-/* 3열 수정 버튼 뱃지 여백 늘리고 폰트 키우기 */
-.admin-dark-big-btn, .admin-dark-small-btn{
+
+/* ==========================================================================
+  버튼
+   ========================================================================== */
+
+.dark-btn{
     background: #444;
     color: #fff;
     border: none;
     border-radius: 5px;
     font-weight: 600;
     cursor: pointer;
-}
-
-.admin-dark-big-btn {
-    padding: 0.4rem 0.9rem 0.6rem 0.9rem;
-    font-size: 0.8rem;
-}
-
-.admin-dark-small-btn {
     padding: 0.3rem 0.8rem 0.4rem 0.9rem;
     font-size: 0.8rem;
 }
@@ -1032,7 +1101,7 @@ html:has(.admin-layout-wrapper) {
     display: flex;
     align-items: flex-start;
     gap: 15px;
-    padding: 14px 1.3rem;
+    padding: 1rem 1.3rem;
     background: #fff;
     border-bottom: 1px solid #f0f0f0;
     position: relative;
@@ -1340,7 +1409,7 @@ html:has(.admin-layout-wrapper) {
    Fanworks Fullscreen Modal Styles (팬웍스 전체화면 모달 및 닫기 버튼 배치)
    ========================================================================== */
 
-.image-modal .modal-body-container {
+.fanworks-modal .modal-body-container {
     display: flex;
     width: 100vw;
     height: 100vh;
@@ -1353,7 +1422,7 @@ html:has(.admin-layout-wrapper) {
     box-sizing: border-box;
 }
 
-.image-modal .modal-image-container {
+.fanworks-modal .modal-image-container {
     flex: 1;
     height: 100vh;
     position: relative;
@@ -1364,13 +1433,13 @@ html:has(.admin-layout-wrapper) {
     overflow: hidden;
 }
 
-.image-modal .image-modal-content {
+.fanworks-modal .fanworks-modal-content {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
 
-.image-modal .modal-arrow {
+.fanworks-modal .modal-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -1387,11 +1456,11 @@ html:has(.admin-layout-wrapper) {
     z-index: 10;
 }
 
-.image-modal .modal-prev { left: 20px; }
-.image-modal .modal-next { right: 20px; }
+.fanworks-modal .modal-prev { left: 20px; }
+.fanworks-modal .modal-next { right: 20px; }
 
-.image-modal .modal-caption-container {
-    width: 380px;
+.fanworks-modal .modal-caption-container {
+    width: 500px;
     min-width: 300px;
     height: 100vh;
     padding: 80px 40px 40px 40px; /* 텍스트 시작 위치 살짝 위, 살짝 오른쪽 조정 */
@@ -1404,31 +1473,31 @@ html:has(.admin-layout-wrapper) {
     overflow: hidden;
 }
 
-/* 닫기 버튼: 2열 오른쪽 끝을 넘어선 아주 좁은 열 가장 위쪽 대각선 방향 배치 */
-.image-modal .modal-close-btn {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 2.2rem;
-    line-height: 1;
-    cursor: pointer;
-    z-index: 10050;
-    padding: 5px;
+.modal-caption-container {
+  max-height: 85vh;
+  overflow-y: auto;
+  color: #eee;
+  padding: 1.5rem;
+  margin-left: 1.5rem;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  cursor: default;
 }
 
-.image-modal .modal-meta-top {
+
+.fanworks-modal .modal-meta-top {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.image-modal .modal-meta-date,
-.image-modal .modal-meta-tags,
-.image-modal .modal-meta-pages,
-.image-modal .modal-caption-text {
+.fanworks-modal .modal-meta-date,
+.fanworks-modal .modal-meta-tags,
+.fanworks-modal .modal-meta-pages,
+.fanworks-modal .modal-caption-text {
     font-size: 0.95rem;
     color: #eee;
     line-height: 1.5;
@@ -1438,8 +1507,9 @@ html:has(.admin-layout-wrapper) {
 
 /* 본문(body)에 active 클래스가 붙거나 모달이 뜰 때 배경 스크롤 방지 */
 body.modal-open {
-    overflow: hidden;
-    width: 100%;
+    overflow: hidden; /* 배경 스크롤바 차단 */
+    /* 스크롤바가 사라질 때 화면이 밀리는 현상을 방지하려면 아래 속성 추가 가능 */
+    scrollbar-gutter: stable; 
 }
 
 /* ==========================================================================
@@ -1463,16 +1533,6 @@ body.modal-open {
 
 .oc-modal.active {
   display: flex;
-}
-
-.oc-modal-body, .image-modal .modal-body-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  box-sizing: border-box;
-  overflow: hidden;
-  background: transparent;
 }
 
 /* 1열: 캐릭터 세로 초상화 및 기본 정보 Overlay */
@@ -1613,7 +1673,7 @@ body.modal-open {
   gap: 1rem;
 }
 
-/* 민감한 콘텐츠 스위치 트랜지션 제거 */
+/* 민감한 콘텐츠 스위치 */
 .switch {
   position: relative;
   display: inline-block;
@@ -1635,7 +1695,6 @@ body.modal-open {
   top: 0; left: 0; right: 0; bottom: 0;
   background-color: #ccc;
   border-radius: 22px;
-  /* transition 제거됨 */
 }
 
 .slider:before {
@@ -1656,4 +1715,98 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(18px);
+}
+
+/* ==========================================================================
+   5. 모달 및 성인물 경고 풀사이즈 오버레이 Styles
+   ========================================================================== */
+
+/* 모달 기본 컨테이너 */
+.image-modal, .oc-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 3000;
+  justify-content: center;
+  align-items: center;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+
+.image-modal.active, .oc-modal.active {
+  display: flex;
+}
+
+/* OC 모달 전체를 완전히 덮는 풀사이즈 경고 레이어 */
+.oc-full-warning-mask {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(20, 20, 20, 0.96);
+    color: #ffffff;
+    z-index: 10005; /* 닫기 버튼 아래, 모달 최상단 커버 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 2rem;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* "콘텐츠 경고" 볼드체 타이틀 */
+.oc-warning-title {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+}
+
+/* 상세 콘텐츠 (모달 경고 레이어에서만 1행으로 출력) */
+.oc-warning-desc {
+    font-size: 0.95rem;
+    color: #cccccc;
+    word-break: keep-all;
+    max-width: 480px;
+    line-height: 1.5;
+}
+
+/* 보기 / 외부링크 버튼 */
+.oc-warning-action-btn {
+    padding: 8px 22px;
+    background-color: #ffffff;
+    color: #111111;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.oc-warning-action-btn:hover {
+    background-color: #e5e5e5;
+}
+
+/* 모달 닫기 버튼 고정 스타일 */
+.image-modal .modal-close-btn, .oc-modal .modal-close-btn {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 2.2rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 10050;
+    padding: 5px;
 }

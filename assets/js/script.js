@@ -8,7 +8,6 @@ const itemsPerPage = 12;
 let tagFilterModal = null;
 let profilesData = [];
 
-// [공통 유틸리티] 이미지 리사이징 경로 처리 (상대 경로 및 IPFS 해시 경로 예외 처리 보완)
 function getResizedImageUrl(src, targetWidth = 400) {
   if (!src) return '';
   if (src.startsWith('http') || src.startsWith('/') || src.startsWith('../') || src.startsWith('data:')) {
@@ -20,39 +19,31 @@ function getResizedImageUrl(src, targetWidth = 400) {
   return src;
 }
 
-// [공통 유틸리티] 정렬 로직 (최신순)
 window.currentSortMode = 'latest';
 function getSortedData(dataArray) {
   if (!Array.isArray(dataArray)) return [];
   const list = [...dataArray];
-
   return list.sort((a, b) => {
     const dateA = new Date(a.date || 0);
     const dateB = new Date(b.date || 0);
-    if (dateB - dateA !== 0) {
-      return dateB - dateA;
-    }
+    if (dateB - dateA !== 0) return dateB - dateA;
     return (b.id || 0) - (a.id || 0);
   });
 }
 
-// [핵심 통합 함수] fanworks 및 ocs 공통 필터링 로직
 function getFilteredAndProcessedData(rawData, activeFilters = {}) {
   return (rawData || []).filter(item => {
     if (item.private) return false;
-
     const postTags = item.tags || [];
     for (const [tag, state] of Object.entries(activeFilters)) {
       const hasTag = postTags.includes(tag);
       if (state === 'include' && !hasTag) return false;
       if (state === 'exclude' && hasTag) return false;
     }
-
     return true;
   });
 }
 
-// 1. 헤더 및 필터 열기 버튼
 function renderHeader() {
   const headerEl = document.querySelector('.header');
   const mainGrid = document.querySelector('.grid-cols-4, .grid-cols-5, .grid-cols-3');
@@ -65,9 +56,7 @@ function renderHeader() {
     controlsWrapper.style.alignItems = 'center';
     controlsWrapper.style.marginBottom = '1.5rem';
 
-    controlsWrapper.innerHTML = `
-      <button type="button" id="open-filter-modal-btn" class="filter-open-btn">필터</button>
-    `;
+    controlsWrapper.innerHTML = `<button type="button" id="open-filter-modal-btn" class="dark-btn">필터</button>`;
     headerEl.insertAdjacentElement('afterend', controlsWrapper);
 
     document.getElementById('open-filter-modal-btn').addEventListener('click', () => {
@@ -76,7 +65,7 @@ function renderHeader() {
   }
 }
 
-// 2. OCs 카드 HTML 생성
+// OCs 카드 HTML 생성
 function createOcCardHTML(item, showSensitiveOverride = false) {
   const isPrivate = item.private;
   const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
@@ -84,33 +73,28 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
   const thumbSrc = getResizedImageUrl(rawSrc, 300);
 
   let thumbsHTML = '';
-  let cardClasses = "card open-oc-modal";
-  let datasetAttr = `data-oc-id="${item.id}"`;
-
-  const emptyThumbHtml = `
-    <div class="card-thumb text-thumb" style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; text-align: center;">
-      <span>이미지 준비 중</span>
-    </div>
-  `;
-
   if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: rgba(40, 40, 40, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+      <div class="card-thumb text-thumb" style="background: #333; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
         <span>비공개</span>
       </div>
     `;
   } else if (isSensitive && !showSensitiveOverride) {
-    const warningText = item.warningContent ? item.warningContent : '민감한 콘텐츠';
+    const warningText = '민감한 콘텐츠';
     thumbsHTML = `
       <div class="card-thumb" style="position: relative; aspect-ratio: 1/1; overflow: hidden;">
-        ${thumbSrc ? `<img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);" onerror="this.style.display='none';">` : ''}
-        <div style="position: absolute; inset: 0; background: rgba(30, 30, 30, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #fff;">
+        ${thumbSrc ? `<img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);" onerror="this.style.display='none';">` : ''}
+        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ccc;">
           <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
       </div>
     `;
   } else if (!thumbSrc) {
-    thumbsHTML = emptyThumbHtml;
+    thumbsHTML = `
+      <div class="card-thumb text-thumb" style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; text-align: center;">
+        <span>이미지 준비 중</span>
+      </div>
+    `;
   } else {
     thumbsHTML = `
       <div class="card-thumb">
@@ -120,23 +104,23 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
   }
 
   return `
-    <article class="${cardClasses}" ${datasetAttr}>
+    <article class="card open-oc-modal" data-oc-id="${item.id}">
       ${thumbsHTML}
     </article>
   `;
 }
 
-// 3. OCs 모달 초기화
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
     ocModal = document.createElement('div');
-    ocModal.className = 'oc-modal';
+    ocModal.className = 'oc-modal fanworks-modal';
     ocModal.innerHTML = `
       <button type="button" class="modal-close-btn" aria-label="닫기">✕</button>
-      <div class="oc-modal-body">
-        <div class="oc-modal-left-pane">
-          <div class="oc-modal-basic-info">
+      <div class="modal-body-container">
+        <div class="modal-image-container" id="ocImageWrapper">
+          <!-- 캐릭터 이름과 정보를 이미지 위 왼쪽 상단으로 더 바짝 끌어올림 -->
+          <div class="oc-modal-basic-info" style="top: 24px; left: 15px;">
             <div class="oc-info-name" id="ocName"></div>
             <div class="oc-info-foreign-name" id="ocForeignName"></div>
             <div class="oc-info-title" id="ocTitle"></div>
@@ -146,14 +130,11 @@ function initOcLightbox() {
               <span id="ocHeight"></span>
             </div>
           </div>
-          <div id="ocPortraitContainer" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; position:relative;">
-            <img class="oc-modal-portrait" id="ocPortrait" src="" alt="초상화">
-          </div>
+          <img class="fanworks-modal-content" id="ocPortrait" src="" alt="초상화">
         </div>
-        <div class="oc-modal-right-pane">
-          <div class="oc-modal-right-pane-scrollable">
-            <div class="oc-modal-detail-text" id="ocDetailText"></div>
-          </div>
+        <div class="modal-caption-container" style="padding-top: 24px;">
+          <div class="modal-meta-top" id="ocDetailMetaTop"></div>
+          <p class="modal-caption-text" id="ocDetailText"></p>
         </div>
       </div>
     `;
@@ -169,58 +150,52 @@ function initOcLightbox() {
     document.getElementById('ocAge').innerText = character.age ? `${character.age}` : '';
     document.getElementById('ocGender').innerText = character.gender || '';
     document.getElementById('ocHeight').innerText = character.height ? `${character.height}cm` : '';
-    document.getElementById('ocDetailText').innerText = character.description || '';
+    
+    const detailMetaTop = document.getElementById('ocDetailMetaTop');
+    if (detailMetaTop) {
+      detailMetaTop.innerHTML = `<div class="modal-meta-date" style="white-space: pre-wrap; word-break: break-all;">${character.description || ''}</div>`;
+    }
 
     const portraitImg = document.getElementById('ocPortrait');
-    const portraitContainer = document.getElementById('ocPortraitContainer');
-    
-    const existingMask = portraitContainer.querySelector('.oc-glass-mask');
+    const existingMask = ocModal.querySelector('.oc-full-warning-mask');
     if (existingMask) existingMask.remove();
 
+    const imgUrl = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
+    if (portraitImg) {
+      portraitImg.style.display = 'block';
+      portraitImg.src = imgUrl;
+    }
+
     const isSensitive = character.rating === 'warning' || character.rating === 'external' || character.sensitive;
-    const warningText = character.warningContent ? character.warningContent : '민감한 콘텐츠';
+    const warningText = character.warningContent ? character.warningContent : '민감한 소재가 포함되어 있습니다.';
     const linkUrl = character.link || (character.rating === 'external' ? character.externalLink : '');
 
     if (isSensitive && !window.showSensitiveGlobal) {
-      portraitImg.style.display = 'none';
-
-      const modalBody = ocModal.querySelector('.oc-modal-body');
       const mask = document.createElement('div');
-      mask.className = 'oc-glass-mask';
-      mask.style.cssText = `
-        position: absolute; inset: 0; display: flex; flex-direction: column;
-        align-items: center; justify-content: center; gap: 14px; text-align: center;
-        background: rgba(20, 20, 20, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        color: #fff; z-index: 100; border-radius: inherit; box-sizing: border-box; padding: 2rem;
-      `;
-      modalBody.style.position = 'relative';
-      modalBody.appendChild(mask);
+      mask.className = 'oc-full-warning-mask';
+      mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.98); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
       let actionBtnHTML = '';
       if (linkUrl) {
-        actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">외부 링크</a>`;
+        actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="oc-warning-action-btn">외부 링크</a>`;
       } else {
-        actionBtnHTML = `<button type="button" class="oc-reveal-btn" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">보기</button>`;
+        actionBtnHTML = `<button type="button" class="oc-reveal-btn oc-warning-action-btn">보기</button>`;
       }
 
       mask.innerHTML = `
-        <div style="font-size: 0.9rem; opacity: 0.9; word-break: keep-all;">${warningText}</div>
+        <div class="oc-warning-title">콘텐츠 경고</div>
+        <div class="oc-warning-desc">${warningText}</div>
         ${actionBtnHTML}
       `;
 
       const revealBtn = mask.querySelector('.oc-reveal-btn');
       if (revealBtn) {
         revealBtn.onclick = () => {
-          portraitImg.style.display = 'block';
-          portraitImg.src = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
           mask.remove();
         };
       }
 
-      portraitContainer.appendChild(mask);
-    } else {
-      portraitImg.style.display = 'block';
-      portraitImg.src = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
+      ocModal.appendChild(mask);
     }
 
     ocModal.classList.add('active');
@@ -264,7 +239,6 @@ async function initOcApp() {
       const res = await fetch(jsonPath);
       if (res.ok) {
         profilesData = await res.json();
-        // order 값 기준 정렬
         profilesData.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
         isProfilePage.classList.add('crop-square');
@@ -280,7 +254,7 @@ async function initOcApp() {
   }
 }
 
-// 4. Fanworks 카드 HTML 생성
+// Fanworks 카드 HTML 생성
 function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
@@ -326,16 +300,16 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   let thumbsHTML = '';
   if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: rgba(40, 40, 40, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+      <div class="card-thumb text-thumb" style="background: #333; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
         <span>비공개</span>
       </div>
     `;
   } else if (isSensitive && !showSensitiveOverride) {
-    const warningText = item.warningContent ? item.warningContent : '민감한 콘텐츠';
+    const warningText = '민감한 콘텐츠';
     thumbsHTML = `
       <div class="card-thumb" ${modalAttrs} style="position: relative; aspect-ratio: 1/1; overflow: hidden; cursor: pointer;">
-        ${processedImages[0] ? `<img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(14px); transform: scale(1.1);">` : ''}
-        <div style="position: absolute; inset: 0; background: rgba(30, 30, 30, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #fff;">
+        ${processedImages[0] ? `<img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);">` : ''}
+        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ccc;">
           <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
       </div>
@@ -367,7 +341,7 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   `;
 }
 
-// 5. 페이지네이션 렌더링
+// 총 페이지수가 1이어도 페이지네이션이 상시 표시되도록 수정
 function renderPagination(totalItems) {
   const containerEl = document.querySelector('.container');
   if (!containerEl) return;
@@ -380,10 +354,6 @@ function renderPagination(totalItems) {
   }
 
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-  if (totalPages <= 1) {
-    paginationEl.innerHTML = '';
-    return;
-  }
 
   let html = `<button type="button" class="page-arrow" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">&lt;</button>`;
   
@@ -406,7 +376,6 @@ function renderPagination(totalItems) {
   });
 }
 
-// 6. Fanworks 렌더링 실행
 function executeRender() {
   const mainContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   const isPagesFolder = window.location.pathname.includes('/pages/');
@@ -431,25 +400,25 @@ function executeRender() {
   }
 }
 
-// 7. Fanworks 라이트박스 모달
+// Fanworks 라이트박스 모달
 function initLightbox() {
   const gridContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
   if (!gridContainer) return;
 
-  let modal = document.querySelector('.image-modal');
+  let modal = document.querySelector('.fanworks-modal');
   if (!modal) {
     modal = document.createElement('div');
-    modal.className = 'image-modal';
+    modal.className = 'fanworks-modal';
     modal.innerHTML = `
       <button type="button" class="modal-close-btn" aria-label="모달 닫기">✕</button>
       <div class="modal-body-container">
         <div class="modal-image-container" id="modalImageWrapper" style="position:relative;">
           <button type="button" class="modal-arrow modal-prev" aria-label="이전 이미지">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
-          <img class="image-modal-content" src="" alt="확대 이미지" tabindex="0">
+          <img class="fanworks-modal-content" src="" alt="확대 이미지" tabindex="0">
           <button type="button" class="modal-arrow modal-next" aria-label="다음 이미지">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </div>
         <div class="modal-caption-container">
@@ -461,7 +430,7 @@ function initLightbox() {
     document.body.appendChild(modal);
   }
 
-  const modalImg = modal.querySelector('.image-modal-content');
+  const modalImg = modal.querySelector('.fanworks-modal-content');
   const captionTextEl = modal.querySelector('.modal-caption-text');
   const modalMetaTop = modal.querySelector('.modal-meta-top');
   const prevBtn = modal.querySelector('.modal-prev');
@@ -471,14 +440,16 @@ function initLightbox() {
   let currentImages = [];
   let currentIndex = 0;
 
-  function updateModalImage() {
+  function updateModalImage(isSensitiveActive = false) {
     if (currentImages.length > 0) {
       modalImg.src = getResizedImageUrl(currentImages[currentIndex], 1200);
       
-      if (currentImages.length <= 1) {
+      if (isSensitiveActive || currentImages.length <= 1) {
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
       } else {
+        // 첫 페이지(0)에서는 왼쪽(이전) 화살표 숨김, 오른쪽(다음) 화살표 표시
+        // 마지막 페이지에서는 왼쪽(이전) 화살표 표시, 오른쪽(다음) 화살표 숨김
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
         nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
@@ -487,14 +458,12 @@ function initLightbox() {
 
   function openModal() {
     modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
+    document.body.classList.add('modal-open');
   }
 
   function closeModal() {
     modal.classList.remove('active');
-    document.body.style.overflow = '';
-    document.body.style.touchAction = '';
+    document.body.classList.remove('modal-open');
   }
 
   gridContainer.onclick = (e) => {
@@ -515,49 +484,43 @@ function initLightbox() {
       if (currentImages.length > 0) {
         currentIndex = 0;
         
-        const imgContainer = document.getElementById('modalImageWrapper');
-        const existingMask = imgContainer.querySelector('.fanwork-glass-mask');
+        const existingMask = modal.querySelector('.oc-full-warning-mask');
         if (existingMask) existingMask.remove();
 
+        modalImg.style.display = 'block';
+        updateModalImage(false);
+
         if (isSensitive && !window.showSensitiveGlobal) {
-          modalImg.style.display = 'none';
+          updateModalImage(true); // 경고 레이어가 뜰 때는 화살표 숨김
 
           const mask = document.createElement('div');
-          mask.className = 'fanwork-glass-mask';
-          mask.style.cssText = `
-            position: absolute; inset: 0; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 12px; padding: 1rem; text-align: center;
-            background: rgba(30, 30, 30, 0.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            color: #fff; z-index: 10; width: 100%; height: 100%; box-sizing: border-box;
-          `;
+          mask.className = 'oc-full-warning-mask';
+          mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.98); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
           const displayText = warningContent ? warningContent : '민감한 콘텐츠';
           let actionBtnHTML = '';
 
           if (linkUrl) {
-            actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; text-decoration: none; font-size: 0.85rem;">외부 링크</a>`;
+            actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="oc-warning-action-btn">외부 링크</a>`;
           } else {
-            actionBtnHTML = `<button type="button" class="fanwork-reveal-btn" style="padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">보기</button>`;
+            actionBtnHTML = `<button type="button" class="fanwork-reveal-btn oc-warning-action-btn">보기</button>`;
           }
 
           mask.innerHTML = `
-            <div style="font-size: 0.95rem; opacity: 0.9; word-break: keep-all;">${displayText}</div>
+            <div class="oc-warning-title">콘텐츠 경고</div>
+            <div class="oc-warning-desc">${displayText}</div>
             ${actionBtnHTML}
           `;
 
           const revealBtn = mask.querySelector('.fanwork-reveal-btn');
           if (revealBtn) {
             revealBtn.onclick = () => {
-              modalImg.style.display = 'block';
-              updateModalImage();
+              updateModalImage(false);
               mask.remove();
             };
           }
 
-          imgContainer.appendChild(mask);
-        } else {
-          modalImg.style.display = 'block';
-          updateModalImage();
+          modal.appendChild(mask);
         }
 
         const dateHtml = `<div class="modal-meta-date">${currentDate || '날짜 없음'}</div>`;
@@ -586,7 +549,7 @@ function initLightbox() {
     e.stopPropagation();
     if (currentImages.length > 1 && currentIndex > 0) {
       currentIndex--;
-      updateModalImage();
+      updateModalImage(false);
     }
   };
 
@@ -594,7 +557,7 @@ function initLightbox() {
     e.stopPropagation();
     if (currentImages.length > 1 && currentIndex < currentImages.length - 1) {
       currentIndex++;
-      updateModalImage();
+      updateModalImage(false);
     }
   };
 
@@ -603,7 +566,6 @@ function initLightbox() {
     closeModal();
   };
 
-  // 대문자 Modal -> 소문자 modal 수정
   modal.onclick = (e) => {
     if (e.target === modal) {
       closeModal();
@@ -611,7 +573,7 @@ function initLightbox() {
   };
 }
 
-// 8. 메인 애플리케이션 초기화
+// 메인 애플리케이션 초기화
 async function initApp() {
   const isProfilePage = document.querySelector('.grid-cols-5');
   if (isProfilePage) {

@@ -6,7 +6,6 @@ export class TagFilterModal {
         this.options = options;
         this.allPosts = [];
         this.showSensitive = false;
-
         this.initDOM();
         this.initEvents();
     }
@@ -44,7 +43,7 @@ export class TagFilterModal {
                             <span style="font-size: 0.9rem; font-weight: 600; color: #333; cursor: pointer;" onclick="document.getElementById('filterSensitiveSwitch').click();">민감한 콘텐츠</span>
                         </div>
                         <div class="filter-modal-footer" style="border-top: none; padding-top: 1.2rem; display: flex; justify-content: flex-end; margin-bottom: 0;">
-                            <button type="button" id="filter-modal-apply-btn" class="filter-apply-btn">확인</button>
+                            <button type="button" id="filter-modal-apply-btn" class="dark-btn">확인</button>
                         </div>
                     </div>
                 </div>

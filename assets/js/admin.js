@@ -2,6 +2,8 @@ let fanworksData = [];
 let profilesData = [];
 let favsData = [];
 let tagsData = { works: [] };
+let currentOcThumbnails = [];
+let currentOcPortraits = [];
 let currentImages = [];
 let initialFormState = '';
 let activeTagFilters = {}; 
@@ -41,7 +43,6 @@ async function loadData() {
 }
 
 window.selectCategory = function(category) {
-    // 카테고리명 공백 제거하여 정규화 저장
     currentSelectedCategory = category ? category.replace(/\s+/g, '') : '';
     currentAdminPage = 1;
 
@@ -59,7 +60,6 @@ window.selectCategory = function(category) {
     document.getElementById('contentPaneInner').style.display = 'flex';
     document.getElementById('contentPanePlaceholder').style.display = 'none';
 
-    // 2차창작인 경우 정렬 버튼 숨기기, 1차창작/관심작품인 경우 보이기
     const orderBtn = document.getElementById('orderBtn');
     if (orderBtn) {
         if (currentSelectedCategory === '2차창작') {
@@ -81,12 +81,10 @@ function renderGrid() {
     let targetData = [];
 
     if (activeCategory === '1차창작') {
-        // order 값 기준 오름차순 정렬 (order가 없으면 id 기준 대체)
         targetData = [...profilesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     } else if (activeCategory === '관심작품') {
         targetData = [...favsData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     } else {
-        // 2차창작은 기존대로 날짜 내림차순 유지
         targetData = [...fanworksData].sort((a, b) => {
             const dateA = new Date(a.date || 0);
             const dateB = new Date(b.date || 0);
@@ -126,11 +124,11 @@ function renderGrid() {
                         <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
                     </div>
                     <div class="admin-thumb-preview">
-                        ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
+                        ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.85rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
                     </div>
                     <div class="admin-card-info">
                         <div>${item.name || ''}</div>
-                        <div class="admin-card-meta">${item.title || ''} / ${item.age ? item.age : ''} ${item.gender || ''}</div>
+                        <div class="admin-card-meta">${item.title || ''}</div>
                         ${statusHtml}
                     </div>
                 </div>
@@ -140,7 +138,7 @@ function renderGrid() {
         grid.innerHTML = slicedData.map(item => {
             const details = [item.media, item.character, item.relation].filter(Boolean).join(' / ');
             return `
-                <div class="admin-card-item" style="padding: 12px 16px;">
+                <div class="admin-card-item">
                     <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
                         <button class="admin-action-btn" onclick="openEditEditor(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
                         <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
@@ -195,10 +193,8 @@ function renderAdminPagination(totalItems) {
     if (!paginationEl) return;
 
     const totalPages = Math.ceil(totalItems / adminItemsPerPage) || 1;
-    if (totalPages <= 1) {
-        paginationEl.innerHTML = '';
-        return;
-    }
+    
+    // [수정] totalPages <= 1 조건문(return)을 제거하여 1페이지만 있어도 페이지네이션이 표시되도록 함
 
     let html = `<button type="button" class="page-arrow" ${currentAdminPage === 1 ? 'disabled' : ''} data-page="${currentAdminPage - 1}">&lt;</button>`;
     for (let i = 1; i <= totalPages; i++) {
@@ -218,45 +214,8 @@ function renderAdminPagination(totalItems) {
     });
 }
 
-function updateRatingStatesBasedOnInputs() {
-    const warningInput = document.getElementById('cardWarningContent');
-    const externalInput = document.getElementById('cardExternalLink');
-    const radioAll = document.querySelector('input[name="admin-rating"][value="all"]');
-    const radioWarning = document.querySelector('input[name="admin-rating"][value="warning"]');
-    const radioExternal = document.querySelector('input[name="admin-rating"][value="external"]');
-
-    if (warningInput && radioWarning) {
-        const hasWarning = warningInput.value.trim().length > 0;
-        radioWarning.checked = hasWarning;
-        if (hasWarning && radioAll) radioAll.checked = false;
-    }
-
-    if (externalInput && radioExternal) {
-        const hasExternal = externalInput.value.trim().length > 0;
-        radioExternal.checked = hasExternal;
-        if (hasExternal && radioAll) radioAll.checked = false;
-    }
-
-    if (!warningInput?.value.trim() && !externalInput?.value.trim() && radioAll) {
-        radioAll.checked = true;
-    }
-}
-
-function updateOcRatingStatesBasedOnInputs() {
-    const warningInput = document.getElementById('ocWarningContent');
-    const radioAll = document.querySelector('input[name="oc-admin-rating"][value="all"]');
-    const radioWarning = document.querySelector('input[name="oc-admin-rating"][value="warning"]');
-
-    if (warningInput && radioWarning) {
-        const hasWarning = warningInput.value.trim().length > 0;
-        radioWarning.checked = hasWarning;
-        if (hasWarning && radioAll) radioAll.checked = false;
-    }
-
-    if (!warningInput?.value.trim() && radioAll) {
-        radioAll.checked = true;
-    }
-}
+function updateRatingStatesBasedOnInputs() {}
+function updateOcRatingStatesBasedOnInputs() {}
 
 function getFormState() {
     const warningContentInput = document.getElementById('cardWarningContent');
@@ -264,9 +223,9 @@ function getFormState() {
     const warningVal = warningContentInput ? warningContentInput.value.trim() : '';
     const linkVal = externalLinkInput ? externalLinkInput.value.trim() : '';
     
-    let ratingVal = 'all';
-    if (warningVal) ratingVal = 'warning';
-    else if (linkVal) ratingVal = 'external';
+    // name="admin-rating" 라디오 버튼 중 체크된 값 가져오기
+    const checkedRating = document.querySelector('input[name="admin-rating"]:checked');
+    const ratingVal = checkedRating ? checkedRating.value : 'all';
 
     return JSON.stringify({
         category: document.getElementById('cardCategory').value,
@@ -285,7 +244,9 @@ function getOcFormState() {
     const privateEl = document.getElementById('ocPrivate');
     const warningContentInput = document.getElementById('ocWarningContent');
     const warningVal = warningContentInput ? warningContentInput.value.trim() : '';
-    const ratingVal = warningVal ? 'warning' : 'all';
+    
+    const checkedRating = document.querySelector('input[name="oc-admin-rating"]:checked');
+    const ratingVal = checkedRating ? checkedRating.value : 'all';
 
     return JSON.stringify({
         name: document.getElementById('ocName') ? document.getElementById('ocName').value : '',
@@ -294,8 +255,8 @@ function getOcFormState() {
         age: document.getElementById('ocAge') ? document.getElementById('ocAge').value : '',
         gender: document.getElementById('ocGender') ? document.getElementById('ocGender').value : '',
         height: document.getElementById('ocHeight') ? document.getElementById('ocHeight').value : '',
-        thumbnail: document.getElementById('ocThumbnail') ? document.getElementById('ocThumbnail').value : '',
-        portrait: document.getElementById('ocPortrait') ? document.getElementById('ocPortrait').value : '',
+        thumbnails: [...currentOcThumbnails],
+        portraits: [...currentOcPortraits],
         description: document.getElementById('ocDescription') ? document.getElementById('ocDescription').value : '',
         private: privateEl ? privateEl.checked : false,
         rating: ratingVal,
@@ -349,7 +310,7 @@ function checkFavFormChanges() {
 }
 
 window.openEditEditor = function(id) {
-    const fanworkForm = document.getElementById('fanworkForm');
+    const fanworkForm = document.getElementById('editForm');
     const ocForm = document.getElementById('ocForm');
     const favForm = document.getElementById('favForm');
     const saveBtn = document.getElementById('saveBtn');
@@ -379,14 +340,20 @@ window.openEditEditor = function(id) {
             document.getElementById('ocAge').value = item.age || '';
             document.getElementById('ocGender').value = item.gender || '';
             document.getElementById('ocHeight').value = item.height || '';
-            document.getElementById('ocThumbnail').value = item.thumbnail || '';
-            document.getElementById('ocPortrait').value = item.portrait || '';
+            currentOcThumbnails = item.thumbnails ? [...item.thumbnails] : (item.thumbnail ? [item.thumbnail] : []);
+            currentOcPortraits = item.portraits ? [...item.portraits] : (item.portrait ? [item.portrait] : []);
+            renderOcThumbnails();
+            renderOcPortraits();
             document.getElementById('ocDescription').value = item.description || '';
             if (ocPrivateEl) ocPrivateEl.checked = !!item.private;
 
             const warningInput = document.getElementById('ocWarningContent');
             if (warningInput) warningInput.value = item.warningContent || '';
-            updateOcRatingStatesBasedOnInputs();
+            
+            const ratingToSelect = item.rating || 'all';
+            const targetRadio = document.querySelector(`input[name="oc-admin-rating"][value="${ratingToSelect}"]`);
+            if (targetRadio) targetRadio.checked = true;
+
         } else {
             document.getElementById('editorTitle').innerText = `새 캐릭터 프로필 추가`;
             const maxId = profilesData.reduce((max, p) => Math.max(max, p.id || 0), 0);
@@ -395,8 +362,12 @@ window.openEditEditor = function(id) {
             window.editingTargetId = null;
 
             if (ocForm) ocForm.reset();
+            currentOcThumbnails = item.thumbnails ? [...item.thumbnails] : (item.thumbnail ? [item.thumbnail] : []);
+            currentOcPortraits = item.portraits ? [...item.portraits] : (item.portrait ? [item.portrait] : []);
+            renderOcThumbnails();
+            renderOcPortraits();
             if (ocPrivateEl) ocPrivateEl.checked = false;
-            updateOcRatingStatesBasedOnInputs();
+            document.querySelector('input[name="oc-admin-rating"][value="all"]').checked = true;
         }
 
         initialFormState = getOcFormState();
@@ -458,7 +429,15 @@ window.openEditEditor = function(id) {
             
             if (warningContentInput) warningContentInput.value = post.warningContent || '';
             if (externalLinkInput) externalLinkInput.value = post.link || '';
-            updateRatingStatesBasedOnInputs();
+            
+            // rating 값에 따라 올바른 라디오 버튼 체크 (all, warning, external)
+            const ratingToSelect = post.rating || (post.sensitive ? 'warning' : 'all');
+            const targetRadio = document.querySelector(`input[name="admin-rating"][value="${ratingToSelect}"]`);
+            if (targetRadio) {
+                targetRadio.checked = true;
+            } else {
+                document.getElementById('cardRadioAll').checked = true;
+            }
 
             currentImages = post.images ? [...post.images] : (post['thumbnail-image'] ? [post['thumbnail-image']] : []);
         } else {
@@ -475,7 +454,7 @@ window.openEditEditor = function(id) {
             if (cardPrivateEl) cardPrivateEl.checked = false;
             if (warningContentInput) warningContentInput.value = '';
             if (externalLinkInput) externalLinkInput.value = '';
-            updateRatingStatesBasedOnInputs();
+            document.getElementById('cardRadioAll').checked = true;
 
             currentImages = [];
         }
@@ -563,21 +542,14 @@ function renderAdminTagSelector() {
     updateImagePathPreview();
 }
 
-// ==========================================
-// 1차창작 & 관심작품 순서 변경 모달 (즉시 반영 로직)
-// ==========================================
-
 let currentOrderCategory = null;
-let tempOrderData = []; // 모달 내에서 조작할 임시 배열
+let tempOrderData = []; 
 
-// 정렬 모달 열기
 window.openOrderModal = function() {
     const activeCategory = currentSelectedCategory ? currentSelectedCategory.replace(/\s+/g, '') : '';
     if (activeCategory === '2차창작' || !activeCategory) return;
     
     currentOrderCategory = activeCategory;
-    
-    // 모달을 열 때 현재 원본 데이터를 복사하여 임시 배열 생성
     const targetData = (currentOrderCategory === '1차창작') ? profilesData : favsData;
     tempOrderData = [...targetData];
 
@@ -591,7 +563,6 @@ window.openOrderModal = function() {
     modal.classList.add('active');
 };
 
-// 정렬 모달 닫기 (취소 시 변경사항 반영 안 함)
 window.closeOrderModal = function() {
     const modal = document.getElementById('orderModal');
     if (modal) modal.classList.remove('active');
@@ -599,7 +570,6 @@ window.closeOrderModal = function() {
     tempOrderData = [];
 };
 
-// 모달 목록 렌더링 (임시 배열 `tempOrderData` 기준)
 function renderOrderList() {
     const container = document.getElementById('orderListContainer');
     if (!container) return;
@@ -620,8 +590,8 @@ function renderOrderList() {
                     <span style="font-size: 0.9rem; font-weight: 500;">${label}</span>
                 </div>
                 <div style="display: flex; gap: 4px;" onclick="event.stopPropagation()">
-                    <button type="button" class="admin-dark-small-btn" onclick="moveOrderItem(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'}>▲</button>
-                    <button type="button" class="admin-dark-small-btn" onclick="moveOrderItem(${index}, 1)" ${index === tempOrderData.length - 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'}>▼</button>
+                    <button type="button" class="dark-btn" onclick="moveOrderItem(${index}, -1)" ${index === 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'}>▲</button>
+                    <button type="button" class="dark-btn" onclick="moveOrderItem(${index}, 1)" ${index === tempOrderData.length - 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : 'style="cursor:pointer;"'}>▼</button>
                 </div>
             </div>
         `;
@@ -657,7 +627,6 @@ function renderOrderList() {
     });
 }
 
-// 모달 내부 화살표 이동 (임시 배열 조작)
 window.moveOrderItem = function(index, direction) {
     const newIndex = index + direction;
     if (newIndex < 0 || newIndex >= tempOrderData.length) return;
@@ -669,9 +638,7 @@ window.moveOrderItem = function(index, direction) {
     renderOrderList();
 };
 
-// [적용] 버튼 클릭 시 원본 데이터에 반영하고 메인 목록 갱신
 window.applyOrderChanges = function() {
-    // 임시 배열의 순서대로 각 아이템에 새로운 order 값(0부터 시작)을 부여
     const updatedData = tempOrderData.map((item, index) => ({
         ...item,
         order: index
@@ -683,8 +650,8 @@ window.applyOrderChanges = function() {
         favsData = updatedData;
     }
 
-    renderGrid(); // 메인 화면 목록 즉시 반영
-    closeOrderModal(); // 모달 닫기
+    renderGrid(); 
+    closeOrderModal(); 
 };
 
 window.openTagHierarchyModal = function() {
@@ -992,6 +959,69 @@ function renderImages() {
     `).join('');
     checkFormChanges();
 }
+window.addOcThumbnailImage = function() {
+    const inputEl = document.getElementById('ocNewThumbnailInput');
+    const filename = inputEl ? inputEl.value.trim() : '';
+    if (filename) {
+        const fullPath = `assets/images/ocs/${filename.replace(/\.[^/.]+$/, '')}.webp`;
+        currentOcThumbnails.push(fullPath);
+        inputEl.value = ''; // 입력칸 리셋
+        renderOcThumbnails();
+        checkOcFormChanges();
+    } else {
+        alert('파일명을 입력해주세요.');
+    }
+};
+
+window.removeOcThumbnailImage = function(idx) {
+    currentOcThumbnails.splice(idx, 1);
+    renderOcThumbnails();
+    checkOcFormChanges();
+};
+
+function renderOcThumbnails() {
+    const listEl = document.getElementById('ocThumbnailList');
+    if (!listEl) return;
+    listEl.innerHTML = currentOcThumbnails.map((img, idx) => `
+        <div class="image-item" style="position: relative;">
+            <div class="image-item-index">${idx + 1}</div>
+            <img src="${img}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="remove-btn" onclick="removeOcThumbnailImage(${idx})">✕</div>
+        </div>
+    `).join('');
+}
+
+window.addOcPortraitImage = function() {
+    const inputEl = document.getElementById('ocNewPortraitInput');
+    const filename = inputEl ? inputEl.value.trim() : '';
+    if (filename) {
+        const fullPath = `assets/images/ocs/${filename.replace(/\.[^/.]+$/, '')}.webp`;
+        currentOcPortraits.push(fullPath);
+        inputEl.value = ''; // 입력칸 리셋
+        renderOcPortraits();
+        checkOcFormChanges();
+    } else {
+        alert('파일명을 입력해주세요.');
+    }
+};
+
+window.removeOcPortraitImage = function(idx) {
+    currentOcPortraits.splice(idx, 1);
+    renderOcPortraits();
+    checkOcFormChanges();
+};
+
+function renderOcPortraits() {
+    const listEl = document.getElementById('ocPortraitList');
+    if (!listEl) return;
+    listEl.innerHTML = currentOcPortraits.map((img, idx) => `
+        <div class="image-item" style="position: relative;">
+            <div class="image-item-index">${idx + 1}</div>
+            <img src="${img}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="remove-btn" onclick="removeOcPortraitImage(${idx})">✕</div>
+        </div>
+    `).join('');
+}
 
 window.addImagePath = function() {
     const category = document.getElementById('cardCategory').value;
@@ -1040,28 +1070,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     ['cardAlt', 'cardDate', 'cardPrivate', 'cardWarningContent', 'cardExternalLink'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('input', () => {
-                updateRatingStatesBasedOnInputs();
-                checkFormChanges();
-            });
-            el.addEventListener('change', () => {
-                updateRatingStatesBasedOnInputs();
-                checkFormChanges();
-            });
+            el.addEventListener('input', checkFormChanges);
+            el.addEventListener('change', checkFormChanges);
         }
     });
 
     ['ocName', 'ocForeignName', 'ocTitle', 'ocAge', 'ocGender', 'ocHeight', 'ocThumbnail', 'ocPortrait', 'ocDescription', 'ocPrivate', 'ocWarningContent'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('input', () => {
-                updateOcRatingStatesBasedOnInputs();
-                checkOcFormChanges();
-            });
-            el.addEventListener('change', () => {
-                updateOcRatingStatesBasedOnInputs();
-                checkOcFormChanges();
-            });
+            el.addEventListener('input', checkOcFormChanges);
+            el.addEventListener('change', checkOcFormChanges);
         }
     });
 
@@ -1073,16 +1091,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const fanworkForm = document.getElementById('fanworkForm');
+    // 라디오 버튼 수동 클릭 변경 감지 이벤트 추가
+    document.querySelectorAll('input[name="admin-rating"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            checkFormChanges();
+        });
+    });
+
+    document.querySelectorAll('input[name="oc-admin-rating"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            checkOcFormChanges();
+        });
+    });
+
+    const fanworkForm = document.getElementById('editForm');
     if (fanworkForm) {
         fanworkForm.onsubmit = (e) => {
             e.preventDefault();
+            const checkedRating = document.querySelector('input[name="admin-rating"]:checked');
+            const selectedRating = checkedRating ? checkedRating.value : 'all';
             const warningVal = document.getElementById('cardWarningContent') ? document.getElementById('cardWarningContent').value.trim() : '';
             const linkVal = document.getElementById('cardExternalLink') ? document.getElementById('cardExternalLink').value.trim() : '';
-            
-            let selectedRating = 'all';
-            if (warningVal) selectedRating = 'warning';
-            else if (linkVal) selectedRating = 'external';
 
             const fanworkData = {
                 id: window.editingTargetId !== null ? window.editingTargetId : (fanworksData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
@@ -1128,8 +1157,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `assets/images/ocs/${cleanName}.webp`;
             };
 
+            const checkedOcRating = document.querySelector('input[name="oc-admin-rating"]:checked');
+            const selectedOcRating = checkedOcRating ? checkedOcRating.value : 'all';
             const warningVal = document.getElementById('ocWarningContent') ? document.getElementById('ocWarningContent').value.trim() : '';
-            const selectedOcRating = warningVal ? 'warning' : 'all';
 
             const ocData = {
                 id: window.editingTargetId !== null ? window.editingTargetId : (profilesData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
@@ -1139,8 +1169,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 age: document.getElementById('ocAge').value,
                 gender: document.getElementById('ocGender').value,
                 height: document.getElementById('ocHeight').value,
-                thumbnail: formatOcImgPath(document.getElementById('ocThumbnail').value),
-                portrait: formatOcImgPath(document.getElementById('ocPortrait').value),
+                thumbnail: currentOcThumbnails.length > 0 ? currentOcThumbnails[0] : '',
+                thumbnails: currentOcThumbnails,
+                portrait: currentOcPortraits.length > 0 ? currentOcPortraits[0] : '',
+                portraits: currentOcPortraits,
                 description: document.getElementById('ocDescription').value,
                 private: document.getElementById('ocPrivate').checked,
                 rating: selectedOcRating,
@@ -1152,9 +1184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (existingIdx !== -1) {
                 profilesData[existingIdx] = ocData;
             } else {
-                // 맨 앞에 추가
                 profilesData.unshift(ocData);
-                // 전체 데이터의 order 값을 인덱스 순서대로 0부터 다시 부여
                 profilesData.forEach((item, index) => {
                     item.order = index;
                 });
@@ -1182,9 +1212,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (existingIdx !== -1) {
                 favsData[existingIdx] = favData;
             } else {
-                // 맨 앞에 추가
                 favsData.unshift(favData);
-                // 전체 데이터의 order 값을 인덱스 순서대로 0부터 다시 부여
                 favsData.forEach((item, index) => {
                     item.order = index;
                 });
@@ -1215,16 +1243,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// 사용자가 변경 사항을 저장하지 않고 페이지를 떠나려 할 때 경고창 표시
 window.addEventListener('beforeunload', (e) => {
-    // 2차 창작, 1차 창작, 관심 작품 중 어느 하나의 폼이라도 변경된 상태인지 확인
-    const isFanworkChanged = (document.getElementById('fanworkForm')?.style.display !== 'none') && (getFormState() !== initialFormState);
+    const isFanworkChanged = (document.getElementById('editForm')?.style.display !== 'none') && (getFormState() !== initialFormState);
     const isOcChanged = (document.getElementById('ocForm')?.style.display !== 'none') && (getOcFormState() !== initialFormState);
     const isFavChanged = (document.getElementById('favForm')?.style.display !== 'none') && (getFavFormState() !== initialFormState);
 
     if (isFanworkChanged || isOcChanged || isFavChanged) {
         e.preventDefault();
-        e.returnValue = ''; // 표준에 따라 브라우저가 기본 확인 메시지를 띄우도록 설정
+        e.returnValue = ''; 
     }
 });
 

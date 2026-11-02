@@ -15,9 +15,9 @@
             <span class="admin-nav-title">관리</span>
         </div>
         <div style="display: flex; gap: 8px;">
-            <button onclick="downloadJson()" class="admin-dark-big-btn" title="fanworks.json 저장">fanworks.json 저장</button>
-            <button onclick="downloadProfileJson()" class="admin-dark-big-btn" title="profiles.json 저장">profiles.json 저장</button>
-            <button onclick="downloadFavsJson()" class="admin-dark-big-btn" title="favs.json 저장">favs.json 저장</button>
+            <button onclick="downloadJson()" class="dark-btn" title="fanworks.json 저장">fanworks.json 저장</button>
+            <button onclick="downloadProfileJson()" class="dark-btn" title="profiles.json 저장">profiles.json 저장</button>
+            <button onclick="downloadFavsJson()" class="dark-btn" title="favs.json 저장">favs.json 저장</button>
         </div>
     </nav>
 
@@ -36,8 +36,8 @@
                 <div class="admin-column-header">
                     <span id="currentTabTitle">목록</span>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <button onclick="openOrderModal('1차창작')" class="admin-dark-small-btn" id="orderBtn">정렬</button>
-                        <button onclick="openEditEditor(null)" class="admin-dark-small-btn" id="addNewBtn">추가</button>
+                        <button onclick="openOrderModal('1차창작')" class="dark-btn" id="orderBtn">정렬</button>
+                        <button onclick="openEditEditor(null)" class="dark-btn" id="addNewBtn">추가</button>
                     </div>
                 </div>
                 <div class="admin-card-list" id="cardGrid"></div>
@@ -56,9 +56,9 @@
                         <span id="editorIdDisplay" style="font-size: 0.8rem; color: #888; font-weight: normal;"></span>
                     </div>
                     <div>
-                        <button type="submit" form="editForm" id="saveBtn" class="admin-dark-small-btn" style="display: none;" disabled>적용</button>
-                        <button type="submit" form="ocForm" id="ocSaveBtn" class="admin-dark-small-btn" style="display: none;" disabled>적용</button>
-                        <button type="submit" form="favForm" id="favSaveBtn" class="admin-dark-small-btn" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="editForm" id="saveBtn" class="dark-btn" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="ocForm" id="ocSaveBtn" class="dark-btn" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="favForm" id="favSaveBtn" class="dark-btn" style="display: none;" disabled>적용</button>
                     </div>
                 </div>
 
@@ -94,36 +94,51 @@
                             </div>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                            <div class="form-group">
-                                <label>썸네일</label>
-                                <input type="text" id="ocThumbnail" placeholder="파일명(확장자 제외)">
+                        <div class="form-group">
+                            <label>썸네일 이미지</label>
+                            <div class="image-path-preview">assets/images/ocs/</div>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="ocNewThumbnailInput" placeholder="파일명(확장자 제외)" style="flex: 1;">
+                                <button type="button" onclick="addOcThumbnailImage()" class="dark-btn">추가</button>
                             </div>
-                            <div class="form-group">
-                                <label>전신 이미지</label>
-                                <input type="text" id="ocPortrait" placeholder="파일명(확장자 제외)">
+                            <div id="ocThumbnailList" class="image-list"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>전신 이미지</label>
+                            <div class="image-path-preview">assets/images/ocs/</div>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="ocNewPortraitInput" placeholder="파일명(확장자 제외)" style="flex: 1;">
+                                <button type="button" onclick="addOcPortraitImage()" class="dark-btn">추가</button>
                             </div>
+                            <div id="ocPortraitList" class="image-list"></div>
+                        </div>
                         </div>
                         <div class="form-group">
                             <label>세부 정보</label>
                             <textarea id="ocDescription" rows="8" style="resize: none; height: 300px;"></textarea>
                         </div>
                         
-                        <!-- 1차창작 표시 설정 영역 (ID 및 name을 oc 전용으로 완벽 분리) -->
                         <div class="form-group">
-                            <label>표시 설정</label>
-                            <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
-                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                                    <input type="checkbox" id="ocPrivate"> 비공개
-                                </label>
-                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                                    <input type="radio" name="oc-admin-rating" value="all" checked> 전연령
-                                </label>
-                                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
-                                        <input type="radio" name="oc-admin-rating" value="warning"> 성인물(경고)
-                                    </label>
-                                    <input type="text" id="ocWarningContent" placeholder="상세 콘텐츠" style="flex: 1; padding: 4px 6px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
+                            <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
+                            
+                            <!-- CSS Grid 적용: [라디오/체크박스] [라벨] [입력칸] 3개 열로 세로선 고정 -->
+                            <div style="display: grid; grid-template-columns: auto auto 1fr; row-gap: 8px; column-gap: 10px; align-items: center; width: 100%;">
+                                
+                                <!-- 1행: 비공개 -->
+                                <input type="checkbox" id="ocPrivate" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="ocPrivate" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">비공개</label>
+                                <div></div>
+
+                                <!-- 2행: 전연령 -->
+                                <input type="radio" name="oc-admin-rating" value="all" checked id="ocRadioAll" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="ocRadioAll" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">전연령</label>
+                                <div></div>
+
+                                <!-- 3행: 성인물(경고) -->
+                                <input type="radio" name="oc-admin-rating" value="warning" id="ocRadioWarning" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="ocRadioWarning" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">성인물(경고)</label>
+                                <input type="text" id="ocWarningContent" placeholder="상세 콘텐츠" style="width: 100%; padding: 6px 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+
                             </div>
                         </div>
                     </form>
@@ -144,39 +159,44 @@
                             <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
                             <div style="display: flex; gap: 8px;">
                                 <input type="text" id="newImgFilename" placeholder="파일명(확장자 제외)" style="flex: 1;">
-                                <button type="button" onclick="addImagePath()" class="admin-dark-small-btn">추가</button>
+                                <button type="button" onclick="addImagePath()" class="dark-btn">추가</button>
                             </div>
                             <div id="imageList" class="image-list"></div>
                         </div>
 
                         <div class="form-group">
                             <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
-                            <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
-                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                                    <input type="checkbox" id="cardPrivate"> 비공개
-                                </label>
-                                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                                    <input type="radio" name="admin-rating" value="all" checked> 전연령
-                                </label>
-                                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
-                                        <input type="radio" name="admin-rating" value="warning"> 성인물(경고)
-                                    </label>
-                                    <input type="text" id="cardWarningContent" placeholder="상세 콘텐츠" style="flex: 1; padding: 4px 6px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
-                                        <input type="radio" name="admin-rating" value="external" id="cardRadioExternal"> 성인물(외부링크)
-                                    </label>
-                                        <input type="text" id="cardExternalLink" placeholder="외부 링크" style="flex: 1; padding: 4px 6px; font-size: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
+                            
+                            <!-- 2차 창작 전용 ID 및 name이 적용된 그리드 레이아웃 -->
+                            <div style="display: grid; grid-template-columns: auto auto 1fr; row-gap: 8px; column-gap: 10px; align-items: center; width: 100%;">
+                                
+                                <!-- 1행: 비공개 -->
+                                <input type="checkbox" id="cardPrivate" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="cardPrivate" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">비공개</label>
+                                <div></div>
+
+                                <!-- 2행: 전연령 -->
+                                <input type="radio" name="admin-rating" value="all" checked id="cardRadioAll" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="cardRadioAll" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">전연령</label>
+                                <div></div>
+
+                                <!-- 3행: 성인물(경고) -->
+                                <input type="radio" name="admin-rating" value="warning" id="cardRadioWarning" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="cardRadioWarning" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">성인물(경고)</label>
+                                <input type="text" id="cardWarningContent" placeholder="상세 콘텐츠" style="width: 100%; padding: 6px 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+
+                                <!-- 4행: 성인물(외부링크) -->
+                                <input type="radio" name="admin-rating" value="external" id="cardRadioExternal" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="cardRadioExternal" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">성인물(외부링크)</label>
+                                <input type="text" id="cardExternalLink" placeholder="외부 링크" style="width: 100%; padding: 6px 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+
                             </div>
                         </div>
-
+                        
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                 <label style="margin-bottom: 0;">태그</label>
-                                <button type="button" class="admin-dark-small-btn" onclick="openTagHierarchyModal()">태그 필터 편집</button>
+                                <button type="button" class="dark-btn" onclick="openTagHierarchyModal()">태그 필터 편집</button>
                             </div>
                             <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="여기에 선택한 태그가 나열됩니다.">
                             <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
@@ -196,9 +216,6 @@
 
                     <!-- 관심 작품 수정 패널 -->
                     <form class="edit" id="favForm" style="display: none; flex-direction: column; gap: 12px; margin-bottom: 100px;">
-                        <div>
-                            <button type="button" class="admin-dark-small-btn" onclick="openOrderModal('관심작품')" style="width: 100%;">순서 변경</button>
-                        </div>
                         <div class="form-group">
                             <label>작품</label>
                             <input type="text" id="favTitle" required>
@@ -229,7 +246,7 @@
         <div class="tag-edit-modal-content" onclick="event.stopPropagation()">
             <div class="tag-edit-modal-header">
                 <h3>태그 위계 구조 관리</h3>
-                <button type="button" class="admin-dark-small-btn" onclick="applyTagHierarchyModal()">저장</button>
+                <button type="button" class="dark-btn" onclick="applyTagHierarchyModal()">저장</button>
             </div>
             <div class="tag-edit-columns-wrapper">
                 <div class="tag-edit-col">
@@ -253,8 +270,8 @@
         <div class="work-delete-modal-card" onclick="event.stopPropagation()">
             <div class="work-delete-modal-text">정말로 삭제하시겠습니까?<br>하위 항목들까지 모두 삭제됩니다.</div>
             <div style="display: flex; gap: 8px; justify-content: center;">
-                <button type="button" class="admin-dark-small-btn" style="background: #e74c3c;" onclick="confirmDeleteWork()">삭제</button>
-                <button type="button" class="admin-dark-small-btn" style="background: #888;" onclick="closeWorkDeleteModal()">취소</button>
+                <button type="button" class="dark-btn" style="background: #e74c3c;" onclick="confirmDeleteWork()">삭제</button>
+                <button type="button" class="dark-btn" style="background: #888;" onclick="closeWorkDeleteModal()">취소</button>
             </div>
         </div>
     </div>
@@ -264,7 +281,7 @@
         <div class="tag-edit-modal-content" onclick="event.stopPropagation()" style="max-width: 500px; max-height: 80vh; display: flex; flex-direction: column;">
             <div class="tag-edit-modal-header">
                 <h3 id="orderModalTitle">정렬</h3>
-                <button type="button" class="admin-dark-small-btn" onclick="closeOrderModal()" style="background:none; border:none; color:#666; font-size:1.5rem; cursor:pointer;">✕</button>
+                <button type="button" class="dark-btn" onclick="closeOrderModal()" style="background:none; border:none; color:#666; font-size:1.5rem; cursor:pointer;">✕</button>
             </div>
             <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">
                 ▲/▼ 버튼을 누르거나 목록 항목을 드래그하여 순서를 변경하세요.
@@ -274,7 +291,7 @@
             </div>
             <!-- 모달 하단 적용 버튼 추가 -->
             <div style="display: flex; justify-content: flex-end; border-top: 1px solid #eaeaea; margin-top: 1rem; padding-top: 1rem;">
-                <button type="button" class="admin-dark-small-btn" onclick="applyOrderChanges()">적용</button>
+                <button type="button" class="dark-btn" onclick="applyOrderChanges()">적용</button>
             </div>
         </div>
     </div>
