@@ -61,6 +61,42 @@
                 {
                     "name": "프리스크",
                     "relations": []
+                },
+                {
+                    "name": "토리엘",
+                    "relations": []
+                },
+                {
+                    "name": "아스고어",
+                    "relations": []
+                },
+                {
+                    "name": "냅스타블룩",
+                    "relations": []
+                },
+                {
+                    "name": "메타톤",
+                    "relations": []
+                },
+                {
+                    "name": "알피스",
+                    "relations": []
+                },
+                {
+                    "name": "언다인",
+                    "relations": []
+                },
+                {
+                    "name": "레서 도그",
+                    "relations": []
+                },
+                {
+                    "name": "여섯 인간",
+                    "relations": []
+                },
+                {
+                    "name": "몬스터 키드",
+                    "relations": []
                 }
             ]
         },

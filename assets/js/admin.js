@@ -119,7 +119,7 @@ function renderGrid() {
 
             return `
                 <div class="admin-card-item">
-                    <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                    <div style="position: absolute; top: 14px; right: 1rem; display: flex; gap: 16px; align-items: center; z-index: 5;">
                         <button class="admin-action-btn" onclick="openEditEditor(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
                         <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
                     </div>
@@ -139,7 +139,7 @@ function renderGrid() {
             const details = [item.media, item.character, item.relation].filter(Boolean).join(' / ');
             return `
                 <div class="admin-card-item">
-                    <div style="position: absolute; top: 12px; right: 10px; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                    <div style="position: absolute; top: 14px; right: 1rem; display: flex; gap: 16px; align-items: center; z-index: 5;">
                         <button class="admin-action-btn" onclick="openEditEditor(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
                         <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
                     </div>
@@ -310,7 +310,7 @@ function checkFavFormChanges() {
 }
 
 window.openEditEditor = function(id) {
-    const fanworkForm = document.getElementById('editForm');
+    const fanworkForm = document.getElementById('fanworkForm');
     const ocForm = document.getElementById('ocForm');
     const favForm = document.getElementById('favForm');
     const saveBtn = document.getElementById('saveBtn');
@@ -1104,7 +1104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    const fanworkForm = document.getElementById('editForm');
+    const fanworkForm = document.getElementById('fanworkForm');
     if (fanworkForm) {
         fanworkForm.onsubmit = (e) => {
             e.preventDefault();
@@ -1244,7 +1244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 window.addEventListener('beforeunload', (e) => {
-    const isFanworkChanged = (document.getElementById('editForm')?.style.display !== 'none') && (getFormState() !== initialFormState);
+    const isFanworkChanged = (document.getElementById('fanworkForm')?.style.display !== 'none') && (getFormState() !== initialFormState);
     const isOcChanged = (document.getElementById('ocForm')?.style.display !== 'none') && (getOcFormState() !== initialFormState);
     const isFavChanged = (document.getElementById('favForm')?.style.display !== 'none') && (getFavFormState() !== initialFormState);
 

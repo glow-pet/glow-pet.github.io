@@ -43,7 +43,7 @@ export class TagFilterModal {
                             <span style="font-size: 0.9rem; font-weight: 600; color: #333; cursor: pointer;" onclick="document.getElementById('filterSensitiveSwitch').click();">민감한 콘텐츠</span>
                         </div>
                         <div class="filter-modal-footer" style="border-top: none; padding-top: 1.2rem; display: flex; justify-content: flex-end; margin-bottom: 0;">
-                            <button type="button" id="filter-modal-apply-btn" class="dark-btn">확인</button>
+                            <button type="button" id="filter-modal-apply-btn" class="btn-dark-long">확인</button>
                         </div>
                     </div>
                 </div>
@@ -188,8 +188,8 @@ export class TagFilterModal {
         });
 
         if (includedWorks.length === 0) {
-            this.charListEl.innerHTML = '<p style="color:#aaa; font-size:0.85rem;">장르를 "포함(✔)" 상태로 선택해주세요.</p>';
-            this.relListEl.innerHTML = '<p style="color:#aaa; font-size:0.85rem;">장르를 "포함(✔)" 상태로 선택해주세요.</p>';
+            this.charListEl.innerHTML = '<p style="color:#aaa; font-size:0.85rem;">작품를 포함(✔) 상태로 선택해주세요.</p>';
+            this.relListEl.innerHTML = '<p style="color:#aaa; font-size:0.85rem;">작품를 포함(✔) 상태로 선택해주세요.</p>';
             return;
         }
 

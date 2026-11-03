@@ -21,8 +21,8 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif; 
   background-color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif; 
   color: #444;
   line-height: 1.75;
   letter-spacing: -0.02em;
@@ -166,7 +166,7 @@ a {
 
 .container {
   position: relative;
-  max-width: 1000px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 2rem 2.5rem;
 }
@@ -259,64 +259,64 @@ a {
   display: grid;
 }
 
-.grid-cols-4 {
+.card-cols-4 {
   gap: 15px;
   grid-template-columns: repeat(1, 1fr);
 }
 
 @media (min-width: 600px) {
-  .grid-cols-4 {
+  .card-cols-4 {
     gap: 15px;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
 @media (min-width: 480px) {
-  .grid-cols-5 {
+  .card-cols-5 {
     gap: 15px;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
 
 @media (min-width: 1200px) {
-  .grid-cols-5 {
+  .card-cols-5 {
     gap: 15px;
     grid-template-columns: repeat(5, 1fr);
   }
 }
 
-.grid-cols-3 {
+.card-cols-3 {
   display: block;
   column-count: 1;
   column-gap: 12px;
 }
 
-.grid-cols-3 .card {
+.card-cols-3 .card {
   break-inside: avoid;
   margin-bottom: 12px;
 }
 
-.grid-cols-3 .card-thumb img {
+.card-cols-3 .card-thumb img {
   height: auto;
   cursor: pointer;
 }
 
 @media (min-width: 480px) {
-  .grid-cols-3 {
+  .card-cols-3 {
     column-count: 2;
     column-gap: 16px;
   }
-  .grid-cols-3 .card {
+  .card-cols-3 .card {
     margin-bottom: 16px;
   }
 }
 
 @media (min-width: 1024px) {
-  .grid-cols-3 {
+  .card-cols-3 {
     column-count: 3;
     column-gap: 20px;
   }
-  .grid-cols-3 .card {
+  .card-cols-3 .card {
     margin-bottom: 20px;
   }
 }
@@ -327,7 +327,7 @@ a {
    ========================================================================== */
 .card {
   background: #ffffff;
-  border: solid 1px #eaeaea;
+  border: solid 1px #eee;
   box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
   border-radius: 5px;
   overflow: hidden;
@@ -423,10 +423,7 @@ a {
 
 .fanworks-modal .modal-image-container, .oc-modal .modal-image-container {
   display: flex;
-  width: 100vw;
   width: 380px;
-  min-width: 300px;
-  max-width: 100%;
   height: 100vh;
   max-height: 100%;
   padding: 0;
@@ -899,9 +896,13 @@ a {
 
 .edit {
   padding: 1rem 2rem 50px 2rem;
+  gap: 12px;
+  display: none;
+  flex-direction: column;
+  margin-bottom: 100px;
 }
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 .form-group label {
     display: block;
@@ -967,7 +968,6 @@ a {
     z-index: 3;
 }
 
-/* 3열 태그 필터 높이 2.5배 확대 */
 .admin-tag-selector-box {
     display: flex;
     flex-wrap: wrap;
@@ -977,7 +977,7 @@ a {
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 5px;
-    min-height: 250px;
+    min-height: 200px;
 }
 
 .image-path-preview {
@@ -1081,19 +1081,23 @@ html:has(.admin-layout-wrapper) {
     box-sizing: border-box;
 }    
 
-/* ==========================================================================
-  버튼
-   ========================================================================== */
 
-.dark-btn{
+/* 버튼 */
+.btn-dark-short, .btn-dark-long {
     background: #444;
     color: #fff;
     border: none;
     border-radius: 5px;
-    font-weight: 600;
     cursor: pointer;
+    font-weight: 600;
+  }
+.btn-dark-short {
     padding: 0.3rem 0.8rem 0.4rem 0.9rem;
     font-size: 0.8rem;
+}
+.btn-dark-long {
+    padding: 0.3rem 1.5rem 0.45rem 1.7rem;
+    font-size: 0.85rem;
 }
 
 /* 2열 카드 아이템 정렬 및 날짜 상단 맞춤, 태그 행간 0.2rem */
@@ -1559,10 +1563,8 @@ body.modal-open {
 /* 1열 좌측 상단 기본 정보 오버레이 */
 .oc-modal-basic-info {
   position: absolute;
-  top: 40px;
-  left: 40px;
   color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 0 5px #000;
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -1601,7 +1603,7 @@ body.modal-open {
   opacity: 0.8;
   display: flex;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 10px;
 }
 
 .oc-info-stats span:not(:last-child)::after {

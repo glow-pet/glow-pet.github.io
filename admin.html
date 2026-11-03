@@ -15,9 +15,9 @@
             <span class="admin-nav-title">관리</span>
         </div>
         <div style="display: flex; gap: 8px;">
-            <button onclick="downloadJson()" class="dark-btn" title="fanworks.json 저장">fanworks.json 저장</button>
-            <button onclick="downloadProfileJson()" class="dark-btn" title="profiles.json 저장">profiles.json 저장</button>
-            <button onclick="downloadFavsJson()" class="dark-btn" title="favs.json 저장">favs.json 저장</button>
+            <button onclick="downloadJson()" class="btn-dark-short" title="fanworks.json 저장">fanworks.json 저장</button>
+            <button onclick="downloadProfileJson()" class="btn-dark-short" title="profiles.json 저장">profiles.json 저장</button>
+            <button onclick="downloadFavsJson()" class="btn-dark-short" title="favs.json 저장">favs.json 저장</button>
         </div>
     </nav>
 
@@ -36,8 +36,8 @@
                 <div class="admin-column-header">
                     <span id="currentTabTitle">목록</span>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <button onclick="openOrderModal('1차창작')" class="dark-btn" id="orderBtn">정렬</button>
-                        <button onclick="openEditEditor(null)" class="dark-btn" id="addNewBtn">추가</button>
+                        <button onclick="openOrderModal('1차창작')" class="btn-dark-short" id="orderBtn">정렬</button>
+                        <button onclick="openEditEditor(null)" class="btn-dark-short" id="addNewBtn">추가</button>
                     </div>
                 </div>
                 <div class="admin-card-list" id="cardGrid"></div>
@@ -56,15 +56,15 @@
                         <span id="editorIdDisplay" style="font-size: 0.8rem; color: #888; font-weight: normal;"></span>
                     </div>
                     <div>
-                        <button type="submit" form="editForm" id="saveBtn" class="dark-btn" style="display: none;" disabled>적용</button>
-                        <button type="submit" form="ocForm" id="ocSaveBtn" class="dark-btn" style="display: none;" disabled>적용</button>
-                        <button type="submit" form="favForm" id="favSaveBtn" class="dark-btn" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="fanworkForm" id="saveBtn" class="btn-dark-long" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="ocForm" id="ocSaveBtn" class="btn-dark-long" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="favForm" id="favSaveBtn" class="btn-dark-long" style="display: none;" disabled>적용</button>
                     </div>
                 </div>
 
                 <!-- 1차 창작 수정 패널 -->
                 <div style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
-                    <form class="edit" id="ocForm" style="display: none; flex-direction: column; gap: 12px;">
+                    <form class="edit" id="ocForm">
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                             <div class="form-group">
                                 <label>성명</label>
@@ -93,29 +93,31 @@
                                 <input type="text" id="ocHeight" placeholder="예: 165">
                             </div>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                        <div class="form-group">
-                            <label>썸네일 이미지</label>
-                            <div class="image-path-preview">assets/images/ocs/</div>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="ocNewThumbnailInput" placeholder="파일명(확장자 제외)" style="flex: 1;">
-                                <button type="button" onclick="addOcThumbnailImage()" class="dark-btn">추가</button>
-                            </div>
-                            <div id="ocThumbnailList" class="image-list"></div>
-                        </div>
-                        <div class="form-group">
-                            <label>전신 이미지</label>
-                            <div class="image-path-preview">assets/images/ocs/</div>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" id="ocNewPortraitInput" placeholder="파일명(확장자 제외)" style="flex: 1;">
-                                <button type="button" onclick="addOcPortraitImage()" class="dark-btn">추가</button>
-                            </div>
-                            <div id="ocPortraitList" class="image-list"></div>
-                        </div>
-                        </div>
+
                         <div class="form-group">
                             <label>세부 정보</label>
                             <textarea id="ocDescription" rows="8" style="resize: none; height: 300px;"></textarea>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <div class="form-group">
+                                <label>썸네일</label>
+                                <div class="image-path-preview">assets/images/ocs/</div>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="ocNewThumbnailInput" placeholder="파일명(확장자 제외)" style="flex: 1;">
+                                    <button type="button" onclick="addOcThumbnailImage()" class="btn-dark-short">추가</button>
+                                </div>
+                                <div id="ocThumbnailList" class="image-list"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>전신 이미지</label>
+                                <div class="image-path-preview">assets/images/ocs/</div>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="ocNewPortraitInput" placeholder="파일명(확장자 제외)" style="flex: 1;">
+                                    <button type="button" onclick="addOcPortraitImage()" class="btn-dark-short">추가</button>
+                                </div>
+                                <div id="ocPortraitList" class="image-list"></div>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -144,7 +146,7 @@
                     </form>
                                         
                     <!-- 2차 창작 폼 -->
-                    <form class="edit" id="editForm" style="display: flex; flex-direction: column; gap: 12px;">
+                    <form class="edit" id="fanworkForm">
                         <input type="hidden" id="cardId">
                         <div class="form-group" style="display:none;">
                             <label>카테고리</label>
@@ -153,15 +155,34 @@
                                 <option value="2차창작" selected>2차창작</option>
                             </select>
                         </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label style="margin-bottom: 0;">태그</label>
+                            </div>
+                            <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="여기에 선택한 태그가 나열됩니다.">
+                            <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin: 8px 0; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
+                            <button type="button" class="btn-dark-short" onclick="openTagHierarchyModal()">태그 필터 편집</button>
+                        </div>
                         
                         <div class="form-group">
                             <label>이미지 추가</label>
                             <div id="imagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
                             <div style="display: flex; gap: 8px;">
-                                <input type="text" id="newImgFilename" placeholder="파일명(확장자 제외)" style="flex: 1;">
-                                <button type="button" onclick="addImagePath()" class="dark-btn">추가</button>
+                                <input type="text" id="newImgFilename" placeholder="파일명(확장자 제외)" style="width: 50%;">
+                                <button type="button" onclick="addImagePath()" class="btn-dark-short">추가</button>
                             </div>
                             <div id="imageList" class="image-list"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>날짜</label>
+                            <input type="date" id="cardDate" style="width: 25%;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>alt (캡션)</label>
+                            <textarea id="cardAlt" rows="8" style="resize: none;"></textarea>
                         </div>
 
                         <div class="form-group">
@@ -192,30 +213,11 @@
 
                             </div>
                         </div>
-                        
-                        <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <label style="margin-bottom: 0;">태그</label>
-                                <button type="button" class="dark-btn" onclick="openTagHierarchyModal()">태그 필터 편집</button>
-                            </div>
-                            <input type="text" id="cardTags" readonly class="admin-tag-input-line" placeholder="여기에 선택한 태그가 나열됩니다.">
-                            <div id="tagSelectorBox" class="admin-tag-selector-box" style="margin-top: 8px; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>날짜</label>
-                            <input type="date" id="cardDate" style="width: 35%;">
-                        </div>
-
-                        <div class="form-group">
-                            <label>alt (캡션)</label>
-                            <textarea id="cardAlt" rows="5" style="resize: none;"></textarea>
-                        </div>
                     </form>
 
 
                     <!-- 관심 작품 수정 패널 -->
-                    <form class="edit" id="favForm" style="display: none; flex-direction: column; gap: 12px; margin-bottom: 100px;">
+                    <form class="edit" id="favForm">
                         <div class="form-group">
                             <label>작품</label>
                             <input type="text" id="favTitle" required>
@@ -246,7 +248,7 @@
         <div class="tag-edit-modal-content" onclick="event.stopPropagation()">
             <div class="tag-edit-modal-header">
                 <h3>태그 위계 구조 관리</h3>
-                <button type="button" class="dark-btn" onclick="applyTagHierarchyModal()">저장</button>
+                <button type="button" class="btn-dark-short" onclick="applyTagHierarchyModal()">저장</button>
             </div>
             <div class="tag-edit-columns-wrapper">
                 <div class="tag-edit-col">
@@ -270,8 +272,8 @@
         <div class="work-delete-modal-card" onclick="event.stopPropagation()">
             <div class="work-delete-modal-text">정말로 삭제하시겠습니까?<br>하위 항목들까지 모두 삭제됩니다.</div>
             <div style="display: flex; gap: 8px; justify-content: center;">
-                <button type="button" class="dark-btn" style="background: #e74c3c;" onclick="confirmDeleteWork()">삭제</button>
-                <button type="button" class="dark-btn" style="background: #888;" onclick="closeWorkDeleteModal()">취소</button>
+                <button type="button" class="btn-dark-short" style="background: #e74c3c;" onclick="confirmDeleteWork()">삭제</button>
+                <button type="button" class="btn-dark-short" style="background: #888;" onclick="closeWorkDeleteModal()">취소</button>
             </div>
         </div>
     </div>
@@ -281,7 +283,7 @@
         <div class="tag-edit-modal-content" onclick="event.stopPropagation()" style="max-width: 500px; max-height: 80vh; display: flex; flex-direction: column;">
             <div class="tag-edit-modal-header">
                 <h3 id="orderModalTitle">정렬</h3>
-                <button type="button" class="dark-btn" onclick="closeOrderModal()" style="background:none; border:none; color:#666; font-size:1.5rem; cursor:pointer;">✕</button>
+                <button type="button" class="btn-dark-short" onclick="closeOrderModal()" style="background:none; border:none; color:#666; font-size:1.5rem; cursor:pointer;">✕</button>
             </div>
             <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">
                 ▲/▼ 버튼을 누르거나 목록 항목을 드래그하여 순서를 변경하세요.
@@ -291,7 +293,7 @@
             </div>
             <!-- 모달 하단 적용 버튼 추가 -->
             <div style="display: flex; justify-content: flex-end; border-top: 1px solid #eaeaea; margin-top: 1rem; padding-top: 1rem;">
-                <button type="button" class="dark-btn" onclick="applyOrderChanges()">적용</button>
+                <button type="button" class="btn-dark-short" onclick="applyOrderChanges()">적용</button>
             </div>
         </div>
     </div>

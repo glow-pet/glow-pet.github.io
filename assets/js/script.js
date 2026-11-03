@@ -8,6 +8,8 @@ const itemsPerPage = 12;
 let tagFilterModal = null;
 let profilesData = [];
 
+
+// 이미지 URL 리사이징 및 경로 보정
 function getResizedImageUrl(src, targetWidth = 400) {
   if (!src) return '';
   if (src.startsWith('http') || src.startsWith('/') || src.startsWith('../') || src.startsWith('data:')) {
@@ -19,6 +21,8 @@ function getResizedImageUrl(src, targetWidth = 400) {
   return src;
 }
 
+
+// 정렬
 window.currentSortMode = 'latest';
 function getSortedData(dataArray) {
   if (!Array.isArray(dataArray)) return [];
@@ -31,6 +35,8 @@ function getSortedData(dataArray) {
   });
 }
 
+
+// 필터링 및 데이터 가공
 function getFilteredAndProcessedData(rawData, activeFilters = {}) {
   return (rawData || []).filter(item => {
     if (item.private) return false;
@@ -44,11 +50,13 @@ function getFilteredAndProcessedData(rawData, activeFilters = {}) {
   });
 }
 
+
+// 헤더 및 필터 버튼 생성
 function renderHeader() {
   const headerEl = document.querySelector('.header');
-  const mainGrid = document.querySelector('.grid-cols-4, .grid-cols-5, .grid-cols-3');
+  const cardCols = document.querySelector('.card-cols-4, .card-cols-5, .card-cols-3');
 
-  if (headerEl && mainGrid && !document.querySelector('.controls-wrapper')) {
+  if (headerEl && cardCols && !document.querySelector('.controls-wrapper')) {
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'controls-wrapper';
     controlsWrapper.style.display = 'flex';
@@ -56,7 +64,7 @@ function renderHeader() {
     controlsWrapper.style.alignItems = 'center';
     controlsWrapper.style.marginBottom = '1.5rem';
 
-    controlsWrapper.innerHTML = `<button type="button" id="open-filter-modal-btn" class="dark-btn">필터</button>`;
+    controlsWrapper.innerHTML = `<button type="button" id="open-filter-modal-btn" class="btn-dark-long">필터</button>`;
     headerEl.insertAdjacentElement('afterend', controlsWrapper);
 
     document.getElementById('open-filter-modal-btn').addEventListener('click', () => {
@@ -65,7 +73,8 @@ function renderHeader() {
   }
 }
 
-// OCs 카드 HTML 생성
+
+// ocs.html에 카드를 생성
 function createOcCardHTML(item, showSensitiveOverride = false) {
   const isPrivate = item.private;
   const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
@@ -84,14 +93,14 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
     thumbsHTML = `
       <div class="card-thumb" style="position: relative; aspect-ratio: 1/1; overflow: hidden;">
         ${thumbSrc ? `<img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);" onerror="this.style.display='none';">` : ''}
-        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ccc;">
-          <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
+        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ddd;">
+          <div style="font-size: 1rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
       </div>
     `;
   } else if (!thumbSrc) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; text-align: center;">
+      <div class="card-thumb text-thumb" style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1rem; text-align: center;">
         <span>이미지 준비 중</span>
       </div>
     `;
@@ -110,6 +119,8 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
   `;
 }
 
+
+//ocs.html에 모달을 초기화하고 제어함
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
@@ -173,7 +184,7 @@ function initOcLightbox() {
     if (isSensitive && !window.showSensitiveGlobal) {
       const mask = document.createElement('div');
       mask.className = 'oc-full-warning-mask';
-      mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.98); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
+      mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
       let actionBtnHTML = '';
       if (linkUrl) {
@@ -218,7 +229,7 @@ function initOcLightbox() {
     }
   };
 
-  const gridContainer = document.querySelector('.grid-cols-5');
+  const gridContainer = document.querySelector('.card-cols-5');
   if (gridContainer) {
     gridContainer.onclick = (e) => {
       const card = e.target.closest('.open-oc-modal');
@@ -230,8 +241,9 @@ function initOcLightbox() {
   }
 }
 
+//ocs.html 초기화
 async function initOcApp() {
-  const isProfilePage = document.querySelector('.grid-cols-5');
+  const isProfilePage = document.querySelector('.card-cols-5');
   if (isProfilePage) {
     renderHeader();
     try {
@@ -254,8 +266,9 @@ async function initOcApp() {
   }
 }
 
-// Fanworks 카드 HTML 생성
-function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
+
+// fanworks.html 카드 생성
+function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   let thumbSrc = '';
   if (item.images && Array.isArray(item.images) && item.images.length > 0) {
     thumbSrc = item.images[0];
@@ -309,8 +322,8 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
     thumbsHTML = `
       <div class="card-thumb" ${modalAttrs} style="position: relative; aspect-ratio: 1/1; overflow: hidden; cursor: pointer;">
         ${processedImages[0] ? `<img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);">` : ''}
-        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ccc;">
-          <div style="font-size: 0.9rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
+        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ddd;">
+          <div style="font-size: 1rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
       </div>
     `;
@@ -341,7 +354,8 @@ function createCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
   `;
 }
 
-// 총 페이지수가 1이어도 페이지네이션이 상시 표시되도록 수정
+
+// 총 페이지수가 1이어도 페이지네이션이 상시 표시됨
 function renderPagination(totalItems) {
   const containerEl = document.querySelector('.container');
   if (!containerEl) return;
@@ -377,7 +391,7 @@ function renderPagination(totalItems) {
 }
 
 function executeRender() {
-  const mainContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
+  const mainContainer = document.querySelector('.card-cols-4, .card-cols-5');
   const isPagesFolder = window.location.pathname.includes('/pages/');
 
   if (mainContainer) {
@@ -395,14 +409,14 @@ function executeRender() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const slicedData = dataList.slice(startIndex, startIndex + itemsPerPage);
     
-    mainContainer.innerHTML = slicedData.map(item => createCardHTML(item, isPagesFolder, window.showSensitiveGlobal)).join('');
+    mainContainer.innerHTML = slicedData.map(item => createFanworksCardHTML(item, isPagesFolder, window.showSensitiveGlobal)).join('');
     renderPagination(dataList.length);
   }
 }
 
 // Fanworks 라이트박스 모달
 function initLightbox() {
-  const gridContainer = document.querySelector('.grid-cols-4, .grid-cols-5');
+  const gridContainer = document.querySelector('.card-cols-4, .card-cols-5');
   if (!gridContainer) return;
 
   let modal = document.querySelector('.fanworks-modal');
@@ -495,7 +509,7 @@ function initLightbox() {
 
           const mask = document.createElement('div');
           mask.className = 'oc-full-warning-mask';
-          mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.98); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
+          mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
           const displayText = warningContent ? warningContent : '민감한 콘텐츠';
           let actionBtnHTML = '';
@@ -575,7 +589,7 @@ function initLightbox() {
 
 // 메인 애플리케이션 초기화
 async function initApp() {
-  const isProfilePage = document.querySelector('.grid-cols-5');
+  const isProfilePage = document.querySelector('.card-cols-5');
   if (isProfilePage) {
     await initOcApp();
   }
@@ -610,7 +624,7 @@ async function initApp() {
     window.showSensitiveGlobal = options.showSensitive || false;
 
     if (isProfilePage) {
-      const mainContainer = document.querySelector('.grid-cols-5');
+      const mainContainer = document.querySelector('.card-cols-5');
       if (mainContainer) {
         const processedOcData = getFilteredAndProcessedData(profilesData, activeFilters);
         mainContainer.innerHTML = processedOcData.map(item => createOcCardHTML(item, window.showSensitiveGlobal)).join('');
