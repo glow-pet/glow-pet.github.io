@@ -84,7 +84,7 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
   let thumbsHTML = '';
   if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: #333; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+      <div class="card-thumb text-thumb" style="background: #777; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
         <span>비공개</span>
       </div>
     `;
@@ -93,21 +93,21 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
     thumbsHTML = `
       <div class="card-thumb" style="position: relative; aspect-ratio: 1/1; overflow: hidden;">
         ${thumbSrc ? `<img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);" onerror="this.style.display='none';">` : ''}
-        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ddd;">
+        <div style="position: absolute; inset: 0; background: #777; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #eee;">
           <div style="font-size: 1rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
       </div>
     `;
   } else if (!thumbSrc) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1rem; text-align: center;">
+      <div class="card-thumb text-thumb" style="background: #eee; color: #aaa; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1rem; text-align: center;">
         <span>이미지 준비 중</span>
       </div>
     `;
   } else {
     thumbsHTML = `
       <div class="card-thumb">
-        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#888;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
+        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#aaa;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
       </div>
     `;
   }
@@ -313,7 +313,7 @@ function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = fal
   let thumbsHTML = '';
   if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: #333; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+      <div class="card-thumb text-thumb" style="background: #777; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
         <span>비공개</span>
       </div>
     `;
@@ -322,7 +322,7 @@ function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = fal
     thumbsHTML = `
       <div class="card-thumb" ${modalAttrs} style="position: relative; aspect-ratio: 1/1; overflow: hidden; cursor: pointer;">
         ${processedImages[0] ? `<img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);">` : ''}
-        <div style="position: absolute; inset: 0; background: #333; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #ddd;">
+        <div style="position: absolute; inset: 0; background: #777; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #eee;">
           <div style="font-size: 1rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
         </div>
       </div>
@@ -335,14 +335,14 @@ function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = fal
     `;
   } else if (!processedImages[0]) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" ${modalAttrs} style="background: #eee; color: #888; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer;">
+      <div class="card-thumb text-thumb" ${modalAttrs} style="background: #eee; color: #aaa; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer;">
         <span>이미지 준비 중</span>
       </div>
     `;
   } else {
     thumbsHTML = `
       <div class="card-thumb" ${modalAttrs} style="cursor: pointer;">
-        <img src="${processedImages[0]}" alt="" loading="lazy" srcset="${processedImages[0]} 400w" sizes="(max-width: 600px) 100vw, 400px" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#888;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
+        <img src="${processedImages[0]}" alt="" loading="lazy" srcset="${processedImages[0]} 400w" sizes="(max-width: 600px) 100vw, 400px" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#aaa;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
       </div>
     `;
   }
@@ -399,7 +399,7 @@ function executeRender() {
     dataList = getSortedData(dataList);
 
     if (dataList.length === 0) {
-      mainContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 2rem 0;">등록된 데이터가 없습니다.</p>';
+      mainContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #aaa; padding: 2rem 0;">등록된 데이터가 없습니다.</p>';
       renderPagination(0);
       return;
     }

@@ -45,9 +45,9 @@
         "portraits": [],
         "description": "산중턱에 있는 저택의 주인이자 몇 안 되는 거주자.\n\n산에서 나오는 으스스하고 초자연적인 존재들을 사냥하고 요리해 먹는다.\n\n'그리즐리'라는 이름의 괴물 메이드(10세)와 '새비지'라는 사냥개(3세)를 데리고 있다.",
         "private": false,
-        "rating": "warning",
+        "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": true
+        "sensitive": false
     },
     {
         "id": 5,
@@ -79,20 +79,22 @@
         "portraits": [],
         "description": "실험실에서 만들어진 양배추 인간.\n\n걸을 때 양배추 소리가 난다. \"뻐득뻐득\"",
         "private": false,
-        "rating": "warning",
+        "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": true
+        "sensitive": false
     },
     {
         "id": 12,
-        "name": ".",
-        "foreignName": ".",
+        "name": "고 민아",
+        "foreignName": "高 旻啊",
         "title": "고3",
         "age": "18세",
         "gender": "여성",
         "height": "168",
         "thumbnail": "",
+        "thumbnails": [],
         "portrait": "",
+        "portraits": [],
         "description": "지망대 합격 확인 0.1초 전 이세계로 전이됐다.",
         "private": false,
         "rating": "all",
@@ -108,12 +110,16 @@
         "gender": "여성",
         "height": "175",
         "thumbnail": "assets/images/ocs/bafkreihvi7b4zzkmd7twummqsh2um355tcdtioi7ygug6igbx3m4mk5dpa.webp",
+        "thumbnails": [
+            "assets/images/ocs/bafkreihvi7b4zzkmd7twummqsh2um355tcdtioi7ygug6igbx3m4mk5dpa.webp"
+        ],
         "portrait": "",
+        "portraits": [],
         "description": "로언은 가명이다. 과거에 불법적인 일을 했다는 소문이 있다.\n\n안경에는 도수가 없다. 늘 너드 패션을 고수한다.\n\n입의 상처는 어렸을 때 넘어져서 생긴 거라고 한다.",
         "private": false,
-        "rating": "warning",
+        "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": true
+        "sensitive": false
     },
     {
         "id": 2,
@@ -124,11 +130,15 @@
         "gender": "여성",
         "height": "168",
         "thumbnail": "assets/images/ocs/bafkreifklzjuawq2bcfrwv2p5piakkchcuoqxbh3tqdvfr33k46nxarnt4.webp",
+        "thumbnails": [
+            "assets/images/ocs/bafkreifklzjuawq2bcfrwv2p5piakkchcuoqxbh3tqdvfr33k46nxarnt4.webp"
+        ],
         "portrait": "",
+        "portraits": [],
         "description": "한 음침한 과학자가 만든 인공 생명체.\n\n사람 몸에 머리에는 산양 같은 우람한 뿔이 돋아 있다. 송곳니도 육식동물처럼 뾰족하다.\n\n약간 공상가 기질이 있다.\n",
         "private": false,
-        "rating": "warning",
+        "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": true
+        "sensitive": false
     }
 ]
