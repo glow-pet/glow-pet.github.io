@@ -112,13 +112,19 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
     `;
   }
 
+  const nameStr = item.name || '';
+  const foreignNameStr = item.foreignName || '';
+
   return `
     <article class="card open-oc-modal" data-oc-id="${item.id}">
       ${thumbsHTML}
+      <div class="card-info" style="margin-top: 10px; text-align: left;">
+        <div class="card-name" style="font-weight: 600; font-size: 0.9rem; color: #222; line-height: 1.5; word-break: keep-all;">${nameStr}</div>
+        ${foreignNameStr ? `<div class="card-foreign-name" style="font-size: 0.75rem; color: #777; margin-top: 0px; line-height: 1.5; word-break: break-all;">${foreignNameStr}</div>` : ''}
+      </div>
     </article>
   `;
 }
-
 
 //ocs.html에 모달을 초기화하고 제어함
 function initOcLightbox() {
@@ -130,8 +136,7 @@ function initOcLightbox() {
       <button type="button" class="modal-close-btn" aria-label="닫기">✕</button>
       <div class="modal-body-container">
         <div class="modal-image-container" id="ocImageWrapper">
-          <!-- 캐릭터 이름과 정보를 이미지 위 왼쪽 상단으로 더 바짝 끌어올림 -->
-          <div class="oc-modal-basic-info" style="top: 24px; left: 15px;">
+          <div class="oc-modal-basic-info" style="top: 50px; left: 50px;">
             <div class="oc-info-name" id="ocName"></div>
             <div class="oc-info-foreign-name" id="ocForeignName"></div>
             <div class="oc-info-title" id="ocTitle"></div>
@@ -143,7 +148,7 @@ function initOcLightbox() {
           </div>
           <img class="fanworks-modal-content" id="ocPortrait" src="" alt="초상화">
         </div>
-        <div class="modal-caption-container" style="padding-top: 24px;">
+        <div class="modal-caption-container" style="padding-top: 90px;">
           <div class="modal-meta-top" id="ocDetailMetaTop"></div>
           <p class="modal-caption-text" id="ocDetailText"></p>
         </div>
@@ -153,6 +158,8 @@ function initOcLightbox() {
   }
 
   const closeBtn = ocModal.querySelector('.modal-close-btn');
+
+  let scrollPosition = 0; // 스크롤 위치 저장 변수
 
   function openOcModal(character) {
     document.getElementById('ocName').innerText = character.name || '';
@@ -167,14 +174,39 @@ function initOcLightbox() {
       detailMetaTop.innerHTML = `<div class="modal-meta-date" style="white-space: pre-wrap; word-break: break-all;">${character.description || ''}</div>`;
     }
 
-    const portraitImg = document.getElementById('ocPortrait');
+    const imageWrapper = document.getElementById('ocImageWrapper');
     const existingMask = ocModal.querySelector('.oc-full-warning-mask');
     if (existingMask) existingMask.remove();
 
-    const imgUrl = getResizedImageUrl(character.portrait || character.thumbnail || '', 800);
-    if (portraitImg) {
-      portraitImg.style.display = 'block';
+    Array.from(imageWrapper.children).forEach(child => {
+      if (!child.classList.contains('oc-modal-basic-info')) {
+        child.remove();
+      }
+    });
+
+    const portraitRaw = character.portrait || '';
+    const imgUrl = getResizedImageUrl(portraitRaw, 800);
+
+    if (!portraitRaw) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'oc-portrait-placeholder text-thumb';
+      placeholder.style.cssText = 'width: 100%; height: 100%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;';
+      placeholder.innerHTML = '<span>이미지 준비 중</span>';
+      imageWrapper.appendChild(placeholder);
+    } else {
+      const portraitImg = document.createElement('img');
+      portraitImg.className = 'fanworks-modal-content';
+      portraitImg.id = 'ocPortrait';
       portraitImg.src = imgUrl;
+      portraitImg.alt = '초상화';
+      portraitImg.onerror = function() {
+        this.replaceWith(Object.assign(document.createElement('div'), {
+          className: 'oc-portrait-placeholder text-thumb',
+          style: 'width: 100%; height: 100%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;',
+          innerHTML: '<span>이미지 준비 중</span>'
+        }));
+      };
+      imageWrapper.appendChild(portraitImg);
     }
 
     const isSensitive = character.rating === 'warning' || character.rating === 'external' || character.sensitive;
@@ -184,13 +216,13 @@ function initOcLightbox() {
     if (isSensitive && !window.showSensitiveGlobal) {
       const mask = document.createElement('div');
       mask.className = 'oc-full-warning-mask';
-      mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
+      mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); color: #333; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
       let actionBtnHTML = '';
       if (linkUrl) {
-        actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="oc-warning-action-btn">외부 링크</a>`;
+        actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="btn-dark-long">외부 링크</a>`;
       } else {
-        actionBtnHTML = `<button type="button" class="oc-reveal-btn oc-warning-action-btn">보기</button>`;
+        actionBtnHTML = `<button type="button" id="oc-reveal-btn" class="btn-dark-long">보기</button>`;
       }
 
       mask.innerHTML = `
@@ -199,7 +231,7 @@ function initOcLightbox() {
         ${actionBtnHTML}
       `;
 
-      const revealBtn = mask.querySelector('.oc-reveal-btn');
+      const revealBtn = mask.querySelector('#oc-reveal-btn');
       if (revealBtn) {
         revealBtn.onclick = () => {
           mask.remove();
@@ -209,13 +241,15 @@ function initOcLightbox() {
       ocModal.appendChild(mask);
     }
 
+    // 스크롤 변경 없이 모달만 활성화
     ocModal.classList.add('active');
-    document.body.classList.add('modal-open');
   }
 
   function closeOcModal() {
     ocModal.classList.remove('active');
-    document.body.classList.remove('modal-open');
+
+    const existingMask = ocModal.querySelector('.oc-full-warning-mask');
+    if (existingMask) existingMask.remove();
   }
 
   closeBtn.onclick = (e) => {
@@ -462,22 +496,20 @@ function initLightbox() {
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
       } else {
-        // 첫 페이지(0)에서는 왼쪽(이전) 화살표 숨김, 오른쪽(다음) 화살표 표시
-        // 마지막 페이지에서는 왼쪽(이전) 화살표 표시, 오른쪽(다음) 화살표 숨김
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
         nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
     }
   }
 
+  let scrollPosition = 0;
+
   function openModal() {
     modal.classList.add('active');
-    document.body.classList.add('modal-open');
   }
 
   function closeModal() {
     modal.classList.remove('active');
-    document.body.classList.remove('modal-open');
   }
 
   gridContainer.onclick = (e) => {
@@ -505,11 +537,11 @@ function initLightbox() {
         updateModalImage(false);
 
         if (isSensitive && !window.showSensitiveGlobal) {
-          updateModalImage(true); // 경고 레이어가 뜰 때는 화살표 숨김
+          updateModalImage(true);
 
           const mask = document.createElement('div');
           mask.className = 'oc-full-warning-mask';
-          mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
+          mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
           const displayText = warningContent ? warningContent : '민감한 콘텐츠';
           let actionBtnHTML = '';

@@ -48,13 +48,10 @@ class CommonLayout extends HTMLElement {
                     <button class="sidebar-close-btn" aria-label="메뉴 닫기">✕</button>
                     <ul class="nav-links">
                         <li><a href="${indexPath}">홈</a></li>
-                        <li><a href="${ocsPath}">1차 창작</a></li>
+                        <li><a href="${ocsPath}">OC</a></li>
                         <li><a href="${fanworksPath}">2차 창작</a></li>
                         <li><a href="${favsPath}">관심 작품</a></li>
                     </ul>
-                </div>
-                <div class="nav-right" style="margin-left: auto;">
-                    <a href="${isPagesFolder ? '../admin.html' : 'admin.html'}" class="admin-link-btn">관리</a>
                 </div>
             </nav>
 
