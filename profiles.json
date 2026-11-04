@@ -13,9 +13,9 @@
         "portraits": [],
         "description": "홈스턱 테레지의 드림주.",
         "private": false,
-        "rating": "warning",
+        "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": true
+        "sensitive": false
     },
     {
         "id": 10,
@@ -69,9 +69,9 @@
         "portraits": [],
         "description": "악마. 마계에서 죄수 죽이는 일을 하고 있다.\n\n직업이 적성에 맞지 않는다.\n\n온갖 정신질환을 달고 산다.",
         "private": false,
-        "rating": "warning",
+        "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": true
+        "sensitive": false
     },
     {
         "id": 13,
