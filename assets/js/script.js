@@ -135,8 +135,9 @@ function initOcLightbox() {
     ocModal.innerHTML = `
       <button type="button" class="modal-close-btn" aria-label="닫기">✕</button>
       <div class="modal-body-container">
-        <div class="modal-image-container" id="ocImageWrapper">
-          <div class="oc-modal-basic-info" style="top: 50px; left: 50px;">
+        <div class="modal-image-container" id="ocImageWrapper"></div>
+        <div class="modal-caption-container" style="padding-top: 80px;">
+          <div class="oc-modal-basic-info">
             <div class="oc-info-name" id="ocName"></div>
             <div class="oc-info-foreign-name" id="ocForeignName"></div>
             <div class="oc-info-title" id="ocTitle"></div>
@@ -146,9 +147,6 @@ function initOcLightbox() {
               <span id="ocHeight"></span>
             </div>
           </div>
-          <img class="fanworks-modal-content" id="ocPortrait" src="" alt="초상화">
-        </div>
-        <div class="modal-caption-container" style="padding-top: 90px;">
           <div class="modal-meta-top" id="ocDetailMetaTop"></div>
           <p class="modal-caption-text" id="ocDetailText"></p>
         </div>
@@ -158,8 +156,6 @@ function initOcLightbox() {
   }
 
   const closeBtn = ocModal.querySelector('.modal-close-btn');
-
-  let scrollPosition = 0; // 스크롤 위치 저장 변수
 
   function openOcModal(character) {
     document.getElementById('ocName').innerText = character.name || '';
@@ -178,11 +174,7 @@ function initOcLightbox() {
     const existingMask = ocModal.querySelector('.oc-full-warning-mask');
     if (existingMask) existingMask.remove();
 
-    Array.from(imageWrapper.children).forEach(child => {
-      if (!child.classList.contains('oc-modal-basic-info')) {
-        child.remove();
-      }
-    });
+    imageWrapper.innerHTML = '';
 
     const portraitRaw = character.portrait || '';
     const imgUrl = getResizedImageUrl(portraitRaw, 800);
@@ -190,7 +182,7 @@ function initOcLightbox() {
     if (!portraitRaw) {
       const placeholder = document.createElement('div');
       placeholder.className = 'oc-portrait-placeholder text-thumb';
-      placeholder.style.cssText = 'width: 100%; height: 100%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;';
+      placeholder.style.cssText = 'width: 100%; height: 100%; background: #fff; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;';
       placeholder.innerHTML = '<span>이미지 준비 중</span>';
       imageWrapper.appendChild(placeholder);
     } else {
@@ -202,7 +194,7 @@ function initOcLightbox() {
       portraitImg.onerror = function() {
         this.replaceWith(Object.assign(document.createElement('div'), {
           className: 'oc-portrait-placeholder text-thumb',
-          style: 'width: 100%; height: 100%; background: #eee; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;',
+          style: 'width: 100%; height: 100%; background: #fff; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;',
           innerHTML: '<span>이미지 준비 중</span>'
         }));
       };
@@ -241,13 +233,11 @@ function initOcLightbox() {
       ocModal.appendChild(mask);
     }
 
-    // 스크롤 변경 없이 모달만 활성화
     ocModal.classList.add('active');
   }
 
   function closeOcModal() {
     ocModal.classList.remove('active');
-
     const existingMask = ocModal.querySelector('.oc-full-warning-mask');
     if (existingMask) existingMask.remove();
   }

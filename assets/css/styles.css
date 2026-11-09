@@ -41,7 +41,7 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  padding: 1.1rem 1rem 1.4rem 1rem;
+  padding: 1.1rem 1rem 1.3rem 1rem;
   background-color: #fff;
   border-bottom: 1px solid #eaeaea;
   box-shadow: 0 0 15px 7px rgba(0, 0, 0, 0.02);
@@ -213,7 +213,7 @@ a {
 .footer {
   width: 100%;
   text-align: center;
-  padding: 0.5rem 1rem 1rem 1rem;
+  padding: 0 0 1rem 0;
   color: #999;
   font-size: 0.8rem;
   margin-top: 5rem;
@@ -463,12 +463,13 @@ a {
   justify-content: center;
   box-sizing: border-box;
   transform: translateZ(0);
+  background: #fff;
 }
 
-.modal-image-container {
+/* fanworks-modal 이미지 영역 (75vw) */
+.fanworks-modal .modal-image-container {
   display: flex;
-  flex: 1;
-  width: 380px;
+  width: 75vw;
   height: 100vh;
   max-height: 100%;
   position: relative;
@@ -476,45 +477,132 @@ a {
   justify-content: center;
   gap: 16px;
   overflow: hidden;
-  overflow-y: auto;
   object-fit: contain;
-  background: transparent;
+  background-color: #fff;
 }
 
-.fanworks-modal-content {
+.fanworks-modal .fanworks-modal-content {
   display: block;
-  max-width: 100%;
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  cursor: pointer;
+  outline: none;
+  border: solid 1px #eee;
+  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
+}
+
+/* fanworks-modal 캡션 영역 (25vw) */
+.fanworks-modal .modal-caption-container {
+  width: 25vw;
+  height: 100vh;
+  max-height: 100vh;
+  padding: 150px 60px 40px 0px;
+  margin-left: 0;
+  background: #fff;
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* oc-modal 이미지 영역 (66.666vw) */
+.oc-modal .modal-image-container {
+  display: flex;
+  width: 66.666vw;
+  height: 100vh;
   max-height: 100%;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.oc-modal .fanworks-modal-content {
+  display: block;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
   box-shadow: none;
   cursor: pointer;
   outline: none;
 }
 
-.modal-caption-container {
-  width: 500px;
-  min-width: 300px;
+/* oc-modal 캡션 영역 (33.333vw) - 스크롤 및 Flex 블록 설정 */
+.oc-modal .modal-caption-container {
+  width: 33.333vw;
   height: 100vh;
-  max-height: 85vh;
-  padding: 80px 40px 40px 40px;
-  margin-left: 1.5rem;
-  background: transparent;
+  max-height: 100vh;
+  padding: 60px 60px 40px 0px;
+  margin-left: 0;
+  background: #fff;
   color: #444;
   font-size: 0.95rem;
   line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-all;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   box-sizing: border-box;
+}
+
+/* 캡션 내부의 기본 정보 섹션 (겹침 방지를 위해 일반 흐름 배치) */
+.oc-modal-basic-info {
+  position: static !important;
+  display: flex !important;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eaeaea;
+  flex-shrink: 0;
+}
+
+.oc-info-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.15;
+  word-break: keep-all;
+  white-space: pre-wrap;
+  margin-bottom: 4px;
+}
+
+.oc-info-foreign-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.oc-info-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.oc-info-stats {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.8;
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.oc-info-stats span:not(:last-child)::after {
+  content: "•";
+  margin-left: 8px;
+  opacity: 0.5;
 }
 
 .modal-meta-top {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .modal-meta-date,
@@ -523,25 +611,32 @@ a {
 .modal-caption-text {
   font-size: 0.95rem;
   color: #444;
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
   word-break: break-all;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 768px) {
   .modal-body-container {
     flex-direction: column;
-    max-height: 85vh;
+    max-height: 100vh;
+  }
+  .fanworks-modal .modal-image-container,
+  .oc-modal .modal-image-container {
+    width: 100vw;
+    height: 60vh;
   }
   .fanworks-modal-content {
     max-width: 85vw;
     max-height: 60vh;
   }
-  .modal-caption-container {
-    width: 85vw;
-    max-height: 25vh;
+  .fanworks-modal .modal-caption-container,
+  .oc-modal .modal-caption-container {
+    width: 100vw;
+    height: 40vh;
     margin-left: 0;
-    margin-top: 1rem;
+    margin-top: 0;
     padding: 1.5rem;
   }
 }
@@ -616,105 +711,6 @@ a {
 .oc-warning-btn {
   padding: 8px 20px;
   cursor: pointer;
-}
-
-
-/* ==========================================================================
-   6. 1차 창작 (OCs Character Profile) 전용 레이아웃
-   ========================================================================== */
-.oc-modal-left-pane {
-  flex: 1;
-  height: 100vh;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: transparent;
-}
-
-.oc-modal-portrait {
-  width: 100%;
-  height: 100vh;
-  object-fit: contain;
-  object-position: center;
-  display: block;
-}
-
-.oc-modal-basic-info {
-  position: absolute;
-  color: #222;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.oc-info-name {
-  font-size: 3rem;
-  font-weight: 800;
-  line-height: 1.15;
-  word-break: keep-all;
-  white-space: pre-wrap;
-  margin-bottom: 4px;
-}
-
-.oc-info-foreign-name {
-  font-size: 1rem;
-  font-weight: 500;
-  opacity: 0.9;
-}
-
-.oc-info-title {
-  font-size: 1rem;
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-.oc-info-stats {
-  font-size: 1rem;
-  font-weight: 400;
-  opacity: 0.8;
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.oc-info-stats span:not(:last-child)::after {
-  content: "•";
-  margin-left: 8px;
-  opacity: 0.5;
-}
-
-.oc-modal-right-pane {
-  width: 600px;
-  min-width: 320px;
-  height: 100vh;
-  background: rgba(15, 15, 15, 0.85);
-  color: #444;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.oc-modal-right-pane-scrollable {
-  width: 100%;
-  height: 100%;
-  max-height: 80vh;
-  padding: 75px 40px 40px 40px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.oc-modal-detail-text {
-  font-size: 0.95rem;
-  line-height: 1.75;
-  white-space: pre-wrap;
-  word-break: break-all;
-  color: #444;
 }
 
 
@@ -993,8 +989,10 @@ input:checked + .slider:before {
 /* ==========================================================================
    9. 관리자 페이지 (Admin Page 3-Column Layout & Modals)
    ========================================================================== */
-html:has(.admin-layout-wrapper) {
+html:has(.fanworks-modal.active),
+html:has(.oc-modal.active) {
   overflow: hidden;
+  padding-right: var(--scrollbar-width, 0px); 
 }
 
 .admin-layout-wrapper {
