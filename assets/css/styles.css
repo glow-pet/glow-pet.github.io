@@ -513,7 +513,7 @@ a {
 /* oc-modal 이미지 영역 (66.666vw) */
 .oc-modal .modal-image-container {
   display: flex;
-  width: 66.666vw;
+  width: 60vw;
   height: 100vh;
   max-height: 100%;
   position: relative;
@@ -535,11 +535,10 @@ a {
 
 /* oc-modal 캡션 영역 (33.333vw) - 스크롤 및 Flex 블록 설정 */
 .oc-modal .modal-caption-container {
-  width: 33.333vw;
+  width: 40vw;
   height: 100vh;
   max-height: 100vh;
-  padding: 60px 60px 40px 0px;
-  margin-left: 0;
+  padding: 20px 60px 40px 0px;
   background: #fff;
   color: #444;
   font-size: 0.95rem;
@@ -547,7 +546,6 @@ a {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
   box-sizing: border-box;
 }
 
@@ -556,40 +554,41 @@ a {
   position: static !important;
   display: flex !important;
   flex-direction: column;
-  gap: 6px;
-  padding-bottom: 16px;
+  padding-bottom: 25px;
+  margin-bottom: 18px;
   border-bottom: 1px solid #eaeaea;
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .oc-info-name {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  line-height: 1.15;
+  margin-bottom: 8px;
   word-break: keep-all;
   white-space: pre-wrap;
-  margin-bottom: 4px;
 }
 
 .oc-info-foreign-name {
   font-size: 0.95rem;
   font-weight: 500;
-  opacity: 0.9;
+  opacity: 0.6;
+  margin-bottom: 16px;
 }
 
 .oc-info-title {
   font-size: 0.95rem;
   font-weight: 500;
-  opacity: 0.85;
+  opacity: 0.9;
+  margin-bottom: 25px;
 }
 
 .oc-info-stats {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  opacity: 0.8;
+  opacity: 0.7;
   display: flex;
   gap: 8px;
-  margin-top: 6px;
 }
 
 .oc-info-stats span:not(:last-child)::after {
@@ -1202,7 +1201,7 @@ html:has(.oc-modal.active) {
 }
 
 .form-group {
-  margin-bottom: 0px;
+  margin-bottom: 23px;
 }
 
 .form-group label {
