@@ -20,7 +20,7 @@ html {
 }
 
 body {
-  background-color: #fff;
+  background: #111;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
   color: #444;
   line-height: 1.75;
@@ -35,204 +35,136 @@ a {
 
 
 /* ==========================================================================
-   2. 공통 레이아웃 (네비게이션, 컨테이너, 헤더, 푸터)
+   2. 공통 레이아웃 (좌측 세로형 네비게이션 및 본문 래퍼)
    ========================================================================== */
+common-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.layout-container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  position: relative;
+}
+
+/* 좌측 세로형 Navbar */
 .navbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  padding: 1.1rem 1rem 1.3rem 1rem;
-  background-color: #fff;
-  border-bottom: 1px solid #eaeaea;
-  box-shadow: 0 0 15px 7px rgba(0, 0, 0, 0.02);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.admin-link-btn {
-  font-size: 0.8rem;
-  padding: 0.3rem 0.6rem 0.3rem 0.7rem;
+  width: 190px;
+  background: #111;
   border: 1px solid #ccc;
-  border-radius: 0px;
-  color: #555;
-  background: #fff;
+  padding: 1.8rem 0rem;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 10px;
+  left: 10px;
+  height: 500px;
+  z-index: 1001;
 }
 
-.logo {
-  justify-self: start;
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-left: 2rem;
 }
 
 .logo a {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.1rem;
   letter-spacing: 0.05em;
+  color: #eee;
 }
 
 .nav-links-wrapper {
-  justify-self: center;
+  width: 100%;
 }
 
 .nav-links {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   list-style: none;
+  gap: 0.2rem;
+  width: 100%;
 }
 
-.nav-links li {
+.nav-links > li {
   display: flex;
-  align-items: center;
-}
-
-.nav-links a {
-  color: #777;
-  padding: 0 1rem;
-}
-
-.nav-links li:not(:last-child)::after {
-  content: "";
-  display: inline-block;
-  width: 1px;
-  height: 15px;
-  background-color: #ddd;
-}
-
-.nav-links a.active {
-  color: #000;
-}
-
-.sidebar-toggle-btn, .sidebar-close-btn {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #333;
-}
-
-@media (max-width: 768px) {
-  .sidebar-toggle-btn {
-    display: block;
-    justify-self: start;
-  }
-
-  .nav-links-wrapper {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #ffffff;
-    z-index: 2000;
-    padding: 3rem 2rem;
-    box-sizing: border-box;
-  }
-
-  .nav-links-wrapper.active {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .sidebar-close-btn {
-    display: block;
-    align-self: flex-end;
-    margin-bottom: 2rem;
-  }
-
-  .nav-links {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    gap: 1.5rem;
-  }
-
-  .nav-links li:not(:last-child)::after {
-    display: none;
-  }
-
-  .nav-links a {
-    padding: 0;
-    font-size: 1.25rem;
-  }
-}
-
-/* 네비게이션 드롭다운 */
-.nav-dim-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 800;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
-  pointer-events: none;
-}
-
-.nav-dim-overlay.active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.nav-dropdown-pane {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  background-color: #fff;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-  z-index: 900; /* navbar와 함께 dim 처리에서 제외 */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
-  pointer-events: none;
-}
-
-.nav-dropdown-pane.active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.nav-dropdown-inner {
-  padding-bottom: 13px;
-  box-sizing: border-box;
-  white-space: nowrap;
-}
-
-.nav-sub-list {
-  display: flex;
-  flex-direction: column; /* 세로 방향 나열 보장 */
-  list-style: none;
-  align-items: flex-start; /* 왼쪽 정렬 */
+  flex-direction: column;
   width: 100%;
 }
 
-.nav-sub-list li {
-  width: 100%;
-}
-
-.nav-sub-list li a {
-  font-size: 0.9rem;
-  color: #444;
-  font-weight: 500;
+.nav-parent-link {
   display: block;
-  padding: 0.5rem 6rem 0.7rem 1rem; /* 내부 패딩 조절 */
-  border-top: 1px solid #eee;
+  color: #bbb;
+  padding: 0.5rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-parent-link:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #eee;
+}
+
+.nav-parent-link.active {
+  color: #eee;
+  font-weight: 600;
+}
+
+/* 우측 본문 및 푸터 래퍼 영역 */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+
+/* 하위 카테고리 가로 나열 바 (가운데 정렬) */
+.sub-nav-bar {
+  background: #111;
+  border-bottom: 1px solid #999;
+  padding: 0.9rem 2.5rem 1.3rem 2.5rem;
+}
+
+.sub-nav-links {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 4rem;
+  align-items: center;
+}
+
+.sub-nav-links li a {
+  font-size: 1rem;
+  color: #aaa;
+  font-weight: 300;
+  transition: color 0.2s;
+}
+
+.sub-nav-links li a:hover,
+.sub-nav-links li a.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.content-body {
+  flex: 1;
 }
 
 .container {
   position: relative;
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 2.5rem;
+  padding: 1.8rem;
 }
 
 .container .pagination-container {
@@ -260,33 +192,28 @@ a {
   padding: 0;
 }
 
+/* 헤더 스타일 (대제목 제거 후 p 가운데 정렬) */
 .header {
+  background: #333;
   position: relative;
   margin-bottom: 1rem;
-  padding-bottom: 1.3rem;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: #111;
-}
-
-.header p {
-  color: #777;
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  color: #bbb;
   font-size: 0.9rem;
   line-height: 1.6;
+  width: 40%;
 }
 
+/* 푸터 스타일 (우측 하단 배치) */
 .footer {
   width: 100%;
-  text-align: center;
-  padding: 0 0 1rem 0;
+  text-align: right;
+  padding: 0.8rem 1.5rem;
   color: #999;
   font-size: 0.8rem;
-  margin-top: 5rem;
+  margin-top: auto;
+  box-sizing: border-box;
 }
 
 .load-more-wrapper {
@@ -300,7 +227,7 @@ a {
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  background-color: #ffffff;
+  background: #111fff;
   color: #333;
   font-size: 0.9rem;
   font-weight: 600;
@@ -408,8 +335,8 @@ a {
 }
 
 .card .card-thumb {
-  background: #ffffff;
-  border: solid 1px #eee;
+  background: #111;
+  border: solid 1px #333;
   box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
   position: relative;
   width: 100%;
@@ -458,20 +385,6 @@ a {
   object-fit: cover;
 }
 
-.image-count-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: #444;
-  color: #ffffff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0rem 0.8rem 0.1rem 1rem;
-  border-radius: 15px;
-  z-index: 10;
-  letter-spacing: 0.08em;
-}
-
 
 /* ==========================================================================
    5. 모달 및 팝업 통합 스타일 (.fanworks-modal, .oc-modal, .image-modal)
@@ -485,7 +398,7 @@ a {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #fff;
+  background: #111;
   z-index: 3000;
   justify-content: center;
   align-items: center;
@@ -533,10 +446,9 @@ a {
   justify-content: center;
   box-sizing: border-box;
   transform: translateZ(0);
-  background: #fff;
+  background: #111;
 }
 
-/* fanworks-modal 이미지 영역 (75vw) */
 .fanworks-modal .modal-image-container {
   display: flex;
   width: 75vw;
@@ -548,7 +460,7 @@ a {
   gap: 16px;
   overflow: hidden;
   object-fit: contain;
-  background-color: #fff;
+  background: #111;
 }
 
 .fanworks-modal .fanworks-modal-content {
@@ -562,14 +474,13 @@ a {
   box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
 }
 
-/* fanworks-modal 캡션 영역 (25vw) */
 .fanworks-modal .modal-caption-container {
   width: 25vw;
   height: 100vh;
   max-height: 100vh;
   padding: 150px 60px 40px 0px;
   margin-left: 0;
-  background: #fff;
+  background: #111;
   color: #444;
   font-size: 0.95rem;
   line-height: 1.6;
@@ -580,7 +491,6 @@ a {
   box-sizing: border-box;
 }
 
-/* oc-modal 이미지 영역 (66.666vw) */
 .oc-modal .modal-image-container {
   display: flex;
   width: 60vw;
@@ -590,7 +500,7 @@ a {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: #fff;
+  background: #111;
 }
 
 .oc-modal .fanworks-modal-content {
@@ -603,13 +513,12 @@ a {
   outline: none;
 }
 
-/* oc-modal 캡션 영역 (33.333vw) - 스크롤 및 Flex 블록 설정 */
 .oc-modal .modal-caption-container {
   width: 40vw;
   height: 100vh;
   max-height: 100vh;
   padding: 20px 60px 40px 0px;
-  background: #fff;
+  background: #111;
   color: #444;
   font-size: 0.95rem;
   line-height: 1.6;
@@ -619,7 +528,6 @@ a {
   box-sizing: border-box;
 }
 
-/* 캡션 내부의 기본 정보 섹션 (겹침 방지를 위해 일반 흐름 배치) */
 .oc-modal-basic-info {
   position: static !important;
   display: flex !important;
@@ -799,7 +707,7 @@ a {
 }
 
 .favs-block {
-  background-color: #fff;
+  background: #111;
   border: 1px solid #eaeaea;
   box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
   border-radius: 0px;
@@ -809,7 +717,7 @@ a {
 .favs-block .title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #444;
+  color: #eee;
   margin-bottom: 0.3rem;
 }
 
@@ -840,7 +748,7 @@ a {
 }
 
 .filter-modal-content {
-  background: #fff;
+  background: #111;
   width: 750px;
   max-width: 90vw;
   max-height: 80vh;
@@ -911,7 +819,7 @@ a {
   height: 20px;
   border: 1px solid #ccc;
   border-radius: 0px;
-  background: #fff;
+  background: #111;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -943,8 +851,8 @@ a {
 .btn-dark-long,
 .filter-open-btn,
 .filter-apply-btn {
-  background-color: #333;
-  color: #fff;
+  background-color: #eee;
+  color: #111;
   border: none;
   border-radius: 0px;
   cursor: pointer;
@@ -1032,7 +940,7 @@ input:checked + .slider:before {
   min-width: 32px;
   height: 32px;
   padding: 0 6px;
-  background: #fff;
+  background: #111;
   border: 1px solid #ddd;
   border-radius: 50%;
   font-size: 0.9rem;
@@ -1084,17 +992,17 @@ html:has(.oc-modal.active) {
 }
 
 .admin-sidebar {
-  background: #fff;
+  background: #111;
   border-right: 1px solid #eaeaea;
 }
 
 .admin-content-pane {
-  background: #ffffff;
+  background: #111fff;
   border-right: 1px solid #eaeaea;
 }
 
 .admin-editor-pane {
-  background: #fff;
+  background: #111;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1177,7 +1085,7 @@ html:has(.oc-modal.active) {
   align-items: flex-start;
   gap: 15px;
   padding: 1rem 1.3rem;
-  background: #fff;
+  background: #111;
   border-bottom: 1px solid #f0f0f0;
   position: relative;
 }
@@ -1250,7 +1158,7 @@ html:has(.oc-modal.active) {
 }
 
 .modal-content {
-  background: #fff;
+  background: #111;
   width: 600px;
   max-width: 100vw;
   max-height: 100vh;
@@ -1396,7 +1304,7 @@ html:has(.oc-modal.active) {
 .work-delete-modal-overlay { z-index: 6000; }
 
 .tag-add-modal-card {
-  background: #fff;
+  background: #111;
   padding: 1.25rem 1.5rem;
   border-radius: 0px;
   width: 300px;
@@ -1426,7 +1334,7 @@ html:has(.oc-modal.active) {
 }
 
 .tag-edit-modal-content {
-  background: #fff;
+  background: #111;
   width: 800px;
   max-width: 90vw;
   height: 75vh;
@@ -1489,7 +1397,7 @@ html:has(.oc-modal.active) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fff;
+  background: #111;
   border: 1px solid #eaeaea;
   padding: 6px 8px;
   border-radius: 0px;
@@ -1530,7 +1438,7 @@ html:has(.oc-modal.active) {
 }
 
 .work-delete-modal-card {
-  background: #fff;
+  background: #111;
   padding: 1.5rem;
   border-radius: 0px;
   width: 320px;
@@ -1565,7 +1473,7 @@ html:has(.oc-modal.active) {
 .tag-add-input {
   width: 100%;
   box-sizing: border-box;
-  background: #fff;
+  background: #111;
   border: 1px solid #3b82f6;
   border-radius: 0px;
   padding: 6px 8px;

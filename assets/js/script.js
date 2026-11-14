@@ -123,8 +123,8 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
     <article class="card open-oc-modal" data-oc-id="${item.id}">
       ${thumbsHTML}
       <div class="card-info" style="margin-top: 10px; text-align: left;">
-        <div class="card-name" style="font-weight: 600; font-size: 0.9rem; color: #222; line-height: 1.5; word-break: keep-all;">${nameStr}</div>
-        ${foreignNameStr ? `<div class="card-foreign-name" style="font-size: 0.75rem; color: #777; margin-top: 0px; line-height: 1.5; word-break: break-all;">${foreignNameStr}</div>` : ''}
+        <div class="card-name" style="text-align: center; font-weight: 600; font-size: 0.9rem; color: #fff; line-height: 1.5; word-break: keep-all;">${nameStr}</div>
+        ${foreignNameStr ? `<div class="card-foreign-name" style="text-align: center; font-size: 0.75rem; color: #777; margin-top: 0px; line-height: 1.5; word-break: break-all;">${foreignNameStr}</div>` : ''}
       </div>
     </article>
   `;
