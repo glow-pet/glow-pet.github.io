@@ -1,6 +1,5 @@
 // assets/js/common.js
 
-// 1. <head> 필수 CSS 동적 주입
 if (!document.querySelector('link[href*="styles.css"]')) {
     const isPagesFolder = window.location.pathname.includes('/pages/');
     const cssPath = isPagesFolder ? '../assets/css/styles.css' : 'assets/css/styles.css';
@@ -21,20 +20,17 @@ if (!document.querySelector('link[href*="styles.css"]')) {
     document.head.appendChild(linkCss);
 }
 
-// 2. 통합 레이아웃 컴포넌트
 class CommonLayout extends HTMLElement {
     connectedCallback() {
         const originalChildren = Array.from(this.childNodes);
         const isPagesFolder = window.location.pathname.includes('/pages/');
 
-        // 루트 경로 및 하위 pages 폴더 경로 설정
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
         const worldsPath = isPagesFolder ? 'worlds.html' : 'pages/worlds.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
         const fanworksPath = isPagesFolder ? 'fanworks.html' : 'pages/fanworks.html';
         const favsPath = isPagesFolder ? 'favs.html' : 'pages/favs.html';
 
-        // 네비게이션 메뉴 구조
         const navItems = [
             {
                 name: '1차 창작',
@@ -68,7 +64,6 @@ class CommonLayout extends HTMLElement {
             `;
         }).join('');
 
-        // 현재 활성화된 부모 메뉴의 하위 카테고리 추출
         let subNavHTML = '';
         const activeParentItem = navItems.find(item => {
             if (!item.children) return false;
@@ -88,19 +83,21 @@ class CommonLayout extends HTMLElement {
             `;
         }
 
-        // 좌측 상단 모바일 헤더 및 사이드바 X 버튼 제거
+        // 좌측 navbar 전용 열(.navbar-column)과 우측 콘텐츠 전용 열(.main-wrapper) 분리
         this.innerHTML = `
             <div class="layout-container">
-                <nav class="navbar">
-                    <div class="sidebar-top">
-                        <div class="logo"><a href="${indexPath}">창작</a></div>
-                    </div>
-                    <div class="nav-links-wrapper">
-                        <ul class="nav-links">
-                            ${navLinksHTML}
-                        </ul>
-                    </div>
-                </nav>
+                <div class="navbar-column">
+                    <nav class="navbar">
+                        <div class="sidebar-top">
+                            <div class="logo"><a href="${indexPath}">창작</a></div>
+                        </div>
+                        <div class="nav-links-wrapper">
+                            <ul class="nav-links">
+                                ${navLinksHTML}
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
 
                 <div class="main-wrapper">
                     ${subNavHTML}
@@ -117,7 +114,6 @@ class CommonLayout extends HTMLElement {
             mainContent.appendChild(node);
         });
 
-        // 탭 타이틀 업데이트 후 본문 내 .header h1 대제목 제거
         this.updateTitle();
         const headerH1 = this.querySelector('.header h1');
         if (headerH1) {

@@ -1,6 +1,11 @@
 /* ==========================================================================
    1. 기본 리셋 및 전역 스타일
    ========================================================================== */
+common-layout:not(:defined) {
+  opacity: 0;
+  visibility: hidden;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -20,12 +25,19 @@ html {
 }
 
 body {
-  background: #111;
+  background: #222;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
-  color: #444;
+  color: #ccc;
   line-height: 1.75;
   letter-spacing: -0.02em;
   word-break: keep-all;
+}
+
+html:has(.fanworks-modal.active),
+html:has(.oc-modal.active) {
+  overflow: hidden;
+  /* 동적 스크롤바 너비 보정 변수 활용 */
+  padding-right: var(--scrollbar-width, 0px); 
 }
 
 a {
@@ -35,7 +47,7 @@ a {
 
 
 /* ==========================================================================
-   2. 공통 레이아웃 (좌측 세로형 네비게이션 및 본문 래퍼)
+   2. 공통 레이아웃 (2열 구조: 좌측 navbar 열 + 우측 본문 열)
    ========================================================================== */
 common-layout {
   display: flex;
@@ -51,20 +63,36 @@ common-layout {
   position: relative;
 }
 
+/* 좌측 navbar 전용 열 */
+.navbar-column {
+  width: 185px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
 /* 좌측 세로형 Navbar */
 .navbar {
-  width: 190px;
-  background: #111;
-  border: 1px solid #ccc;
+  width: 100%;
+  background: #333;
+  border: 0px solid #777;
   padding: 1.8rem 0rem;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
   position: sticky;
-  top: 10px;
-  left: 10px;
-  height: 500px;
+  top: 0px;
+  height: 100vh;
   z-index: 1001;
+}
+
+.admin-navbar {
+  width: 100%;
+  background: #111;
+  border-bottom: 1px solid #333;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .sidebar-top {
@@ -76,7 +104,7 @@ common-layout {
 
 .logo a {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   letter-spacing: 0.05em;
   color: #eee;
 }
@@ -89,7 +117,7 @@ common-layout {
   display: flex;
   flex-direction: column;
   list-style: none;
-  gap: 0.2rem;
+  gap: 4px;
   width: 100%;
 }
 
@@ -101,38 +129,33 @@ common-layout {
 
 .nav-parent-link {
   display: block;
-  color: #bbb;
+  color: #999;
   padding: 0.5rem 2rem;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  border-radius: 4px;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.nav-parent-link:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-  color: #eee;
-}
-
+.nav-parent-link:hover,
 .nav-parent-link.active {
-  color: #eee;
-  font-weight: 600;
+  color: #fff;
 }
 
-/* 우측 본문 및 푸터 래퍼 영역 */
+/* 우측 본문 및 푸터 전용 열 */
 .main-wrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
   position: relative;
+  padding: 0;
 }
 
-/* 하위 카테고리 가로 나열 바 (가운데 정렬) */
+/* 하위 카테고리 가로 나열 바 */
 .sub-nav-bar {
-  background: #111;
-  border-bottom: 1px solid #999;
-  padding: 0.9rem 2.5rem 1.3rem 2.5rem;
+  background: transparent;
+  border: none;
+  padding: 2.5rem;
 }
 
 .sub-nav-links {
@@ -144,8 +167,8 @@ common-layout {
 }
 
 .sub-nav-links li a {
-  font-size: 1rem;
-  color: #aaa;
+  font-size: 1.3rem;
+  color: #777;
   font-weight: 300;
   transition: color 0.2s;
 }
@@ -153,7 +176,6 @@ common-layout {
 .sub-nav-links li a:hover,
 .sub-nav-links li a.active {
   color: #fff;
-  font-weight: 600;
 }
 
 .content-body {
@@ -168,78 +190,51 @@ common-layout {
 }
 
 .container .pagination-container {
-  margin-top: 30px;
+  margin-top: 50px;
 }
 
 .admin-content-pane .pagination-container {
   margin-top: 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #333;
 }
 
-.back-button-wrapper {
-  margin-bottom: 1.5rem;
-}
-
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  color: #555;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* 헤더 스타일 (대제목 제거 후 p 가운데 정렬) */
+/* 헤더: 본문 가운데 정렬 및 가로 너비 축소 */
 .header {
-  background: #333;
+  background: #444;
+  border: 1px solid #555;
   position: relative;
-  margin-bottom: 1rem;
-  padding: 1.2rem 1.5rem;
-  justify-content: center;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto 20px auto;
+  padding: 1.4rem 2rem;
   text-align: center;
-  color: #ccc;
-  font-size: 0.9rem;
+  color: #ddd;
+  font-size: 1rem;
   line-height: 1.6;
-  width: 100%;
 }
 
-/* 푸터 스타일 (우측 하단 배치) */
-.footer {
-  width: 100%;
-  text-align: right;
-  padding: 0.8rem 1.5rem;
-  color: #999;
-  font-size: 0.8rem;
-  margin-top: auto;
-  box-sizing: border-box;
-}
-
-.load-more-wrapper {
+.controls-wrapper {
   display: flex;
   justify-content: center;
-  margin: 3.5rem 0 2rem 0;
-}
-
-.load-more-btn {
-  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background: #111fff;
-  color: #333;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-.load-more-btn svg {
-  stroke: #555;
+.empty-grid-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #888;
+  padding: 2rem 0;
+}
+
+/* 푸터 스타일 */
+.footer {
+  width: 100%;
+  text-align: center;
+  padding: 45px 0;
+  color: #ddd;
+  font-size: 0.8rem;
+  margin-top: 80px;
+  box-sizing: border-box;
 }
 
 
@@ -249,6 +244,7 @@ common-layout {
 .grid {
   width: 100%;
   display: grid;
+  margin-top: 80px;
 }
 
 .card-cols-4 {
@@ -258,28 +254,28 @@ common-layout {
 
 @media (min-width: 600px) {
   .card-cols-4 {
-    gap: 15px;
+    gap: 30px;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
 .card-cols-5 {
-  gap: 15px;
-  row-gap: 35px;
+  gap: 50px;
+  row-gap: 60px;
 }
 
 @media (min-width: 480px) {
   .card-cols-5 {
-    gap: 15px;
-    row-gap: 35px;
+    gap: 50px;
+    row-gap: 60px;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
 
 @media (min-width: 1200px) {
   .card-cols-5 {
-    gap: 15px;
-    row-gap: 35px;
+    gap: 50px;
+    row-gap: 60px;
     grid-template-columns: repeat(5, 1fr);
   }
 }
@@ -322,7 +318,7 @@ common-layout {
 
 
 /* ==========================================================================
-   4. 공통 카드 스타일 (.card)
+   4. 공통 카드 및 텍스트 썸네일 스타일 (.card)
    ========================================================================== */
 .card {
   background: transparent;
@@ -343,11 +339,7 @@ common-layout {
   width: 100%;
   overflow: hidden;
   min-height: 100px;
-}
-
-.card-link {
-  display: block;
-  width: 100%;
+  cursor: pointer;
 }
 
 .card-thumb img {
@@ -356,20 +348,30 @@ common-layout {
   opacity: 1;
 }
 
+/* 텍스트 썸네일 공통 (이미지 준비 중, 민감한 콘텐츠, 비공개 등 통일) */
 .card-thumb.text-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #333;
-  color: #fff;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
+  background-color: #222;
+  color: #999;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
   aspect-ratio: 1 / 1;
+  padding: 1rem;
   text-align: center;
-  word-break: break-all;
+  word-break: keep-all;
   white-space: pre-wrap;
   overflow-wrap: break-word;
   cursor: pointer;
+}
+
+.card-thumb.text-thumb.private-thumb,
+.card-thumb.text-thumb.sensitive-thumb,
+.card-thumb.text-thumb.placeholder-thumb {
+  background-color: #555;
+  color: #bbb;
 }
 
 .card-thumb.text-thumb span {
@@ -384,6 +386,28 @@ common-layout {
 .crop-square .card-thumb img {
   height: 100%;
   object-fit: cover;
+}
+
+/* OC 카드 하단 이름 영역 */
+.oc-card-info {
+  margin-top: 13px;
+  text-align: center;
+}
+
+.oc-card-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #fff;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.oc-card-foreign-name {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0px;
+  line-height: 1.4;
+  word-break: break-all;
 }
 
 
@@ -429,12 +453,11 @@ common-layout {
   background: #111;
   border: none;
   border-radius: 50px;
-  padding: 20px;
   color: #eee;
   font-size: 2.2rem;
   line-height: 1;
   cursor: pointer;
-  z-index: 2000;
+  z-index: 10010;
   padding: 5px;
 }
 
@@ -516,11 +539,11 @@ common-layout {
   outline: none;
 }
 
-.oc-modal .modal-caption-container {
-  width: 40vw;
+.oc-modal .modal-caption-container.oc-caption-container {
+  width: 55vw;
   height: 100vh;
   max-height: 100vh;
-  padding: 20px 60px 40px 0px;
+  padding: 80px 60px 40px 80px;
   background: #111;
   color: #ccc;
   font-size: 0.95rem;
@@ -531,13 +554,25 @@ common-layout {
   box-sizing: border-box;
 }
 
+.oc-portrait-placeholder.text-thumb {
+  width: 100%;
+  height: 100%;
+  background: #222;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex: 1;
+}
+
 .oc-modal-basic-info {
   position: static !important;
   display: flex !important;
   flex-direction: column;
   padding-bottom: 25px;
   margin-bottom: 18px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #333;
   flex-shrink: 0;
   line-height: 1;
 }
@@ -545,6 +580,7 @@ common-layout {
 .oc-info-name {
   font-size: 1.4rem;
   font-weight: 800;
+  color: #fff;
   margin-bottom: 8px;
   word-break: keep-all;
   white-space: pre-wrap;
@@ -612,7 +648,7 @@ common-layout {
     max-height: 60vh;
   }
   .fanworks-modal .modal-caption-container,
-  .oc-modal .modal-caption-container {
+  .oc-modal .modal-caption-container.oc-caption-container {
     width: 100vw;
     height: 40vh;
     margin-left: 0;
@@ -625,9 +661,9 @@ common-layout {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #444;
-  border: none;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #eee;
+  border: 1px solid #444;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -641,7 +677,7 @@ common-layout {
 
 .modal-arrow svg {
   display: block;
-  stroke: #444;
+  stroke: #eee;
   position: relative;
   width: 24px;
   height: 24px;
@@ -652,14 +688,15 @@ common-layout {
 .modal-prev svg { left: -1px; }
 .modal-next svg { left: 1px; }
 
+/* 모달 내부 민감 콘텐츠 단색 경고 마스크 (블러/글래스모피즘 미사용) */
 .oc-warning-overlay,
 .oc-full-warning-mask {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.95);
-  color: #333;
+  background-color: #161616;
+  color: #eee;
   z-index: 10005;
   display: flex;
   flex-direction: column;
@@ -674,33 +711,29 @@ common-layout {
 .oc-warning-title {
   font-weight: 700;
   font-size: 1.15rem;
-  color: #222;
+  color: #fff;
   letter-spacing: -0.01em;
   margin-bottom: 4px;
 }
 
 .oc-warning-desc {
   font-size: 0.95rem;
-  color: #333;
+  color: #bbb;
   word-break: keep-all;
   max-width: 480px;
   line-height: 1.5;
   margin-bottom: 12px;
 }
 
-.oc-warning-btn {
-  padding: 8px 20px;
-  cursor: pointer;
-}
-
 
 /* ==========================================================================
-   7. favs.html 블록 스타일
+   6. favs.html 블록 스타일
    ========================================================================== */
 #favs-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 50px;
+  margin-top: 80px;
 }
 
 @media (min-width: 768px) {
@@ -710,18 +743,18 @@ common-layout {
 }
 
 .favs-block {
-  background: #111;
-  border: 1px solid #eaeaea;
+  background: #222;
+  border: 1px solid #444;
   box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
   border-radius: 0px;
-  padding: 1rem 1.3rem 1.2rem;
+  padding: 1.3rem 1.7rem 1.7rem;
 }
 
 .favs-block .title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.7rem;
 }
 
 .favs-block .line {
@@ -732,7 +765,7 @@ common-layout {
 
 
 /* ==========================================================================
-   8. 태그 필터 모달 및 페이지네이션
+   7. 태그 필터 모달 및 페이지네이션
    ========================================================================== */
 .filter-modal-overlay {
   position: fixed;
@@ -740,18 +773,17 @@ common-layout {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.75);
   z-index: 4000;
   display: flex;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
 .filter-modal-content {
   background: #111;
+  border: 1px solid #444;
   width: 750px;
   max-width: 90vw;
   max-height: 80vh;
@@ -765,14 +797,14 @@ common-layout {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #333;
   padding-bottom: 0.8rem;
 }
 
 .filter-modal-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: #eee;
 }
 
 .filter-close-btn {
@@ -780,7 +812,7 @@ common-layout {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: #888;
 }
 
 .filter-columns-wrapper {
@@ -795,10 +827,10 @@ common-layout {
 .filter-col h4 {
   font-size: 0.95rem;
   font-weight: 600;
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid #444;
   padding-bottom: 0.4rem;
   margin-bottom: 0.8rem;
-  color: #222;
+  color: #eee;
 }
 
 .filter-item-list {
@@ -814,13 +846,13 @@ common-layout {
   align-items: center;
   text-align: left;
   font-size: 0.9rem;
-  color: #444;
+  color: #ccc;
 }
 
 .tri-state-checkbox {
   width: 20px;
   height: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid #666;
   border-radius: 0px;
   background: #111;
   cursor: pointer;
@@ -832,9 +864,9 @@ common-layout {
 }
 
 .tri-state-checkbox.include {
-  background-color: #222;
-  color: #fff;
-  border-color: #222;
+  background-color: #eee;
+  color: #111;
+  border-color: #eee;
 }
 
 .tri-state-checkbox.exclude {
@@ -846,7 +878,7 @@ common-layout {
 .filter-modal-footer {
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid #333;
   padding-top: 1rem;
 }
 
@@ -854,9 +886,9 @@ common-layout {
 .btn-dark-long,
 .filter-open-btn,
 .filter-apply-btn {
-  background-color: #eee;
-  color: #111;
-  border: none;
+  background-color: #111;
+  color: #eee;
+  border: 1px solid #444;
   border-radius: 0px;
   cursor: pointer;
   font-weight: 600;
@@ -869,8 +901,8 @@ common-layout {
 
 .btn-dark-long,
 .filter-open-btn {
-  padding: 0.4rem 1.5rem 0.5rem 1.5rem;
-  font-size: 0.85rem;
+  padding: 20px 21px 23px;
+  font-size: 0.9rem;
 }
 
 .filter-apply-btn {
@@ -881,12 +913,13 @@ common-layout {
 .filter-modal-content > div:has(#filterSensitiveSwitch) {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid #333;
   padding-top: 1.2rem;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
+  color: #ccc;
 }
 
 .switch {
@@ -908,7 +941,7 @@ common-layout {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
+  background-color: #444;
   border-radius: 22px;
 }
 
@@ -924,10 +957,11 @@ common-layout {
 }
 
 input:checked + .slider {
-  background-color: #222;
+  background-color: #eee;
 }
 
 input:checked + .slider:before {
+  background-color: #111;
   transform: translateX(18px);
 }
 
@@ -943,11 +977,11 @@ input:checked + .slider:before {
   min-width: 32px;
   height: 32px;
   padding: 0 6px;
-  background: #111;
-  border: 1px solid #ccc;
-  border-radius: 50%;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 0%;
   font-size: 0.9rem;
-  color: #ccc;
+  color: #eee;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -967,7 +1001,7 @@ input:checked + .slider:before {
 
 
 /* ==========================================================================
-   9. 관리자 페이지 (Admin Page 3-Column Layout & Modals)
+   8. 관리자 페이지 (Admin Page 3-Column Layout & Modals)
    ========================================================================== */
 html:has(.fanworks-modal.active),
 html:has(.oc-modal.active) {
@@ -996,12 +1030,12 @@ html:has(.oc-modal.active) {
 
 .admin-sidebar {
   background: #111;
-  border-right: 1px solid #eaeaea;
+  border-right: 1px solid #333;
 }
 
 .admin-content-pane {
-  background: #111fff;
-  border-right: 1px solid #eaeaea;
+  background: #111;
+  border-right: 1px solid #333;
 }
 
 .admin-editor-pane {
@@ -1014,25 +1048,14 @@ html:has(.oc-modal.active) {
   height: 43px;
   font-size: 1rem;
   font-weight: 600;
-  color: #222;
-  border-bottom: 1px solid #eaeaea;
+  color: #eee;
+  border-bottom: 1px solid #333;
   padding: 0 1.3rem;
   margin-bottom: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
-}
-
-.admin-nav-home {
-  color: #333;
-  text-decoration: none;
-  font-weight: 700;
-  margin-left: 10px;
-}
-
-.admin-nav-title {
-  color: #666;
 }
 
 .admin-sidebar-menu-list {
@@ -1051,19 +1074,20 @@ html:has(.oc-modal.active) {
   border-radius: 0px;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #444;
+  color: #999;
   cursor: pointer;
 }
 
 .admin-menu-btn.active {
-  background-color: #eee;
+  background-color: #222;
+  color: #fff;
 }
 
 .admin-thumb-preview {
   width: 80px;
   height: 80px;
   aspect-ratio: 1 / 1;
-  border: 1px solid #ddd;
+  border: 1px solid #333;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1089,7 +1113,7 @@ html:has(.oc-modal.active) {
   gap: 15px;
   padding: 1rem 1.3rem;
   background: #111;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #222;
   position: relative;
 }
 
@@ -1103,11 +1127,12 @@ html:has(.oc-modal.active) {
   gap: 4px;
   overflow: hidden;
   text-align: left;
+  color: #eee;
 }
 
 .admin-card-meta {
   font-size: 0.8rem;
-  color: #666;
+  color: #888;
   margin-bottom: 2px;
   font-weight: 500;
 }
@@ -1120,10 +1145,12 @@ html:has(.oc-modal.active) {
 }
 
 .admin-tag-input-line {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #444;
   padding: 6px 2px;
   font-size: 0.9rem;
   width: 100%;
+  background: transparent;
+  color: #fff;
 }
 
 .admin-tag-selector-box {
@@ -1132,45 +1159,17 @@ html:has(.oc-modal.active) {
   gap: 6px;
   margin-top: 6px;
   padding: 8px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: #161616;
+  border: 1px solid #333;
   border-radius: 0px;
   min-height: 200px;
 }
 
 .image-path-preview {
   font-size: 0.8rem;
-  color: #666;
+  color: #888;
   margin-bottom: 0.4rem;
   font-family: monospace;
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background-color: rgba(255, 255, 255, 1);
-  z-index: 4000;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal.active {
-  display: flex;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.modal-content {
-  background: #111;
-  width: 600px;
-  max-width: 100vw;
-  max-height: 100vh;
-  border-radius: 0px;
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  overflow-y: auto;
 }
 
 .edit {
@@ -1190,7 +1189,7 @@ html:has(.oc-modal.active) {
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 4px;
-  color: #333;
+  color: #ddd;
 }
 
 .form-group input,
@@ -1198,7 +1197,9 @@ html:has(.oc-modal.active) {
 .form-group select {
   width: 100%;
   padding: 8px;
-  border: 1px solid #ccc;
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #444;
   border-radius: 0px;
   font-size: 0.9rem;
 }
@@ -1213,7 +1214,7 @@ html:has(.oc-modal.active) {
 .image-item {
   width: 70px;
   height: 70px;
-  border: 1px solid #ccc;
+  border: 1px solid #444;
   border-radius: 0px;
   overflow: hidden;
   position: relative;
@@ -1229,7 +1230,7 @@ html:has(.oc-modal.active) {
   position: absolute;
   top: 0;
   left: 0;
-  background: #444;
+  background: #333;
   color: #fff;
   font-size: 0.65rem;
   padding: 1px 7px 1px 6px;
@@ -1242,7 +1243,7 @@ html:has(.oc-modal.active) {
   position: absolute;
   top: 2px;
   right: 2px;
-  background: #444;
+  background: #333;
   color: #fff;
   border-radius: 50%;
   width: 18px;
@@ -1258,7 +1259,7 @@ html:has(.oc-modal.active) {
 .filter-col-header-dark {
   font-size: 0.8rem;
   font-weight: 600;
-  background: #444;
+  background: #2a2a2a;
   color: #fff;
   padding: 5px 8px;
   border-radius: 0px;
@@ -1266,16 +1267,6 @@ html:has(.oc-modal.active) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.filter-col-header-dark button {
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 0.95rem;
-  line-height: 1;
 }
 
 .filter-col-scrollable {
@@ -1291,7 +1282,7 @@ html:has(.oc-modal.active) {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   justify-content: center;
   align-items: center;
 }
@@ -1306,38 +1297,9 @@ html:has(.oc-modal.active) {
 .tag-edit-modal-overlay { z-index: 5000; }
 .work-delete-modal-overlay { z-index: 6000; }
 
-.tag-add-modal-card {
-  background: #111;
-  padding: 1.25rem 1.5rem;
-  border-radius: 0px;
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tag-add-modal-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.tag-add-modal-input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 0px;
-  font-size: 0.85rem;
-  box-sizing: border-box;
-}
-
-.tag-add-modal-input:focus {
-  outline: none;
-  border-color: #222;
-}
-
 .tag-edit-modal-content {
   background: #111;
+  border: 1px solid #444;
   width: 800px;
   max-width: 90vw;
   height: 75vh;
@@ -1345,7 +1307,6 @@ html:has(.oc-modal.active) {
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   box-sizing: border-box;
 }
 
@@ -1353,7 +1314,7 @@ html:has(.oc-modal.active) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #333;
   padding-bottom: 0.8rem;
   margin-bottom: 1rem;
 }
@@ -1361,7 +1322,7 @@ html:has(.oc-modal.active) {
 .tag-edit-modal-header h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: #eee;
 }
 
 .tag-edit-columns-wrapper {
@@ -1374,8 +1335,8 @@ html:has(.oc-modal.active) {
 }
 
 .tag-edit-col {
-  background: #fdfdfd;
-  border: 1px solid #eee;
+  background: #161616;
+  border: 1px solid #333;
   border-radius: 0px;
   padding: 10px;
   display: flex;
@@ -1388,7 +1349,7 @@ html:has(.oc-modal.active) {
 .tag-edit-col h4 {
   font-size: 0.85rem;
   font-weight: 600;
-  background: #444;
+  background: #2a2a2a;
   color: #fff;
   padding: 5px 8px;
   border-radius: 0px;
@@ -1401,7 +1362,8 @@ html:has(.oc-modal.active) {
   justify-content: space-between;
   align-items: center;
   background: #111;
-  border: 1px solid #eaeaea;
+  border: 1px solid #333;
+  color: #eee;
   padding: 6px 8px;
   border-radius: 0px;
   font-size: 0.85rem;
@@ -1414,19 +1376,17 @@ html:has(.oc-modal.active) {
 }
 
 .eye-btn {
-  background: none;
+  background: #2a2a2a;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   padding: 2px 6px;
-  border-radius: 0px;
-  background: #f0f2f5;
-  color: #333;
+  color: #eee;
 }
 
 .eye-btn.closed {
-  background: #e5e7eb;
-  color: #9ca3af;
+  background: #1a1a1a;
+  color: #666;
   text-decoration: line-through;
 }
 
@@ -1442,10 +1402,10 @@ html:has(.oc-modal.active) {
 
 .work-delete-modal-card {
   background: #111;
+  border: 1px solid #444;
   padding: 1.5rem;
   border-radius: 0px;
   width: 320px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1454,7 +1414,7 @@ html:has(.oc-modal.active) {
 
 .work-delete-modal-text {
   font-size: 0.9rem;
-  color: #333;
+  color: #ccc;
   line-height: 1.5;
 }
 
@@ -1462,13 +1422,12 @@ html:has(.oc-modal.active) {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #e5e7eb;
-  border: 1px dashed #d1d5db;
-  border-radius: 0px;
+  background: #222;
+  border: 1px dashed #555;
   height: 36px;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #4b5563;
+  color: #ccc;
   cursor: pointer;
   margin-top: 6px;
 }
@@ -1477,8 +1436,8 @@ html:has(.oc-modal.active) {
   width: 100%;
   box-sizing: border-box;
   background: #111;
-  border: 1px solid #3b82f6;
-  border-radius: 0px;
+  border: 1px solid #eee;
+  color: #fff;
   padding: 6px 8px;
   font-size: 0.85rem;
   outline: none;

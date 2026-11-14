@@ -1,29 +1,30 @@
 // assets/js/script.js
 import { TagFilterModal } from './filterModal.js';
 
-let allPosts = [];
 let filteredPosts = [];
 let currentPage = 1;
 const itemsPerPage = 12;
 let tagFilterModal = null;
 let profilesData = [];
-let worldsData = []; // 세계관 데이터를 담을 변수 추가
+let isAppInitialized = false;
 
-
-// 이미지 URL 리사이징 및 경로 보정
-function getResizedImageUrl(src, targetWidth = 400) {
+function resolveAssetPath(src) {
   if (!src) return '';
   if (src.startsWith('http') || src.startsWith('/') || src.startsWith('../') || src.startsWith('data:')) {
     return src;
   }
-  if (window.location.pathname.includes('/pages/') && src.startsWith('assets/')) {
+  const isPagesFolder = window.location.pathname.includes('/pages/');
+  if (isPagesFolder && src.startsWith('assets/')) {
     return '../' + src;
   }
   return src;
 }
 
+function updateScrollbarWidth() {
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+}
 
-// 정렬
 window.currentSortMode = 'latest';
 function getSortedData(dataArray) {
   if (!Array.isArray(dataArray)) return [];
@@ -36,8 +37,6 @@ function getSortedData(dataArray) {
   });
 }
 
-
-// 필터링 및 데이터 가공
 function getFilteredAndProcessedData(rawData, activeFilters = {}) {
   return (rawData || []).filter(item => {
     if (item.private) return false;
@@ -51,8 +50,6 @@ function getFilteredAndProcessedData(rawData, activeFilters = {}) {
   });
 }
 
-
-// 헤더 및 필터 버튼 생성
 function renderHeader() {
   const headerEl = document.querySelector('.header');
   const cardCols = document.querySelector('.card-cols-4, .card-cols-5, .card-cols-3');
@@ -60,11 +57,6 @@ function renderHeader() {
   if (headerEl && cardCols && !document.querySelector('.controls-wrapper')) {
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'controls-wrapper';
-    controlsWrapper.style.display = 'flex';
-    controlsWrapper.style.justifyContent = 'center';
-    controlsWrapper.style.alignItems = 'center';
-    controlsWrapper.style.marginBottom = '1.5rem';
-
     controlsWrapper.innerHTML = `<button type="button" id="open-filter-modal-btn" class="btn-dark-long">필터</button>`;
     headerEl.insertAdjacentElement('afterend', controlsWrapper);
 
@@ -77,41 +69,36 @@ function renderHeader() {
   }
 }
 
-
-// ocs.html에 카드를 생성
+// ocs.html 카드 생성 (민감 콘텐츠를 이미지 준비중과 동일한 스타일로 표시)
 function createOcCardHTML(item, showSensitiveOverride = false) {
   const isPrivate = item.private;
   const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
   const rawSrc = item.thumbnail || item.portrait || '';
-  const thumbSrc = getResizedImageUrl(rawSrc, 300);
+  const thumbSrc = resolveAssetPath(rawSrc);
 
   let thumbsHTML = '';
   if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: #777; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+      <div class="card-thumb text-thumb private-thumb">
         <span>비공개</span>
       </div>
     `;
   } else if (isSensitive && !showSensitiveOverride) {
-    const warningText = '민감한 콘텐츠';
     thumbsHTML = `
-      <div class="card-thumb" style="position: relative; aspect-ratio: 1/1; overflow: hidden;">
-        ${thumbSrc ? `<img src="${thumbSrc}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);" onerror="this.style.display='none';">` : ''}
-        <div style="position: absolute; inset: 0; background: #777; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #eee;">
-          <div style="font-size: 1rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
-        </div>
+      <div class="card-thumb text-thumb sensitive-thumb">
+        <span>민감한 콘텐츠</span>
       </div>
     `;
   } else if (!thumbSrc) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: #eee; color: #aaa; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 1rem; text-align: center;">
+      <div class="card-thumb text-thumb placeholder-thumb">
         <span>이미지 준비 중</span>
       </div>
     `;
   } else {
     thumbsHTML = `
       <div class="card-thumb">
-        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#aaa;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
+        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';">
       </div>
     `;
   }
@@ -122,15 +109,15 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
   return `
     <article class="card open-oc-modal" data-oc-id="${item.id}">
       ${thumbsHTML}
-      <div class="card-info" style="margin-top: 10px; text-align: left;">
-        <div class="card-name" style="text-align: center; font-weight: 600; font-size: 0.9rem; color: #fff; line-height: 1.5; word-break: keep-all;">${nameStr}</div>
-        ${foreignNameStr ? `<div class="card-foreign-name" style="text-align: center; font-size: 0.75rem; color: #777; margin-top: 0px; line-height: 1.5; word-break: break-all;">${foreignNameStr}</div>` : ''}
+      <div class="oc-card-info">
+        <div class="oc-card-name">${nameStr}</div>
+        ${foreignNameStr ? `<div class="oc-card-foreign-name">${foreignNameStr}</div>` : ''}
       </div>
     </article>
   `;
 }
 
-//ocs.html에 모달을 초기화하고 제어함
+// ocs.html 모달 제어
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
@@ -140,7 +127,7 @@ function initOcLightbox() {
       <button type="button" class="modal-close-btn" aria-label="닫기">✕</button>
       <div class="modal-body-container">
         <div class="modal-image-container" id="ocImageWrapper"></div>
-        <div class="modal-caption-container" style="padding-top: 80px;">
+        <div class="modal-caption-container oc-caption-container">
           <div class="oc-modal-basic-info">
             <div class="oc-info-name" id="ocName"></div>
             <div class="oc-info-foreign-name" id="ocForeignName"></div>
@@ -161,32 +148,37 @@ function initOcLightbox() {
 
   const closeBtn = ocModal.querySelector('.modal-close-btn');
 
+  function closeOcModal() {
+    ocModal.classList.remove('active');
+    const existingMask = ocModal.querySelector('.oc-full-warning-mask');
+    if (existingMask) existingMask.remove();
+  }
+
   function openOcModal(character) {
+    updateScrollbarWidth();
+    closeOcModal();
+
     document.getElementById('ocName').innerText = character.name || '';
     document.getElementById('ocForeignName').innerText = character.foreignName || '';
     document.getElementById('ocTitle').innerText = character.title || '';
     document.getElementById('ocAge').innerText = character.age ? `${character.age}` : '';
     document.getElementById('ocGender').innerText = character.gender || '';
     document.getElementById('ocHeight').innerText = character.height ? `${character.height}cm` : '';
-    
+
     const detailMetaTop = document.getElementById('ocDetailMetaTop');
     if (detailMetaTop) {
-      detailMetaTop.innerHTML = `<div class="modal-meta-date" style="white-space: pre-wrap; word-break: break-all;">${character.description || ''}</div>`;
+      detailMetaTop.innerHTML = `<div class="modal-meta-date">${character.description || ''}</div>`;
     }
 
     const imageWrapper = document.getElementById('ocImageWrapper');
-    const existingMask = ocModal.querySelector('.oc-full-warning-mask');
-    if (existingMask) existingMask.remove();
-
     imageWrapper.innerHTML = '';
 
     const portraitRaw = character.portrait || '';
-    const imgUrl = getResizedImageUrl(portraitRaw, 800);
+    const imgUrl = resolveAssetPath(portraitRaw);
 
     if (!portraitRaw) {
       const placeholder = document.createElement('div');
       placeholder.className = 'oc-portrait-placeholder text-thumb';
-      placeholder.style.cssText = 'width: 100%; height: 100%; background: #fff; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;';
       placeholder.innerHTML = '<span>이미지 준비 중</span>';
       imageWrapper.appendChild(placeholder);
     } else {
@@ -196,11 +188,10 @@ function initOcLightbox() {
       portraitImg.src = imgUrl;
       portraitImg.alt = '초상화';
       portraitImg.onerror = function() {
-        this.replaceWith(Object.assign(document.createElement('div'), {
-          className: 'oc-portrait-placeholder text-thumb',
-          style: 'width: 100%; height: 100%; background: #fff; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex: 1;',
-          innerHTML: '<span>이미지 준비 중</span>'
-        }));
+        const fallback = document.createElement('div');
+        fallback.className = 'oc-portrait-placeholder text-thumb';
+        fallback.innerHTML = '<span>이미지 준비 중</span>';
+        this.replaceWith(fallback);
       };
       imageWrapper.appendChild(portraitImg);
     }
@@ -212,7 +203,6 @@ function initOcLightbox() {
     if (isSensitive && !window.showSensitiveGlobal) {
       const mask = document.createElement('div');
       mask.className = 'oc-full-warning-mask';
-      mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); color: #333; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
       let actionBtnHTML = '';
       if (linkUrl) {
@@ -234,16 +224,10 @@ function initOcLightbox() {
         };
       }
 
-      ocModal.appendChild(mask);
+      imageWrapper.appendChild(mask);
     }
 
     ocModal.classList.add('active');
-  }
-
-  function closeOcModal() {
-    ocModal.classList.remove('active');
-    const existingMask = ocModal.querySelector('.oc-full-warning-mask');
-    if (existingMask) existingMask.remove();
   }
 
   if (closeBtn) {
@@ -252,63 +236,66 @@ function initOcLightbox() {
       closeOcModal();
     };
   }
-  
+
   ocModal.onclick = (e) => {
     if (e.target === ocModal) {
       closeOcModal();
     }
   };
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && ocModal.classList.contains('active')) {
+      closeOcModal();
+    }
+  });
+
   const gridContainer = document.querySelector('.card-cols-5');
   if (gridContainer) {
     gridContainer.onclick = (e) => {
       const card = e.target.closest('.open-oc-modal');
       if (!card) return;
-      const ocId = parseInt(card.dataset.ocId);
+      const ocId = parseInt(card.dataset.ocId, 10);
       const targetChar = profilesData.find(p => p.id === ocId);
       if (targetChar) openOcModal(targetChar);
     };
   }
 }
 
-//ocs.html 초기화
 async function initOcApp() {
   const isProfilePage = document.querySelector('.card-cols-5') && window.location.pathname.includes('ocs.html');
-  if (isProfilePage) {
-    renderHeader();
-    try {
-      const jsonPath = window.location.pathname.includes('/pages/') ? '../profiles.json' : 'profiles.json';
-      const res = await fetch(jsonPath);
-      if (res.ok) {
-        profilesData = await res.json();
-        profilesData.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  if (!isProfilePage) return;
 
-        const isProfileContainer = document.querySelector('.card-cols-5');
-        if (isProfileContainer) {
-          isProfileContainer.classList.add('crop-square');
-          const showSens = window.showSensitiveGlobal || false;
-          
-          const activeOcData = getFilteredAndProcessedData(profilesData);
-          isProfileContainer.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
-          initOcLightbox();
-        }
+  renderHeader();
+  try {
+    const jsonPath = window.location.pathname.includes('/pages/') ? '../profiles.json' : 'profiles.json';
+    const res = await fetch(jsonPath);
+    if (res.ok) {
+      profilesData = await res.json();
+      profilesData.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      const isProfileContainer = document.querySelector('.card-cols-5');
+      if (isProfileContainer) {
+        isProfileContainer.classList.add('crop-square');
+        const showSens = window.showSensitiveGlobal || false;
+
+        const activeOcData = getFilteredAndProcessedData(profilesData);
+        isProfileContainer.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
+        initOcLightbox();
       }
-    } catch (e) {
-      console.error('profiles.json 로드 실패', e);
     }
+  } catch (e) {
+    console.error('profiles.json 로드 실패', e);
   }
 }
 
+// fanworks.html 카드 생성 (민감 콘텐츠 블러 제거, text-thumb 통일)
+function createFanworksCardHTML(item, showSensitiveOverride = false) {
+  const rawList = (item.images && Array.isArray(item.images) && item.images.length > 0)
+    ? item.images
+    : (item['thumbnail-image'] ? [item['thumbnail-image']] : []);
 
-// fanworks.html 카드 생성
-function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = false) {
-  let thumbSrc = '';
-  if (item.images && Array.isArray(item.images) && item.images.length > 0) {
-    thumbSrc = item.images[0];
-  } else {
-    thumbSrc = item['thumbnail-image'] || '';
-  }
-  thumbSrc = getResizedImageUrl(thumbSrc, 400);
+  const processedImages = rawList.map(img => resolveAssetPath(img));
+  const thumbSrc = processedImages[0] || '';
 
   const textThumb = item['thumbnail-text'] || '';
   const altText = item.alt || '';
@@ -317,21 +304,6 @@ function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = fal
 
   const isPrivate = item.private;
   const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
-
-  if (isPagesFolder) {
-    if (thumbSrc && !thumbSrc.startsWith('../') && !thumbSrc.startsWith('http')) {
-      thumbSrc = '../' + thumbSrc;
-    }
-  }
-
-  let rawImages = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [thumbSrc];
-  let processedImages = rawImages.map(img => {
-    let processed = getResizedImageUrl(img, 400);
-    if (isPagesFolder && processed && !processed.startsWith('../') && !processed.startsWith('http')) {
-      return '../' + processed;
-    }
-    return processed;
-  });
 
   const modalAttrs = `
     data-images='${JSON.stringify(processedImages)}' 
@@ -346,36 +318,32 @@ function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = fal
   let thumbsHTML = '';
   if (isPrivate) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" style="background: #777; border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+      <div class="card-thumb text-thumb private-thumb">
         <span>비공개</span>
       </div>
     `;
   } else if (isSensitive && !showSensitiveOverride) {
-    const warningText = '민감한 콘텐츠';
     thumbsHTML = `
-      <div class="card-thumb" ${modalAttrs} style="position: relative; aspect-ratio: 1/1; overflow: hidden; cursor: pointer;">
-        ${processedImages[0] ? `<img src="${processedImages[0]}" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; filter: blur(30px); transform: scale(1.1);">` : ''}
-        <div style="position: absolute; inset: 0; background: #777; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; text-align: center; color: #eee;">
-          <div style="font-size: 1rem; opacity: 0.95; word-break: keep-all; font-weight: 500;">${warningText}</div>
-        </div>
+      <div class="card-thumb text-thumb sensitive-thumb" ${modalAttrs}>
+        <span>민감한 콘텐츠</span>
       </div>
     `;
   } else if (textThumb) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" ${modalAttrs} role="img" aria-label="${textThumb}" style="cursor: pointer;">
+      <div class="card-thumb text-thumb" ${modalAttrs} role="img" aria-label="${textThumb}">
         <span>${textThumb}</span>
       </div>
     `;
-  } else if (!processedImages[0]) {
+  } else if (!thumbSrc) {
     thumbsHTML = `
-      <div class="card-thumb text-thumb" ${modalAttrs} style="background: #eee; color: #aaa; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer;">
+      <div class="card-thumb text-thumb placeholder-thumb" ${modalAttrs}>
         <span>이미지 준비 중</span>
       </div>
     `;
   } else {
     thumbsHTML = `
-      <div class="card-thumb" ${modalAttrs} style="cursor: pointer;">
-        <img src="${processedImages[0]}" alt="" loading="lazy" srcset="${processedImages[0]} 400w" sizes="(max-width: 600px) 100vw, 400px" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb\\' style=\\'background:#eee;color:#aaa;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:0.75rem;\\'>이미지 준비 중</div>';">
+      <div class="card-thumb" ${modalAttrs}>
+        <img src="${thumbSrc}" alt="" loading="lazy" srcset="${thumbSrc} 400w" sizes="(max-width: 600px) 100vw, 400px" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';">
       </div>
     `;
   }
@@ -387,8 +355,6 @@ function createFanworksCardHTML(item, isPagesFolder, showSensitiveOverride = fal
   `;
 }
 
-
-// 총 페이지수가 1이어도 페이지네이션이 상시 표시됨
 function renderPagination(totalItems) {
   const containerEl = document.querySelector('.container');
   if (!containerEl) return;
@@ -403,17 +369,15 @@ function renderPagination(totalItems) {
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
   let html = `<button type="button" class="page-arrow" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">&lt;</button>`;
-  
   for (let i = 1; i <= totalPages; i++) {
     html += `<button type="button" class="page-num ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
   }
-
   html += `<button type="button" class="page-arrow" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">&gt;</button>`;
   paginationEl.innerHTML = html;
 
   paginationEl.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const targetPage = parseInt(e.currentTarget.dataset.page);
+      const targetPage = parseInt(e.currentTarget.dataset.page, 10);
       if (!isNaN(targetPage)) {
         currentPage = targetPage;
         executeRender();
@@ -425,9 +389,7 @@ function renderPagination(totalItems) {
 
 function executeRender() {
   const mainContainer = document.querySelector('.card-cols-4, .card-cols-5');
-  const isPagesFolder = window.location.pathname.includes('/pages/');
 
-  // 만약 worlds.html 페이지라면 fanworks 렌더링 로직을 타지 않도록 예외 처리
   if (window.location.pathname.includes('worlds.html')) {
     return;
   }
@@ -437,22 +399,21 @@ function executeRender() {
     dataList = getSortedData(dataList);
 
     if (dataList.length === 0) {
-      mainContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #aaa; padding: 2rem 0;">등록된 데이터가 없습니다.</p>';
+      mainContainer.innerHTML = '<p class="empty-grid-message">등록된 데이터가 없습니다.</p>';
       renderPagination(0);
       return;
     }
 
     mainContainer.classList.add('crop-square');
-    
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const slicedData = dataList.slice(startIndex, startIndex + itemsPerPage);
-    
-    mainContainer.innerHTML = slicedData.map(item => createFanworksCardHTML(item, isPagesFolder, window.showSensitiveGlobal)).join('');
+
+    mainContainer.innerHTML = slicedData.map(item => createFanworksCardHTML(item, window.showSensitiveGlobal)).join('');
     renderPagination(dataList.length);
   }
 }
 
-// Fanworks 라이트박스 모달
 function initLightbox() {
   const gridContainer = document.querySelector('.card-cols-4, .card-cols-5');
   if (!gridContainer || window.location.pathname.includes('worlds.html')) return;
@@ -464,7 +425,7 @@ function initLightbox() {
     modal.innerHTML = `
       <button type="button" class="modal-close-btn" aria-label="모달 닫기">✕</button>
       <div class="modal-body-container">
-        <div class="modal-image-container" id="modalImageWrapper" style="position:relative;">
+        <div class="modal-image-container" id="modalImageWrapper">
           <button type="button" class="modal-arrow modal-prev" aria-label="이전 이미지">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
@@ -494,24 +455,27 @@ function initLightbox() {
 
   function updateModalImage(isSensitiveActive = false) {
     if (currentImages.length > 0) {
-      modalImg.src = getResizedImageUrl(currentImages[currentIndex], 1200);
-      
+      modalImg.src = resolveAssetPath(currentImages[currentIndex]);
+
       if (isSensitiveActive || currentImages.length <= 1) {
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
       } else {
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
-        prevBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
+        nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
     }
   }
 
   function openModal() {
+    updateScrollbarWidth();
     modal.classList.add('active');
   }
 
   function closeModal() {
     modal.classList.remove('active');
+    const existingMask = modal.querySelector('.oc-full-warning-mask');
+    if (existingMask) existingMask.remove();
   }
 
   gridContainer.onclick = (e) => {
@@ -531,7 +495,7 @@ function initLightbox() {
 
       if (currentImages.length > 0) {
         currentIndex = 0;
-        
+
         const existingMask = modal.querySelector('.oc-full-warning-mask');
         if (existingMask) existingMask.remove();
 
@@ -543,15 +507,14 @@ function initLightbox() {
 
           const mask = document.createElement('div');
           mask.className = 'oc-full-warning-mask';
-          mask.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); color: #ffffff; z-index: 10005; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 2rem; text-align: center; box-sizing: border-box;';
 
           const displayText = warningContent ? warningContent : '민감한 콘텐츠';
           let actionBtnHTML = '';
 
           if (linkUrl) {
-            actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="oc-warning-action-btn">외부 링크</a>`;
+            actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="btn-dark-long">외부 링크</a>`;
           } else {
-            actionBtnHTML = `<button type="button" class="fanwork-reveal-btn oc-warning-action-btn">보기</button>`;
+            actionBtnHTML = `<button type="button" class="fanwork-reveal-btn btn-dark-long">보기</button>`;
           }
 
           mask.innerHTML = `
@@ -619,26 +582,42 @@ function initLightbox() {
       closeModal();
     }
   };
+
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') {
+      closeModal();
+    } else if (e.key === 'ArrowLeft' && currentImages.length > 1 && currentIndex > 0) {
+      currentIndex--;
+      updateModalImage(false);
+    } else if (e.key === 'ArrowRight' && currentImages.length > 1 && currentIndex < currentImages.length - 1) {
+      currentIndex++;
+      updateModalImage(false);
+    }
+  });
 }
 
-// 메인 애플리케이션 초기화
 async function initApp() {
-  const isProfilePage = document.querySelector('.card-cols-5') && window.location.pathname.includes('ocs.html');
-  const isWorldsPage = window.location.pathname.includes('worlds.html');
+  if (isAppInitialized) return;
+  isAppInitialized = true;
+
+  const path = window.location.pathname;
+  const isIndexPage = path.endsWith('/') || path.endsWith('index.html');
+  const isWorldsPage = path.includes('worlds.html');
+  const isProfilePage = document.querySelector('.card-cols-5') && path.includes('ocs.html');
+
+  if (isIndexPage || isWorldsPage) {
+    return;
+  }
 
   if (isProfilePage) {
     await initOcApp();
     return;
   }
 
-  // worlds 페이지인 경우 갤러리/OC 로직이 실행되지 않도록 차단
-  if (isWorldsPage) {
-    return;
-  }
-
   renderHeader();
 
-  const isPagesFolder = window.location.pathname.includes('/pages/');
+  const isPagesFolder = path.includes('/pages/');
   const jsonPath = isPagesFolder ? '../fanworks.json' : 'fanworks.json';
 
   try {
