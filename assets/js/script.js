@@ -7,6 +7,7 @@ let currentPage = 1;
 const itemsPerPage = 12;
 let tagFilterModal = null;
 let profilesData = [];
+let worldsData = []; // 세계관 데이터를 담을 변수 추가
 
 
 // 이미지 URL 리사이징 및 경로 보정
@@ -67,9 +68,12 @@ function renderHeader() {
     controlsWrapper.innerHTML = `<button type="button" id="open-filter-modal-btn" class="btn-dark-long">필터</button>`;
     headerEl.insertAdjacentElement('afterend', controlsWrapper);
 
-    document.getElementById('open-filter-modal-btn').addEventListener('click', () => {
-      if (tagFilterModal) tagFilterModal.open();
-    });
+    const filterBtn = document.getElementById('open-filter-modal-btn');
+    if (filterBtn) {
+      filterBtn.addEventListener('click', () => {
+        if (tagFilterModal) tagFilterModal.open();
+      });
+    }
   }
 }
 
@@ -242,10 +246,12 @@ function initOcLightbox() {
     if (existingMask) existingMask.remove();
   }
 
-  closeBtn.onclick = (e) => {
-    e.stopPropagation();
-    closeOcModal();
-  };
+  if (closeBtn) {
+    closeBtn.onclick = (e) => {
+      e.stopPropagation();
+      closeOcModal();
+    };
+  }
   
   ocModal.onclick = (e) => {
     if (e.target === ocModal) {
@@ -267,7 +273,7 @@ function initOcLightbox() {
 
 //ocs.html 초기화
 async function initOcApp() {
-  const isProfilePage = document.querySelector('.card-cols-5');
+  const isProfilePage = document.querySelector('.card-cols-5') && window.location.pathname.includes('ocs.html');
   if (isProfilePage) {
     renderHeader();
     try {
@@ -277,12 +283,15 @@ async function initOcApp() {
         profilesData = await res.json();
         profilesData.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-        isProfilePage.classList.add('crop-square');
-        const showSens = window.showSensitiveGlobal || false;
-        
-        const activeOcData = getFilteredAndProcessedData(profilesData);
-        isProfilePage.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
-        initOcLightbox();
+        const isProfileContainer = document.querySelector('.card-cols-5');
+        if (isProfileContainer) {
+          isProfileContainer.classList.add('crop-square');
+          const showSens = window.showSensitiveGlobal || false;
+          
+          const activeOcData = getFilteredAndProcessedData(profilesData);
+          isProfileContainer.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
+          initOcLightbox();
+        }
       }
     } catch (e) {
       console.error('profiles.json 로드 실패', e);
@@ -418,6 +427,11 @@ function executeRender() {
   const mainContainer = document.querySelector('.card-cols-4, .card-cols-5');
   const isPagesFolder = window.location.pathname.includes('/pages/');
 
+  // 만약 worlds.html 페이지라면 fanworks 렌더링 로직을 타지 않도록 예외 처리
+  if (window.location.pathname.includes('worlds.html')) {
+    return;
+  }
+
   if (mainContainer) {
     let dataList = filteredPosts.length > 0 || window.isFiltered ? filteredPosts : (window.galleryData || []);
     dataList = getSortedData(dataList);
@@ -441,7 +455,7 @@ function executeRender() {
 // Fanworks 라이트박스 모달
 function initLightbox() {
   const gridContainer = document.querySelector('.card-cols-4, .card-cols-5');
-  if (!gridContainer) return;
+  if (!gridContainer || window.location.pathname.includes('worlds.html')) return;
 
   let modal = document.querySelector('.fanworks-modal');
   if (!modal) {
@@ -487,12 +501,10 @@ function initLightbox() {
         nextBtn.style.display = 'none';
       } else {
         prevBtn.style.display = (currentIndex === 0) ? 'none' : 'flex';
-        nextBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
+        prevBtn.style.display = (currentIndex === currentImages.length - 1) ? 'none' : 'flex';
       }
     }
   }
-
-  let scrollPosition = 0;
 
   function openModal() {
     modal.classList.add('active');
@@ -611,27 +623,29 @@ function initLightbox() {
 
 // 메인 애플리케이션 초기화
 async function initApp() {
-  const isProfilePage = document.querySelector('.card-cols-5');
+  const isProfilePage = document.querySelector('.card-cols-5') && window.location.pathname.includes('ocs.html');
+  const isWorldsPage = window.location.pathname.includes('worlds.html');
+
   if (isProfilePage) {
     await initOcApp();
+    return;
+  }
+
+  // worlds 페이지인 경우 갤러리/OC 로직이 실행되지 않도록 차단
+  if (isWorldsPage) {
+    return;
   }
 
   renderHeader();
 
   const isPagesFolder = window.location.pathname.includes('/pages/');
-  const jsonPath = isProfilePage 
-    ? (isPagesFolder ? '../profiles.json' : 'profiles.json')
-    : (isPagesFolder ? '../fanworks.json' : 'fanworks.json');
+  const jsonPath = isPagesFolder ? '../fanworks.json' : 'fanworks.json';
 
   try {
     const response = await fetch(jsonPath);
     if (response.ok) {
       const data = await response.json();
-      if (isProfilePage) {
-        window.ocData = getFilteredAndProcessedData(data);
-      } else {
-        window.galleryData = getFilteredAndProcessedData(data);
-      }
+      window.galleryData = getFilteredAndProcessedData(data);
     }
   } catch (e) {
     console.error('데이터 로드 실패', e);
@@ -639,35 +653,21 @@ async function initApp() {
 
   window.showSensitiveGlobal = false;
 
-  const filterOptions = isProfilePage ? { hideTags: true } : {};
-
   tagFilterModal = new TagFilterModal((activeFilters, options) => {
     window.isFiltered = true;
     window.showSensitiveGlobal = options.showSensitive || false;
 
-    if (isProfilePage) {
-      const mainContainer = document.querySelector('.card-cols-5');
-      if (mainContainer) {
-        const processedOcData = getFilteredAndProcessedData(profilesData, activeFilters);
-        mainContainer.innerHTML = processedOcData.map(item => createOcCardHTML(item, window.showSensitiveGlobal)).join('');
-      }
-    } else {
-      filteredPosts = getFilteredAndProcessedData(window.galleryData, activeFilters);
-      currentPage = 1;
-      executeRender();
-    }
-  }, filterOptions);
-
-  if (!isProfilePage && window.galleryData) {
-    tagFilterModal.renderTags(window.galleryData);
-  } else if (isProfilePage && window.ocData) {
-    tagFilterModal.renderTags([]);
-  }
-
-  if (!isProfilePage) {
+    filteredPosts = getFilteredAndProcessedData(window.galleryData, activeFilters);
+    currentPage = 1;
     executeRender();
-    initLightbox();
+  }, {});
+
+  if (window.galleryData) {
+    tagFilterModal.renderTags(window.galleryData);
   }
+
+  executeRender();
+  initLightbox();
 }
 
 window.loadGallery = initApp;

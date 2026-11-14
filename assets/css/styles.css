@@ -158,6 +158,72 @@ a {
   }
 }
 
+/* 네비게이션 드롭다운 */
+.nav-dim-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 800;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  pointer-events: none;
+}
+
+.nav-dim-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.nav-dropdown-pane {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border-top: 1px solid #eee;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  z-index: 900; /* navbar와 함께 dim 처리에서 제외 */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  pointer-events: none;
+}
+
+.nav-dropdown-pane.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.nav-dropdown-inner {
+  padding: 0.7rem 8rem 0.9rem 1.1rem; /* 내부 패딩 조절 */
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.nav-sub-list {
+  display: flex;
+  flex-direction: column; /* 세로 방향 나열 보장 */
+  list-style: none;
+  gap: 0.5rem;
+  align-items: flex-start; /* 왼쪽 정렬 */
+}
+
+.nav-sub-list li a {
+  font-size: 0.9rem;
+  color: #444;
+  font-weight: 500;
+  padding: 0.2rem 0;
+  display: inline-block;
+}
+
 .container {
   position: relative;
   max-width: 1000px;

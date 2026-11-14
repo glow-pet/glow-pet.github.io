@@ -17,7 +17,8 @@
         "private": false,
         "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": false
+        "sensitive": false,
+        "order": 1
     },
     {
         "id": 10,
@@ -35,7 +36,8 @@
         "private": false,
         "rating": "all",
         "warningContent": "",
-        "sensitive": false
+        "sensitive": false,
+        "order": 2
     },
     {
         "id": 7,
@@ -53,7 +55,8 @@
         "private": false,
         "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": false
+        "sensitive": false,
+        "order": 3
     },
     {
         "id": 5,
@@ -73,7 +76,8 @@
         "private": false,
         "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": false
+        "sensitive": false,
+        "order": 4
     },
     {
         "id": 13,
@@ -91,7 +95,8 @@
         "private": false,
         "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": false
+        "sensitive": false,
+        "order": 5
     },
     {
         "id": 12,
@@ -109,7 +114,8 @@
         "private": false,
         "rating": "all",
         "warningContent": "",
-        "sensitive": false
+        "sensitive": false,
+        "order": 6
     },
     {
         "id": 3,
@@ -129,7 +135,8 @@
         "private": false,
         "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": false
+        "sensitive": false,
+        "order": 7
     },
     {
         "id": 2,
@@ -149,6 +156,7 @@
         "private": false,
         "rating": "all",
         "warningContent": "폭력성, 선정성",
-        "sensitive": false
+        "sensitive": false,
+        "order": 8
     }
 ]

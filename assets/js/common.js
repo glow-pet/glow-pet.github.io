@@ -26,16 +26,47 @@ class CommonLayout extends HTMLElement {
     connectedCallback() {
         const originalChildren = Array.from(this.childNodes);
         const isPagesFolder = window.location.pathname.includes('/pages/');
-        const currentFileName = window.location.pathname.split('/').pop() || 'index.html';
 
         // 루트 경로 및 하위 pages 폴더 경로 설정
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
-        const fanworksPath = isPagesFolder ? 'fanworks.html' : 'pages/fanworks.html';
+        const worldsPath = isPagesFolder ? 'worlds.html' : 'pages/worlds.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
+        const fanworksPath = isPagesFolder ? 'fanworks.html' : 'pages/fanworks.html';
         const favsPath = isPagesFolder ? 'favs.html' : 'pages/favs.html';
 
+        // 네비게이션 메뉴 구조 (하위 요소가 필요한 경우 children 추가)
+        const navItems = [
+            { name: '홈', href: indexPath },
+            {
+                name: '1차 창작',
+                href: ocsPath,
+                children: [
+                    { name: '세계관', href: worldsPath },
+                    { name: 'OC', href: ocsPath }
+                ]                
+            },
+            {
+                name: '2차 창작',
+                href: fanworksPath,
+                children: [
+                    { name: '관심 작품', href: favsPath },
+                    { name: '갤러리', href: fanworksPath }
+                ]                
+            }
+        ];
+
+        const navLinksHTML = navItems.map(item => {
+            const hasChildren = item.children && item.children.length > 0;
+            return `
+                <li class="${hasChildren ? 'has-children' : ''}" data-name="${item.name}">
+                    <a href="${item.href}" ${hasChildren ? 'data-has-children="true"' : ''}>${item.name}</a>
+                </li>
+            `;
+        }).join('');
+
         this.innerHTML = `
-            <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="nav-dim-overlay"></div>
+            <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0;">
                 <button class="sidebar-toggle-btn" aria-label="메뉴 열기/닫기">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -47,11 +78,12 @@ class CommonLayout extends HTMLElement {
                 <div class="nav-links-wrapper" style="position: absolute; left: 50%; transform: translateX(-50%);">
                     <button class="sidebar-close-btn" aria-label="메뉴 닫기">✕</button>
                     <ul class="nav-links">
-                        <li><a href="${indexPath}">홈</a></li>
-                        <li><a href="${ocsPath}">OC</a></li>
-                        <li><a href="${fanworksPath}">2차 창작</a></li>
-                        <li><a href="${favsPath}">관심 작품</a></li>
+                        ${navLinksHTML}
                     </ul>
+                </div>
+                <!-- 드롭다운 패널 -->
+                <div class="nav-dropdown-pane">
+                    <div class="nav-dropdown-inner"></div>
                 </div>
             </nav>
 
@@ -63,30 +95,6 @@ class CommonLayout extends HTMLElement {
         `;
 
         const mainContent = this.querySelector('.content-body');
-        const containerEl = originalChildren.find(node => node.nodeType === 1 && node.classList.contains('container')) || mainContent;
-
-        // ocs, fanworks, favs 및 메인(index.html)에서는 뒤로가기 버튼 제외
-        const isExcludedPage = currentFileName.startsWith('ocs') || currentFileName.startsWith('fanworks') || currentFileName.startsWith('favs') || currentFileName.startsWith('history') || currentFileName === 'index.html' || !isPagesFolder;
-        
-        if (isPagesFolder && !isExcludedPage) {
-            const backBtnWrapper = document.createElement('div');
-            backBtnWrapper.className = 'back-button-wrapper';
-            backBtnWrapper.innerHTML = `
-                <button type="button" class="back-btn" onclick="history.back()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                    <span>뒤로가기</span>
-                </button>
-            `;
-            const targetContainer = containerEl.classList && containerEl.classList.contains('container') ? containerEl : containerEl.querySelector('.container');
-            if (targetContainer) {
-                targetContainer.prepend(backBtnWrapper);
-            } else {
-                containerEl.prepend(backBtnWrapper);
-            }
-        }
-
         originalChildren.forEach(node => {
             mainContent.appendChild(node);
         });
@@ -94,6 +102,7 @@ class CommonLayout extends HTMLElement {
         this.updateTitle();
         this.setActiveNav();
         this.initSidebar();
+        this.initDropdownMenu(navItems);
 
         if (typeof window.loadGallery === 'function') {
             window.loadGallery();
@@ -114,6 +123,64 @@ class CommonLayout extends HTMLElement {
             closeBtn.addEventListener('click', () => {
                 navWrapper.classList.remove('active');
             });
+        }
+    }
+
+    initDropdownMenu(navItems) {
+        const navLinks = this.querySelectorAll('.nav-links a');
+        const dropdownPane = this.querySelector('.nav-dropdown-pane');
+        const dropdownInner = this.querySelector('.nav-dropdown-inner');
+        const dimOverlay = this.querySelector('.nav-dim-overlay');
+        const navbar = this.querySelector('.navbar');
+
+        const closeDropdown = () => {
+            dropdownPane.classList.remove('active');
+            dimOverlay.classList.remove('active');
+            navLinks.forEach(l => l.classList.remove('dropdown-open'));
+        };
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const parentLi = link.closest('li');
+                const itemName = parentLi.getAttribute('data-name');
+                const matchedItem = navItems.find(item => item.name === itemName);
+
+                if (matchedItem && matchedItem.children && matchedItem.children.length > 0) {
+                    e.preventDefault();
+                    
+                    if (dropdownPane.classList.contains('active') && link.classList.contains('dropdown-open')) {
+                        closeDropdown();
+                        return;
+                    }
+
+                    navLinks.forEach(l => l.classList.remove('dropdown-open'));
+                    link.classList.add('dropdown-open');
+
+                    // 하위 요소 리스트 렌더링 (세로 방향)
+                    dropdownInner.innerHTML = `
+                        <ul class="nav-sub-list">
+                            ${matchedItem.children.map(child => `<li><a href="${child.href}">${child.name}</a></li>`).join('')}
+                        </ul>
+                    `;
+
+                    // 상위 카테고리 <a> 태그의 왼쪽 시작 위치를 기준으로 드롭다운 위치 설정
+                    const linkRect = link.getBoundingClientRect();
+                    const navRect = navbar.getBoundingClientRect();
+                    const leftOffset = linkRect.left - navRect.left;
+
+                    dropdownPane.style.left = `${leftOffset}px`;
+                    dropdownPane.style.width = 'auto'; // 하위 내용에 맞게 너비 조절
+
+                    dropdownPane.classList.add('active');
+                    dimOverlay.classList.add('active');
+                } else {
+                    closeDropdown();
+                }
+            });
+        });
+
+        if (dimOverlay) {
+            dimOverlay.addEventListener('click', closeDropdown);
         }
     }
 
