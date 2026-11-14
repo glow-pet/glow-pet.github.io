@@ -36,8 +36,8 @@ class CommonLayout extends HTMLElement {
                 name: '1차 창작',
                 href: worldsPath,
                 children: [
-                    { name: '세계관', href: worldsPath },
-                    { name: 'OC', href: ocsPath }
+                    { name: 'OC', href: ocsPath },
+                    { name: '세계관', href: worldsPath }
                 ]                
             },
             {
