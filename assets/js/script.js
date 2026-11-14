@@ -61,7 +61,7 @@ function renderHeader() {
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'controls-wrapper';
     controlsWrapper.style.display = 'flex';
-    controlsWrapper.style.justifyContent = 'flex-end';
+    controlsWrapper.style.justifyContent = 'center';
     controlsWrapper.style.alignItems = 'center';
     controlsWrapper.style.marginBottom = '1.5rem';
 
