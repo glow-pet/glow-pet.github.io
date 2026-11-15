@@ -25,9 +25,9 @@ html {
 }
 
 body {
-  background: #222;
+  background: #fff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
-  color: #ccc;
+  color: #444;
   line-height: 1.75;
   letter-spacing: -0.02em;
   word-break: keep-all;
@@ -47,7 +47,7 @@ a {
 
 
 /* ==========================================================================
-   2. 공통 레이아웃 (2열 구조: 좌측 navbar 열 + 우측 본문 열)
+   2. 공통 레이아웃 (전체 화면 본문 + 좌측 상단 오버레이 Sticky Navbar)
    ========================================================================== */
 common-layout {
   display: flex;
@@ -57,37 +57,35 @@ common-layout {
 }
 
 .layout-container {
-  display: flex;
-  flex: 1;
+  display: block;
   width: 100%;
+  min-height: 100vh;
   position: relative;
 }
 
-/* 좌측 navbar 전용 열 */
-.navbar-column {
-  width: 185px;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-/* 좌측 세로형 Navbar */
+/* 좌측 세로형 오버레이 Navbar (우측으로 갈수록 투명해지는 반투명 흰색 배경) */
 .navbar {
-  width: 100%;
-  background: #333;
-  border: 0px solid #777;
-  padding: 1.8rem 0rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 210px;
+  height: 100vh;
+  padding: 16px 0;
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0px;
-  height: 100vh;
   z-index: 1001;
+  pointer-events: none; /* 투명 여백 아래 본문 클릭 통과 */
+}
+
+.sidebar-top,
+.nav-links-wrapper {
+  pointer-events: auto; /* 실제 메뉴 텍스트 영역은 클릭 가능 */
 }
 
 .admin-navbar {
   width: 100%;
-  background: #111;
-  border-bottom: 1px solid #333;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
   padding: 10px 20px;
   display: flex;
   align-items: center;
@@ -98,26 +96,41 @@ common-layout {
 .sidebar-top {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-left: 2rem;
+  margin-bottom: 14px;
+  padding: 0 23px;
 }
 
+/* 로고 영역 스타일 */
 .logo a {
+  display: inline-block;
+}
+
+.logo img {
+  max-width: 65px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* 이미지를 불러오지 못했을 때 노출되는 대체 텍스트 스타일 */
+.logo-fallback-text {
+  display: none;
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: 0.05em;
-  color: #eee;
+  color: #111;
 }
 
 .nav-links-wrapper {
   width: 100%;
 }
 
+/* 1차 상위 목차 */
 .nav-links {
   display: flex;
   flex-direction: column;
   list-style: none;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
 }
 
@@ -129,64 +142,53 @@ common-layout {
 
 .nav-parent-link {
   display: block;
-  color: #999;
-  padding: 0.5rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 500;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  color: #000;
+  padding: 6px 23px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: default; /* 마우스 커서를 기본 모양으로 고정 */
 }
 
-.nav-parent-link:hover,
-.nav-parent-link.active {
-  color: #fff;
-}
-
-/* 우측 본문 및 푸터 전용 열 */
-.main-wrapper {
-  flex: 1;
+.nav-sub-links {
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  list-style: none;
+  padding-left: 45px; /* 탭 들여쓰기 */
+  margin-top: 2px;
+  margin-bottom: 6px;
+  gap: 2px;
+}
+
+.nav-sub-link {
+  display: block;
+  color: #666;
+  padding: 3px 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+/* 화면 전체를 차지하는 본문 및 푸터 영역 */
+.main-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   position: relative;
   padding: 0;
 }
 
-/* 하위 카테고리 가로 나열 바 */
-.sub-nav-bar {
-  background: transparent;
-  border: none;
-  padding: 2.5rem;
-}
-
-.sub-nav-links {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-  gap: 4rem;
-  align-items: center;
-}
-
-.sub-nav-links li a {
-  font-size: 1.3rem;
-  color: #777;
-  font-weight: 300;
-  transition: color 0.2s;
-}
-
-.sub-nav-links li a:hover,
-.sub-nav-links li a.active {
-  color: #fff;
-}
-
 .content-body {
   flex: 1;
+  width: 100%;
 }
 
 .container {
   position: relative;
-  max-width: 1080px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 1.8rem 1rem;
+  padding: 20px;
 }
 
 .container .pagination-container {
@@ -195,20 +197,20 @@ common-layout {
 
 .admin-content-pane .pagination-container {
   margin-top: 0;
-  border-top: 1px solid #333;
+  border-top: 1px solid #eee;
 }
 
 /* 헤더: 본문 가운데 정렬 및 가로 너비 축소 */
 .header {
-  background: #444;
-  border: 1px solid #555;
+  background: #fafafa;
+  border: 1px solid #eaeaea;
   position: relative;
   width: 100%;
-  max-width: 540px;
-  margin: 0 auto 20px auto;
+  max-width: 350px;
+  margin: 70px auto 20px auto;
   padding: 1.4rem 2rem;
   text-align: center;
-  color: #ddd;
+  color: #555;
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -222,16 +224,20 @@ common-layout {
 .empty-grid-message {
   grid-column: 1 / -1;
   text-align: center;
-  color: #888;
+  color: #444;
   padding: 2rem 0;
 }
 
 /* 푸터 스타일 */
 .footer {
+  position: sticky;
+  bottom: 0;
   width: 100%;
-  text-align: center;
-  padding: 45px 0;
-  color: #ddd;
+  background-color: none;
+  z-index: 200;
+  text-align: left;
+  padding: 23px;
+  color: #777;
   font-size: 0.8rem;
   margin-top: 80px;
   box-sizing: border-box;
@@ -332,9 +338,8 @@ common-layout {
 }
 
 .card .card-thumb {
-  background: #111;
-  border: solid 1px #333;
-  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
+  background: #fff;
+  border: 1px solid  #eee;
   position: relative;
   width: 100%;
   overflow: hidden;
@@ -353,10 +358,9 @@ common-layout {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #222;
-  color: #999;
-  font-size: 1.1rem;
-  font-weight: 500;
+  background-color: #eaeaea;
+  color: #777;
+  font-size: 0.95rem;
   letter-spacing: 0.03em;
   aspect-ratio: 1 / 1;
   padding: 1rem;
@@ -370,8 +374,8 @@ common-layout {
 .card-thumb.text-thumb.private-thumb,
 .card-thumb.text-thumb.sensitive-thumb,
 .card-thumb.text-thumb.placeholder-thumb {
-  background-color: #555;
-  color: #bbb;
+  background-color: #eaeaea;
+  color: #777;
 }
 
 .card-thumb.text-thumb span {
@@ -397,16 +401,16 @@ common-layout {
 .oc-card-name {
   font-weight: 600;
   font-size: 1rem;
-  color: #fff;
-  line-height: 1.4;
+  color: #111;
+  line-height: 1;
   word-break: keep-all;
 }
 
 .oc-card-foreign-name {
   font-size: 0.8rem;
-  color: #888;
-  margin-top: 0px;
-  line-height: 1.4;
+  color: #777;
+  margin-top: 6px;
+  line-height: 1;
   word-break: break-all;
 }
 
@@ -423,7 +427,7 @@ common-layout {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #111;
+  background: #fff;
   z-index: 3000;
   justify-content: center;
   align-items: center;
@@ -450,10 +454,10 @@ common-layout {
   position: fixed;
   top: 15px;
   right: 15px;
-  background: #111;
+  background: #fff;
   border: none;
   border-radius: 50px;
-  color: #eee;
+  color: #aaa;
   font-size: 2.2rem;
   line-height: 1;
   cursor: pointer;
@@ -472,7 +476,7 @@ common-layout {
   justify-content: center;
   box-sizing: border-box;
   transform: translateZ(0);
-  background: #111;
+  background: #fff;
 }
 
 .fanworks-modal .modal-image-container {
@@ -486,7 +490,7 @@ common-layout {
   gap: 16px;
   overflow: hidden;
   object-fit: contain;
-  background: #111;
+  background: #fff;
 }
 
 .fanworks-modal .fanworks-modal-content {
@@ -497,7 +501,6 @@ common-layout {
   cursor: pointer;
   outline: none;
   border: solid 1px #eee;
-  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
 }
 
 .fanworks-modal .modal-caption-container {
@@ -506,8 +509,8 @@ common-layout {
   max-height: 100vh;
   padding: 150px 60px 40px 0px;
   margin-left: 0;
-  background: #111;
-  color: #ccc;
+  background: #fff;
+  color: #333;
   font-size: 0.95rem;
   line-height: 1.6;
   overflow-y: auto;
@@ -526,7 +529,7 @@ common-layout {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #111;
+  background: #fff;
 }
 
 .oc-modal .fanworks-modal-content {
@@ -544,8 +547,8 @@ common-layout {
   height: 100vh;
   max-height: 100vh;
   padding: 80px 60px 40px 80px;
-  background: #111;
-  color: #ccc;
+  background: #fff;
+  color: #333;
   font-size: 0.95rem;
   line-height: 1.6;
   overflow-y: auto;
@@ -557,8 +560,8 @@ common-layout {
 .oc-portrait-placeholder.text-thumb {
   width: 100%;
   height: 100%;
-  background: #222;
-  color: #888;
+  background: #eee;
+  color: #666;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -572,7 +575,7 @@ common-layout {
   flex-direction: column;
   padding-bottom: 25px;
   margin-bottom: 18px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #ccc;
   flex-shrink: 0;
   line-height: 1;
 }
@@ -580,7 +583,7 @@ common-layout {
 .oc-info-name {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #fff;
+  color: #333;
   margin-bottom: 8px;
   word-break: keep-all;
   white-space: pre-wrap;
@@ -626,7 +629,7 @@ common-layout {
 .modal-meta-pages,
 .modal-caption-text {
   font-size: 0.95rem;
-  color: #ccc;
+  color: #666;
   line-height: 1.6;
   margin: 0;
   word-break: break-all;
@@ -662,8 +665,8 @@ common-layout {
   top: 50%;
   transform: translateY(-50%);
   background-color: rgba(0, 0, 0, 0.6);
-  color: #eee;
-  border: 1px solid #444;
+  color: #777;
+  border: 1px solid #ccc;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -677,7 +680,7 @@ common-layout {
 
 .modal-arrow svg {
   display: block;
-  stroke: #eee;
+  stroke: #666;
   position: relative;
   width: 24px;
   height: 24px;
@@ -695,8 +698,8 @@ common-layout {
   inset: 0;
   width: 100%;
   height: 100%;
-  background-color: #161616;
-  color: #eee;
+  background-color: #eee;
+  color: #666;
   z-index: 10005;
   display: flex;
   flex-direction: column;
@@ -711,14 +714,14 @@ common-layout {
 .oc-warning-title {
   font-weight: 700;
   font-size: 1.15rem;
-  color: #fff;
+  color: #222;
   letter-spacing: -0.01em;
   margin-bottom: 4px;
 }
 
 .oc-warning-desc {
   font-size: 0.95rem;
-  color: #bbb;
+  color: #666;
   word-break: keep-all;
   max-width: 480px;
   line-height: 1.5;
@@ -732,8 +735,10 @@ common-layout {
 #favs-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 50px;
+  gap: 18px;
+  row-gap: 38px;
   margin-top: 80px;
+  padding: 0 100px;
 }
 
 @media (min-width: 768px) {
@@ -743,23 +748,22 @@ common-layout {
 }
 
 .favs-block {
-  background: #222;
-  border: 1px solid #444;
-  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.02);
+  background: #fff;
+  border: 1px solid #eaeaea;
   border-radius: 0px;
-  padding: 1.3rem 1.7rem 1.7rem;
+  padding: 15px 18px 17px;
 }
 
 .favs-block .title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #fff;
+  color: #000;
   margin-bottom: 0.7rem;
 }
 
 .favs-block .line {
   font-size: 0.9rem;
-  color: #ccc;
+  color: #666;
   line-height: 1.6;
 }
 
@@ -782,8 +786,8 @@ common-layout {
 }
 
 .filter-modal-content {
-  background: #111;
-  border: 1px solid #444;
+  background: #fff;
+  border: 1px solid #ccc;
   width: 750px;
   max-width: 90vw;
   max-height: 80vh;
@@ -797,14 +801,14 @@ common-layout {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #ccc;
   padding-bottom: 0.8rem;
 }
 
 .filter-modal-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #eee;
+  color: #222;
 }
 
 .filter-close-btn {
@@ -886,9 +890,9 @@ common-layout {
 .btn-dark-long,
 .filter-open-btn,
 .filter-apply-btn {
-  background-color: #111;
-  color: #eee;
-  border: 1px solid #444;
+  background-color: #ccc;
+  color: #111;
+  border: 1px solid #bbb;
   border-radius: 0px;
   cursor: pointer;
   font-weight: 600;
@@ -901,7 +905,7 @@ common-layout {
 
 .btn-dark-long,
 .filter-open-btn {
-  padding: 20px 21px 23px;
+  padding: 8px 21px 10px;
   font-size: 0.9rem;
 }
 
@@ -977,11 +981,11 @@ input:checked + .slider:before {
   min-width: 32px;
   height: 32px;
   padding: 0 6px;
-  background: #333;
-  border: 1px solid #555;
+  background: #ddd;
+  border: 1px solid #ccc;
   border-radius: 0%;
   font-size: 0.9rem;
-  color: #eee;
+  color: #888;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -989,8 +993,8 @@ input:checked + .slider:before {
 }
 
 .pagination-container button.active {
-  background-color: #fff;
-  color: #111;
+  background-color: #111;
+  color: #fff;
   font-weight: 500;
 }
 

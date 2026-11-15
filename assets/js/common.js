@@ -26,6 +26,10 @@ class CommonLayout extends HTMLElement {
         const isPagesFolder = window.location.pathname.includes('/pages/');
 
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
+        
+        // 폴더 위치에 따른 로고 이미지 경로 분기 처리
+        const logoPath = isPagesFolder ? '../assets/images/banana.gif' : 'assets/images/banana.gif';
+
         const worldsPath = isPagesFolder ? 'worlds.html' : 'pages/worlds.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
         const fanworksPath = isPagesFolder ? 'fanworks.html' : 'pages/fanworks.html';
@@ -34,7 +38,6 @@ class CommonLayout extends HTMLElement {
         const navItems = [
             {
                 name: '1차 창작',
-                href: worldsPath,
                 children: [
                     { name: 'OC', href: ocsPath },
                     { name: '세계관', href: worldsPath }
@@ -42,7 +45,6 @@ class CommonLayout extends HTMLElement {
             },
             {
                 name: '2차 창작',
-                href: favsPath,
                 children: [
                     { name: '관심 작품', href: favsPath },
                     { name: '갤러리', href: fanworksPath }
@@ -55,52 +57,48 @@ class CommonLayout extends HTMLElement {
         const navLinksHTML = navItems.map(item => {
             const hasChildren = item.children && item.children.length > 0;
             const isChildActive = hasChildren && item.children.some(child => child.href.includes(currentFileName));
-            const isParentActive = item.href.includes(currentFileName) || isChildActive;
+            const isParentActive = isChildActive; // 상위 카테고리는 하위 메뉴가 활성화되었을 때만 활성화
+
+            const childrenHTML = hasChildren ? `
+                <ul class="nav-sub-links">
+                    ${item.children.map(child => {
+                        const isSubActive = child.href.includes(currentFileName);
+                        return `
+                            <li>
+                                <a href="${child.href}" class="nav-sub-link ${isSubActive ? 'active' : ''}">${child.name}</a>
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>
+            ` : '';
 
             return `
                 <li class="${hasChildren ? 'has-children' : ''} ${isParentActive ? 'active-parent' : ''}" data-name="${item.name}">
-                    <a href="${item.href}" class="nav-parent-link ${isParentActive ? 'active' : ''}">${item.name}</a>
+                    <span class="nav-parent-link ${isParentActive ? 'active' : ''}">${item.name}</span>
+                    ${childrenHTML}
                 </li>
             `;
         }).join('');
 
-        let subNavHTML = '';
-        const activeParentItem = navItems.find(item => {
-            if (!item.children) return false;
-            return item.href.includes(currentFileName) || item.children.some(child => child.href.includes(currentFileName));
-        });
-
-        if (activeParentItem && activeParentItem.children) {
-            subNavHTML = `
-                <div class="sub-nav-bar">
-                    <ul class="sub-nav-links">
-                        ${activeParentItem.children.map(child => {
-                            const isSubActive = child.href.includes(currentFileName);
-                            return `<li><a href="${child.href}" class="${isSubActive ? 'active' : ''}">${child.name}</a></li>`;
-                        }).join('')}
-                    </ul>
-                </div>
-            `;
-        }
-
-        // 좌측 navbar 전용 열(.navbar-column)과 우측 콘텐츠 전용 열(.main-wrapper) 분리
         this.innerHTML = `
             <div class="layout-container">
-                <div class="navbar-column">
-                    <nav class="navbar">
-                        <div class="sidebar-top">
-                            <div class="logo"><a href="${indexPath}">창작</a></div>
+                <nav class="navbar">
+                    <div class="sidebar-top">
+                        <div class="logo">
+                            <a href="${indexPath}">
+                                <img src="${logoPath}" alt="로고" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <span class="logo-fallback-text">창작</span>
+                            </a>
                         </div>
-                        <div class="nav-links-wrapper">
-                            <ul class="nav-links">
-                                ${navLinksHTML}
-                            </ul>
-                        </div>
-                    </nav>
-                </div>
+                    </div>
+                    <div class="nav-links-wrapper">
+                        <ul class="nav-links">
+                            ${navLinksHTML}
+                        </ul>
+                    </div>
+                </nav>
 
                 <div class="main-wrapper">
-                    ${subNavHTML}
                     <div class="content-body"></div>
                     <footer class="footer">
                         <p>© 2026. All rights reserved.</p>
