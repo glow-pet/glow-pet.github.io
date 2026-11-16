@@ -84,7 +84,7 @@ common-layout {
   display: flex;
   align-items: center;
   margin-bottom: 14px;
-  padding: 0 23px;
+  padding: 0 20px;
 }
 
 .logo a {
@@ -92,7 +92,7 @@ common-layout {
 }
 
 .logo img {
-  max-width: 65px;
+  max-width: 70px;
   height: auto;
   display: block;
   object-fit: contain;
@@ -127,7 +127,7 @@ common-layout {
 .nav-parent-link {
   display: block;
   color: #111;
-  padding: 6px 23px;
+  padding: 6px 28px;
   font-size: 1rem;
   font-weight: 600;
   cursor: default;
@@ -137,7 +137,7 @@ common-layout {
   display: flex;
   flex-direction: column;
   list-style: none;
-  padding-left: 45px;
+  padding-left: 53px;
   margin-top: 2px;
   margin-bottom: 6px;
   gap: 2px;
@@ -151,6 +151,111 @@ common-layout {
   font-weight: 400;
   position: relative;
   transition: color 0.2s ease;
+}
+
+.menu-toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative; /* 자식 요소(아이콘 박스)의 절대 위치 기준점 */
+  display: inline-block;
+  width: auto;
+}
+
+.menu-toggle-btn .logo {
+  display: block;
+}
+
+.hamburger-icon-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent; /* 배경 투명 */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 로고 정가운데 정렬 */
+  pointer-events: none;    /* 클릭 이벤트가 부모 버튼으로 자연스럽게 전달되도록 설정 */
+}
+
+.hamburger-icon-box svg {
+  stroke: #4f3d3c; /* 원하는 색상 코드로 변경 */
+}
+
+/* 닫기(X) 아이콘 크기 키우기 */
+.hamburger-icon-box .icon-close svg {
+  width: 30px;   /* 원하는 크기로 변경 (기본 24px) */
+  height: 30px;  /* 원하는 크기로 변경 (기본 24px) */
+}
+
+.hamburger-icon-box .icon-hamburger,
+.hamburger-icon-box .icon-close {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: opacity 0.2s ease; /* opacity만을 사용한 애니메이션 */
+}
+
+.hamburger-icon-box .icon-hamburger {
+  opacity: 1;
+}
+
+.hamburger-icon-box .icon-close {
+  opacity: 0;
+}
+
+/* 메뉴가 열렸을 때 아이콘 전환 (opacity 활용) */
+.navbar.menu-open .hamburger-icon-box .icon-hamburger {
+  opacity: 0;
+}
+
+.navbar.menu-open .hamburger-icon-box .icon-close {
+  opacity: 1;
+}
+
+/* nav-links 기본 숨김 처리 및 opacity 애니메이션 적용 */
+.navbar .nav-links-wrapper {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.navbar.menu-open .nav-links-wrapper {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.menu-bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.9); /* 반투명한 흰색 배경 */
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease; /* 오직 opacity 속성만 애니메이션 적용 */
+}
+
+.navbar.menu-open .menu-bg-overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* 오버레이 위로 로고/버튼과 내비게이션 링크가 오도록 z-index 설정 */
+.sidebar-top,
+.nav-links-wrapper {
+  position: relative;
+  z-index: 1002;
 }
 
 .main-wrapper {
@@ -208,7 +313,7 @@ body.page-favs .container {
   margin: 60px auto 20px auto;
   padding: 1.4rem 2rem;
   text-align: center;
-  color: #56403e;
+  color: #4f3d3c;
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -231,7 +336,7 @@ body.page-favs .container {
   bottom: 0;
   width: 100%;
   background-color: none;
-  z-index: 200;
+  z-index: 2000;
   text-align: left;
   padding: 20px;
   color: #999;
@@ -470,7 +575,7 @@ body.page-ocs .crop-square .card-thumb {
   box-sizing: border-box;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
 }
 
 .oc-modal {
@@ -773,6 +878,12 @@ body.page-ocs .crop-square .card-thumb {
   row-gap: 40px;
   margin-top: 80px;
   padding: 0 0px;
+}
+
+@media (min-width: 480px) {
+  #favs-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 768px) {

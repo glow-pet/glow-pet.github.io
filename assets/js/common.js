@@ -26,7 +26,7 @@ class CommonLayout extends HTMLElement {
         const isPagesFolder = window.location.pathname.includes('/pages/');
 
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
-        const logoPath = isPagesFolder ? '../assets/images/banana.gif' : 'assets/images/banana.gif';
+        const logoPath = isPagesFolder ? '../assets/images/banana.png' : 'assets/images/banana.png';
 
         const worldsPath = isPagesFolder ? 'worlds.html' : 'pages/worlds.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
@@ -34,6 +34,7 @@ class CommonLayout extends HTMLElement {
         const favsPath = isPagesFolder ? 'favs.html' : 'pages/favs.html';
 
         const navItems = [
+            { name: '홈', herf: indexPath },
             {
                 name: '1차 창작',
                 children: [
@@ -83,13 +84,22 @@ class CommonLayout extends HTMLElement {
         this.innerHTML = `
             <div class="layout-container">
                 <nav class="navbar">
+                    <div class="menu-bg-overlay"></div>
                     <div class="sidebar-top">
-                        <div class="logo">
-                            <a href="${indexPath}">
+                        <button type="button" class="menu-toggle-btn" aria-label="메뉴 토글">
+                            <div class="logo">
                                 <img src="${logoPath}" alt="로고" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                 <span class="logo-fallback-text">창작</span>
-                            </a>
-                        </div>
+                            </div>
+                            <div class="hamburger-icon-box">
+                                <span class="icon-hamburger">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                                </span>
+                                <span class="icon-close">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </span>
+                            </div>
+                        </button>
                     </div>
                     <div class="nav-links-wrapper">
                         <ul class="nav-links">
@@ -107,6 +117,15 @@ class CommonLayout extends HTMLElement {
             </div>
         `;
 
+        // 메뉴 토글 이벤트 리스너 연결
+        const navbar = this.querySelector('.navbar');
+        const menuToggleBtn = this.querySelector('.menu-toggle-btn');
+        if (menuToggleBtn && navbar) {
+            menuToggleBtn.addEventListener('click', () => {
+                navbar.classList.toggle('menu-open');
+            });
+        }
+
         const mainContent = this.querySelector('.content-body');
         originalChildren.forEach(node => {
             mainContent.appendChild(node);
@@ -118,7 +137,6 @@ class CommonLayout extends HTMLElement {
             headerH1.remove();
         }
 
-        // 웹 컴포넌트 마운트 완료 후 앱 초기화 함수 호출 안전장치
         if (typeof window.loadGallery === 'function') {
             window.loadGallery();
         }
