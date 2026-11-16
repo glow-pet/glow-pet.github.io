@@ -126,7 +126,7 @@ common-layout {
 
 .nav-parent-link {
   display: block;
-  color: #000;
+  color: #111;
   padding: 6px 23px;
   font-size: 1rem;
   font-weight: 600;
@@ -145,7 +145,7 @@ common-layout {
 
 .nav-sub-link {
   display: block;
-  color: #666;
+  color: #555;
   padding: 3px 0;
   font-size: 0.9rem;
   font-weight: 400;
@@ -200,7 +200,7 @@ body.page-favs .container {
 }
 
 .header {
-  background: #fafafa;
+  background: #eee;
   border: 1px solid #ddd;
   position: relative;
   width: 100%;
@@ -208,7 +208,7 @@ body.page-favs .container {
   margin: 60px auto 20px auto;
   padding: 1.4rem 2rem;
   text-align: center;
-  color: #555;
+  color: #56403e;
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -382,7 +382,7 @@ body.page-favs .container {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fff5c2;
+  background-color: #fff3be;
   color: #56403e;
   font-size: 0.95rem;
   letter-spacing: 0.03em;
@@ -404,7 +404,7 @@ body.page-ocs .card-thumb.text-thumb {
 .card-thumb.text-thumb.private-thumb,
 .card-thumb.text-thumb.sensitive-thumb,
 .card-thumb.text-thumb.placeholder-thumb {
-  background-color: #fff5c2;
+  background-color: #fff3be;
   color: #56403e;
 }
 
@@ -782,8 +782,8 @@ body.page-ocs .crop-square .card-thumb {
 }
 
 .favs-block {
-  background: #fff5c2;
-  border: 1px solid #ddd;
+  background: #fff;
+  border: 1px solid #ffe058;
   border-radius: 0px;
   padding: 15px 20px 17px;
 }
@@ -822,7 +822,7 @@ body.page-ocs .crop-square .card-thumb {
 
 .filter-modal-content {
   background: #fff;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   width: 750px;
   max-width: 90vw;
   max-height: 80vh;
@@ -904,12 +904,12 @@ body.page-ocs .crop-square .card-thumb {
 
 .tri-state-checkbox.include {
   background-color: #56403e;
-  color: #fff5c2;
+  color: #fff3be;
   border-color: #ddd;
 }
 
 .tri-state-checkbox.exclude {
-  background-color: #fff5c2;
+  background-color: #fff3be;
   color: #56403e;
   border-color: #ddd;
 }
@@ -925,9 +925,9 @@ body.page-ocs .crop-square .card-thumb {
 .btn-dark-long,
 .filter-open-btn,
 .filter-apply-btn {
-  color: #fff5c2;
+  color: #fff3be;
   background-color: #56403e;
-  border: 1px solid #bbb;
+  border: 1px solid #ddd;
   border-radius: 0px;
   cursor: pointer;
   font-weight: 600;
@@ -1302,7 +1302,7 @@ input:checked + .slider:before {
   font-size: 0.8rem;
   font-weight: 600;
   background: #56403e;
-  color: #fff5c2;
+  color: #fff3be;
   padding: 5px 8px;
   border-radius: 0px;
   margin-bottom: 6px;
