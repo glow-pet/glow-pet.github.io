@@ -28,10 +28,11 @@ class CommonLayout extends HTMLElement {
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
         const logoPath = isPagesFolder ? '../assets/images/banana.png' : 'assets/images/banana.png';
 
-        const worldsPath = isPagesFolder ? 'worlds.html' : 'pages/worlds.html';
         const ocsPath = isPagesFolder ? 'ocs.html' : 'pages/ocs.html';
-        const fanworksPath = isPagesFolder ? 'fanworks.html' : 'pages/fanworks.html';
+        const worldsPath = isPagesFolder ? 'worlds.html' : 'pages/worlds.html';
         const favsPath = isPagesFolder ? 'favs.html' : 'pages/favs.html';
+        const yumesPath = isPagesFolder ? 'yumes.html' : 'pages/yumes.html';
+        const fanworksPath = isPagesFolder ? 'fanworks.html' : 'pages/fanworks.html';
 
         const navItems = [
             { name: '홈', href: indexPath },
@@ -46,6 +47,7 @@ class CommonLayout extends HTMLElement {
                 name: '2차 창작',
                 children: [
                     { name: '관심 작품', href: favsPath },
+                    { name: '드림', href: yumesPath },
                     { name: '갤러리', href: fanworksPath }
                 ]                
             }

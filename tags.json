@@ -40,6 +40,10 @@
                     "relations": [
                         "라라x마리"
                     ]
+                },
+                {
+                    "name": "리사",
+                    "relations": []
                 }
             ]
         },
@@ -111,6 +115,15 @@
                 },
                 {
                     "name": "아이",
+                    "relations": []
+                }
+            ]
+        },
+        {
+            "name": "홈스턱",
+            "characters": [
+                {
+                    "name": "테레지",
                     "relations": []
                 }
             ]

@@ -1,0 +1,34 @@
+[
+    {
+        "id": 2,
+        "tags": [
+            "홈스턱",
+            "테레지"
+        ],
+        "startDate": "2026-11-06",
+        "work": "홈스턱",
+        "character": "테레지 파이로프",
+        "dreamer": "고십 위버",
+        "image": "",
+        "images": [],
+        "private": false,
+        "order": 0
+    },
+    {
+        "id": 1,
+        "tags": [
+            "안녕 라라",
+            "리사"
+        ],
+        "startDate": "2026-10-24",
+        "work": "안녕 라라",
+        "character": "시오미 리사",
+        "dreamer": "쿠리야마 시구레",
+        "image": "assets/images/fanworks/goodbye-lara/bafkreicodbsqcmciabs2deppqaqbacwtisaxkbwrfh3m3bnuc62i672esa.webp",
+        "images": [
+            "assets/images/fanworks/goodbye-lara/bafkreicodbsqcmciabs2deppqaqbacwtisaxkbwrfh3m3bnuc62i672esa.webp"
+        ],
+        "private": false,
+        "order": 1
+    }
+]

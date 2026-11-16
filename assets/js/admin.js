@@ -1,10 +1,14 @@
 let fanworksData = [];
 let profilesData = [];
 let favsData = [];
+let yumesData = [];
+let worldsData = [];
 let tagsData = { works: [] };
 let currentOcThumbnails = [];
 let currentOcPortraits = [];
+let currentWorldThumbnails = [];
 let currentImages = [];
+let currentYumeImages = [];
 let initialFormState = '';
 let activeTagFilters = {}; 
 let currentSelectedCategory = null;
@@ -26,20 +30,36 @@ const GENRE_FOLDER_MAP = {
 
 async function loadData() {
     try {
-        const [fanworksRes, profilesRes, favsRes, tagsRes] = await Promise.all([
+        const [fanworksRes, profilesRes, favsRes, yumesRes, worldsRes, tagsRes] = await Promise.all([
             fetch('fanworks.json'),
             fetch('profiles.json').catch(() => ({ ok: false })),
             fetch('favs.json').catch(() => ({ ok: false })),
+            fetch('yumes.json').catch(() => ({ ok: false })),
+            fetch('worlds.json').catch(() => ({ ok: false })),
             fetch('tags.json')
         ]);
         if (fanworksRes.ok) fanworksData = await fanworksRes.json();
         if (profilesRes && profilesRes.ok) profilesData = await profilesRes.json();
         if (favsRes && favsRes.ok) favsData = await favsRes.json();
+        if (yumesRes && yumesRes.ok) yumesData = await yumesRes.json();
+        if (worldsRes && worldsRes.ok) worldsData = await worldsRes.json();
         if (tagsRes.ok) tagsData = await tagsRes.json();
     } catch (e) {
         console.error('데이터 로드 실패', e);
         alert('데이터 파일을 불러오지 못했습니다. Live Server 환경을 확인해주세요.');
     }
+}
+
+function calculateDDay(startDateStr) {
+    if (!startDateStr) return '';
+    const parts = startDateStr.split('-');
+    if (parts.length !== 3) return '';
+    const start = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffTime = today.getTime() - start.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // 당일을 1일로 계산
+    return diffDays >= 1 ? `D+${diffDays}` : `D${diffDays - 1}`;
 }
 
 window.selectCategory = function(category) {
@@ -84,6 +104,10 @@ function renderGrid() {
         targetData = [...profilesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     } else if (activeCategory === '관심작품') {
         targetData = [...favsData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    } else if (activeCategory === '드림') {
+        targetData = [...yumesData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    } else if (activeCategory === '세계관') {
+        targetData = [...worldsData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     } else {
         targetData = [...fanworksData].sort((a, b) => {
             const dateA = new Date(a.date || 0);
@@ -150,6 +174,53 @@ function renderGrid() {
                 </div>
             `;
         }).join('');
+    } else if (activeCategory === '드림') {
+        grid.innerHTML = slicedData.map(item => {
+            const thumb = item.image || (item.images && item.images[0]) || '';
+            const dDayText = calculateDDay(item.startDate);
+            const charPair = [item.character, item.dreamer].filter(Boolean).join(' × ');
+            const statusHtml = item.private ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">비공개</div>` : '';
+
+            return `
+                <div class="admin-card-item">
+                    <div style="position: absolute; top: 14px; right: 1rem; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                        <button class="admin-action-btn" onclick="openEditEditor(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
+                        <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+                    </div>
+                    <div class="admin-thumb-preview">
+                        ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
+                    </div>
+                    <div class="admin-card-info" style="flex: 1; min-width: 0;">
+                        <div style="font-weight: bold; font-size: 0.95rem;">${item.work || ''}</div>
+                        <div class="admin-card-meta">${charPair}</div>
+                        <div class="admin-card-meta">${item.startDate || ''} ${dDayText ? `(${dDayText})` : ''}</div>
+                        ${statusHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else if (activeCategory === '세계관') {
+        grid.innerHTML = slicedData.map(item => {
+            const thumb = item.thumbnail || (item.thumbnails && item.thumbnails[0]) || '';
+            const statusHtml = item.private ? `<div style="font-size: 0.75rem; color: #e74c3c; font-weight: 500; margin-top: 2px;">비공개</div>` : '';
+
+            return `
+                <div class="admin-card-item">
+                    <div style="position: absolute; top: 14px; right: 1rem; display: flex; gap: 16px; align-items: center; z-index: 5;">
+                        <button class="admin-action-btn" onclick="openEditEditor(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">수정</button>
+                        <button class="admin-action-btn" onclick="deleteCard(${item.id})" style="background: transparent; color: #888; padding: 0; font-size: 0.75rem; border: none; cursor: pointer;">삭제</button>
+                    </div>
+                    <div class="admin-thumb-preview">
+                        ${thumb ? `<img src="${thumb}" loading="lazy" onerror="this.src=''">` : '<span style="font-size:0.7rem; color:#aaa; display:flex; align-items:center; justify-content:center; height:100%;">없음</span>'}
+                    </div>
+                    <div class="admin-card-info" style="flex: 1; min-width: 0;">
+                        <div style="font-weight: bold; font-size: 0.95rem;">${item.title || ''}</div>
+                        <div class="admin-card-meta">${item.keywords || ''}</div>
+                        ${statusHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
     } else {
         grid.innerHTML = slicedData.map(post => {
             const images = (post.images && post.images.length > 0) ? post.images : [post['thumbnail-image'] || ''];
@@ -193,8 +264,6 @@ function renderAdminPagination(totalItems) {
     if (!paginationEl) return;
 
     const totalPages = Math.ceil(totalItems / adminItemsPerPage) || 1;
-    
-    // [수정] totalPages <= 1 조건문(return)을 제거하여 1페이지만 있어도 페이지네이션이 표시되도록 함
 
     let html = `<button type="button" class="page-arrow" ${currentAdminPage === 1 ? 'disabled' : ''} data-page="${currentAdminPage - 1}">&lt;</button>`;
     for (let i = 1; i <= totalPages; i++) {
@@ -214,16 +283,12 @@ function renderAdminPagination(totalItems) {
     });
 }
 
-function updateRatingStatesBasedOnInputs() {}
-function updateOcRatingStatesBasedOnInputs() {}
-
 function getFormState() {
     const warningContentInput = document.getElementById('cardWarningContent');
     const externalLinkInput = document.getElementById('cardExternalLink');
     const warningVal = warningContentInput ? warningContentInput.value.trim() : '';
     const linkVal = externalLinkInput ? externalLinkInput.value.trim() : '';
     
-    // name="admin-rating" 라디오 버튼 중 체크된 값 가져오기
     const checkedRating = document.querySelector('input[name="admin-rating"]:checked');
     const ratingVal = checkedRating ? checkedRating.value : 'all';
 
@@ -273,6 +338,29 @@ function getFavFormState() {
     });
 }
 
+function getYumeFormState() {
+    return JSON.stringify({
+        tags: document.getElementById('yumeTags').value,
+        startDate: document.getElementById('yumeStartDate').value,
+        work: document.getElementById('yumeWork').value,
+        character: document.getElementById('yumeCharacter').value,
+        dreamer: document.getElementById('yumeDreamer').value,
+        images: [...currentYumeImages],
+        private: document.getElementById('yumePrivate').checked
+    });
+}
+
+function getWorldFormState() {
+    const privateEl = document.getElementById('worldPrivate');
+    return JSON.stringify({
+        title: document.getElementById('worldTitle') ? document.getElementById('worldTitle').value : '',
+        keywords: document.getElementById('worldKeywords') ? document.getElementById('worldKeywords').value : '',
+        thumbnails: [...currentWorldThumbnails],
+        description: document.getElementById('worldDescription') ? document.getElementById('worldDescription').value : '',
+        private: privateEl ? privateEl.checked : false
+    });
+}
+
 function checkFormChanges() {
     const saveBtn = document.getElementById('saveBtn');
     if (!saveBtn) return;
@@ -309,22 +397,50 @@ function checkFavFormChanges() {
     }
 }
 
+function checkYumeFormChanges() {
+    const saveBtn = document.getElementById('yumeSaveBtn');
+    if (!saveBtn) return;
+    if (getYumeFormState() !== initialFormState) {
+        saveBtn.removeAttribute('disabled');
+        saveBtn.style.opacity = '1';
+    } else {
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.style.opacity = '0.5';
+    }
+}
+
+function checkWorldFormChanges() {
+    const saveBtn = document.getElementById('worldSaveBtn');
+    if (!saveBtn) return;
+    if (getWorldFormState() !== initialFormState) {
+        saveBtn.removeAttribute('disabled');
+        saveBtn.style.opacity = '1';
+    } else {
+        saveBtn.setAttribute('disabled', 'true');
+        saveBtn.style.opacity = '0.5';
+    }
+}
+
+function hideAllFormsAndButtons() {
+    ['fanworkForm', 'ocForm', 'favForm', 'yumeForm', 'worldForm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    ['saveBtn', 'ocSaveBtn', 'favSaveBtn', 'yumeSaveBtn', 'worldSaveBtn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+}
+
 window.openEditEditor = function(id) {
-    const fanworkForm = document.getElementById('fanworkForm');
-    const ocForm = document.getElementById('ocForm');
-    const favForm = document.getElementById('favForm');
-    const saveBtn = document.getElementById('saveBtn');
-    const ocSaveBtn = document.getElementById('ocSaveBtn');
-    const favSaveBtn = document.getElementById('favSaveBtn');
+    hideAllFormsAndButtons();
     const idDisplay = document.getElementById('editorIdDisplay');
 
     if (currentSelectedCategory === '1차창작') {
-        if (fanworkForm) fanworkForm.style.display = 'none';
+        const ocForm = document.getElementById('ocForm');
+        const ocSaveBtn = document.getElementById('ocSaveBtn');
         if (ocForm) ocForm.style.display = 'flex';
-        if (favForm) favForm.style.display = 'none';
-        if (saveBtn) saveBtn.style.display = 'none';
         if (ocSaveBtn) ocSaveBtn.style.display = 'inline-block';
-        if (favSaveBtn) favSaveBtn.style.display = 'none';
 
         const item = profilesData.find(p => p.id === id);
         const ocPrivateEl = document.getElementById('ocPrivate');
@@ -353,7 +469,6 @@ window.openEditEditor = function(id) {
             const ratingToSelect = item.rating || 'all';
             const targetRadio = document.querySelector(`input[name="oc-admin-rating"][value="${ratingToSelect}"]`);
             if (targetRadio) targetRadio.checked = true;
-
         } else {
             document.getElementById('editorTitle').innerText = `새 캐릭터 프로필 추가`;
             const maxId = profilesData.reduce((max, p) => Math.max(max, p.id || 0), 0);
@@ -362,8 +477,8 @@ window.openEditEditor = function(id) {
             window.editingTargetId = null;
 
             if (ocForm) ocForm.reset();
-            currentOcThumbnails = item.thumbnails ? [...item.thumbnails] : (item.thumbnail ? [item.thumbnail] : []);
-            currentOcPortraits = item.portraits ? [...item.portraits] : (item.portrait ? [item.portrait] : []);
+            currentOcThumbnails = [];
+            currentOcPortraits = [];
             renderOcThumbnails();
             renderOcPortraits();
             if (ocPrivateEl) ocPrivateEl.checked = false;
@@ -373,11 +488,9 @@ window.openEditEditor = function(id) {
         initialFormState = getOcFormState();
         checkOcFormChanges();
     } else if (currentSelectedCategory === '관심작품') {
-        if (fanworkForm) fanworkForm.style.display = 'none';
-        if (ocForm) ocForm.style.display = 'none';
+        const favForm = document.getElementById('favForm');
+        const favSaveBtn = document.getElementById('favSaveBtn');
         if (favForm) favForm.style.display = 'flex';
-        if (saveBtn) saveBtn.style.display = 'none';
-        if (ocSaveBtn) ocSaveBtn.style.display = 'none';
         if (favSaveBtn) favSaveBtn.style.display = 'inline-block';
 
         const item = favsData.find(p => p.id === id);
@@ -403,12 +516,85 @@ window.openEditEditor = function(id) {
 
         initialFormState = getFavFormState();
         checkFavFormChanges();
+    } else if (currentSelectedCategory === '드림') {
+        const yumeForm = document.getElementById('yumeForm');
+        const yumeSaveBtn = document.getElementById('yumeSaveBtn');
+        if (yumeForm) yumeForm.style.display = 'flex';
+        if (yumeSaveBtn) yumeSaveBtn.style.display = 'inline-block';
+
+        const item = yumesData.find(p => p.id === id);
+        const yumePrivateEl = document.getElementById('yumePrivate');
+
+        if (item) {
+            document.getElementById('editorTitle').innerText = `수정`;
+            if (idDisplay) idDisplay.innerText = `(ID: ${item.id})`;
+            window.editingTargetId = item.id;
+
+            document.getElementById('yumeTags').value = (item.tags || []).join(', ');
+            document.getElementById('yumeStartDate').value = item.startDate || '';
+            document.getElementById('yumeWork').value = item.work || '';
+            document.getElementById('yumeCharacter').value = item.character || '';
+            document.getElementById('yumeDreamer').value = item.dreamer || '';
+            if (yumePrivateEl) yumePrivateEl.checked = !!item.private;
+
+            currentYumeImages = item.images ? [...item.images] : (item.image ? [item.image] : []);
+        } else {
+            document.getElementById('editorTitle').innerText = `새 드림 카드 추가`;
+            const maxId = yumesData.reduce((max, p) => Math.max(max, p.id || 0), 0);
+            const newId = maxId + 1;
+            if (idDisplay) idDisplay.innerText = `(ID: ${newId})`;
+            window.editingTargetId = null;
+
+            if (yumeForm) yumeForm.reset();
+            document.getElementById('yumeTags').value = '';
+            document.getElementById('yumeStartDate').value = new Date().toISOString().split('T')[0];
+            if (yumePrivateEl) yumePrivateEl.checked = false;
+            currentYumeImages = [];
+        }
+
+        renderYumeImages();
+        syncFilterStateFromInput('yumeTags');
+        initialFormState = getYumeFormState();
+        checkYumeFormChanges();
+    } else if (currentSelectedCategory === '세계관') {
+        const worldForm = document.getElementById('worldForm');
+        const worldSaveBtn = document.getElementById('worldSaveBtn');
+        if (worldForm) worldForm.style.display = 'flex';
+        if (worldSaveBtn) worldSaveBtn.style.display = 'inline-block';
+
+        const item = worldsData.find(p => p.id === id);
+        const worldPrivateEl = document.getElementById('worldPrivate');
+
+        if (item) {
+            document.getElementById('editorTitle').innerText = `수정`;
+            if (idDisplay) idDisplay.innerText = `(ID: ${id})`;
+            window.editingTargetId = item.id;
+            
+            document.getElementById('worldTitle').value = item.title || '';
+            document.getElementById('worldKeywords').value = item.keywords || '';
+            currentWorldThumbnails = item.thumbnails ? [...item.thumbnails] : (item.thumbnail ? [item.thumbnail] : []);
+            renderWorldThumbnails();
+            document.getElementById('worldDescription').value = item.description || '';
+            if (worldPrivateEl) worldPrivateEl.checked = !!item.private;
+        } else {
+            document.getElementById('editorTitle').innerText = `새 세계관 추가`;
+            const maxId = worldsData.reduce((max, p) => Math.max(max, p.id || 0), 0);
+            const newId = maxId + 1;
+            if (idDisplay) idDisplay.innerText = `(ID: ${newId})`;
+            window.editingTargetId = null;
+
+            if (worldForm) worldForm.reset();
+            currentWorldThumbnails = [];
+            renderWorldThumbnails();
+            if (worldPrivateEl) worldPrivateEl.checked = false;
+        }
+
+        initialFormState = getWorldFormState();
+        checkWorldFormChanges();
     } else {
-        if (ocForm) ocForm.style.display = 'none';
-        if (favForm) favForm.style.display = 'none';
+        const fanworkForm = document.getElementById('fanworkForm');
+        const saveBtn = document.getElementById('saveBtn');
         if (fanworkForm) fanworkForm.style.display = 'flex';
-        if (ocSaveBtn) ocSaveBtn.style.display = 'none';
-        if (favSaveBtn) favSaveBtn.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'inline-block';
 
         const post = fanworksData.find(p => p.id === id);
@@ -430,7 +616,6 @@ window.openEditEditor = function(id) {
             if (warningContentInput) warningContentInput.value = post.warningContent || '';
             if (externalLinkInput) externalLinkInput.value = post.link || '';
             
-            // rating 값에 따라 올바른 라디오 버튼 체크 (all, warning, external)
             const ratingToSelect = post.rating || (post.sensitive ? 'warning' : 'all');
             const targetRadio = document.querySelector(`input[name="admin-rating"][value="${ratingToSelect}"]`);
             if (targetRadio) {
@@ -460,7 +645,7 @@ window.openEditEditor = function(id) {
         }
 
         renderImages();
-        syncFilterStateFromInput();
+        syncFilterStateFromInput('cardTags');
         initialFormState = getFormState();
         checkFormChanges();
     }
@@ -477,7 +662,11 @@ function closeEditor() {
 }
 
 function renderAdminTagSelector() {
-    const box = document.getElementById('tagSelectorBox');
+    const isYumeMode = (currentSelectedCategory === '드림');
+    const boxId = isYumeMode ? 'yumeTagSelectorBox' : 'tagSelectorBox';
+    const inputId = isYumeMode ? 'yumeTags' : 'cardTags';
+
+    const box = document.getElementById(boxId);
     if (!box) return;
 
     const works = tagsData.works.map(w => w.name);
@@ -538,7 +727,23 @@ function renderAdminTagSelector() {
     `;
 
     const selectedTags = Object.keys(activeTagFilters).filter(tag => activeTagFilters[tag] === 'include');
-    document.getElementById('cardTags').value = selectedTags.join(', ');
+    const targetInput = document.getElementById(inputId);
+    if (targetInput) {
+        targetInput.value = selectedTags.join(', ');
+    }
+
+    if (isYumeMode) {
+        const yumeWorkInput = document.getElementById('yumeWork');
+        const yumeCharInput = document.getElementById('yumeCharacter');
+        if (yumeWorkInput && !yumeWorkInput.value.trim() && includedWorks.length > 0) {
+            yumeWorkInput.value = includedWorks[0];
+        }
+        const selectedChars = selectedTags.filter(t => sortedChars.includes(t));
+        if (yumeCharInput && !yumeCharInput.value.trim() && selectedChars.length > 0) {
+            yumeCharInput.value = selectedChars[0];
+        }
+    }
+
     updateImagePathPreview();
 }
 
@@ -550,8 +755,13 @@ window.openOrderModal = function() {
     if (activeCategory === '2차창작' || !activeCategory) return;
     
     currentOrderCategory = activeCategory;
-    const targetData = (currentOrderCategory === '1차창작') ? profilesData : favsData;
-    tempOrderData = [...targetData];
+    let targetData = [];
+    if (currentOrderCategory === '1차창작') targetData = profilesData;
+    else if (currentOrderCategory === '관심작품') targetData = favsData;
+    else if (currentOrderCategory === '드림') targetData = yumesData;
+    else if (currentOrderCategory === '세계관') targetData = worldsData;
+
+    tempOrderData = [...targetData].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     const modal = document.getElementById('orderModal');
     const titleEl = document.getElementById('orderModalTitle');
@@ -580,9 +790,16 @@ function renderOrderList() {
     }
 
     container.innerHTML = tempOrderData.map((item, index) => {
-        const label = currentOrderCategory === '1차창작' 
-            ? `${item.name || '무명'} (${item.title || '칭호 없음'})` 
-            : item.title || '제목 없음';
+        let label = '';
+        if (currentOrderCategory === '1차창작') {
+            label = `${item.name || '무명'} (${item.title || '칭호 없음'})`;
+        } else if (currentOrderCategory === '드림') {
+            label = `${item.work || '작품 미정'} - ${item.character || ''} × ${item.dreamer || ''}`;
+        } else if (currentOrderCategory === '세계관') {
+            label = item.title || '제목 없음';
+        } else {
+            label = item.title || '제목 없음';
+        }
 
         return `
             <div class="tag-edit-row" draggable="true" data-index="${index}" style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 8px 12px; border: 1px solid #eee; border-radius: 4px; cursor: move;">
@@ -648,6 +865,10 @@ window.applyOrderChanges = function() {
         profilesData = updatedData;
     } else if (currentOrderCategory === '관심작품') {
         favsData = updatedData;
+    } else if (currentOrderCategory === '드림') {
+        yumesData = updatedData;
+    } else if (currentOrderCategory === '세계관') {
+        worldsData = updatedData;
     }
 
     renderGrid(); 
@@ -911,16 +1132,14 @@ window.toggleAdminTag = function(tag) {
         activeTagFilters[tag] = 'include';
     }
     renderAdminTagSelector();
-    checkFormChanges();
+    if (currentSelectedCategory === '드림') {
+        checkYumeFormChanges();
+    } else {
+        checkFormChanges();
+    }
 };
 
-function updateImagePathPreview() {
-    const previewEl = document.getElementById('imagePathPreview');
-    if (!previewEl) return;
-
-    const category = document.getElementById('cardCategory').value;
-    const baseFolder = (category === '1차창작') ? 'ocs' : 'fanworks';
-
+function getResolvedGenreFolderPath() {
     const selectedTags = Object.keys(activeTagFilters).filter(tag => activeTagFilters[tag] === 'include');
     const firstTag = selectedTags.length > 0 ? selectedTags[0] : '';
 
@@ -929,15 +1148,32 @@ function updateImagePathPreview() {
         genreFolder = GENRE_FOLDER_MAP[firstTag] || firstTag.toLowerCase().replace(/\s+/g, '-');
     }
 
-    if (baseFolder === 'fanworks' && genreFolder) {
-        previewEl.innerText = `assets/images/${baseFolder}/${genreFolder}/`;
+    return genreFolder ? `assets/images/fanworks/${genreFolder}/` : `assets/images/fanworks/`;
+}
+
+function updateImagePathPreview() {
+    if (currentSelectedCategory === '드림') {
+        const yumePreviewEl = document.getElementById('yumeImagePathPreview');
+        if (yumePreviewEl) {
+            yumePreviewEl.innerText = getResolvedGenreFolderPath();
+        }
+        return;
+    }
+
+    const previewEl = document.getElementById('imagePathPreview');
+    if (!previewEl) return;
+
+    const category = document.getElementById('cardCategory').value;
+    if (category === '1차창작') {
+        previewEl.innerText = `assets/images/ocs/`;
     } else {
-        previewEl.innerText = `assets/images/${baseFolder}/`;
+        previewEl.innerText = getResolvedGenreFolderPath();
     }
 }
 
-function syncFilterStateFromInput() {
-    const currentTagsInput = document.getElementById('cardTags').value;
+function syncFilterStateFromInput(inputId = 'cardTags') {
+    const inputEl = document.getElementById(inputId);
+    const currentTagsInput = inputEl ? inputEl.value : '';
     const selectedTags = currentTagsInput.split(',').map(t => t.trim()).filter(Boolean);
 
     activeTagFilters = {};
@@ -959,13 +1195,27 @@ function renderImages() {
     `).join('');
     checkFormChanges();
 }
+
+function renderYumeImages() {
+    const listEl = document.getElementById('yumeImageList');
+    if (!listEl) return;
+    listEl.innerHTML = currentYumeImages.map((img, idx) => `
+        <div class="image-item" style="position: relative;">
+            <div class="image-item-index">${idx + 1}</div>
+            <img src="${img}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="remove-btn" onclick="removeYumeImage(${idx})">✕</div>
+        </div>
+    `).join('');
+    checkYumeFormChanges();
+}
+
 window.addOcThumbnailImage = function() {
     const inputEl = document.getElementById('ocNewThumbnailInput');
     const filename = inputEl ? inputEl.value.trim() : '';
     if (filename) {
         const fullPath = `assets/images/ocs/${filename.replace(/\.[^/.]+$/, '')}.webp`;
         currentOcThumbnails.push(fullPath);
-        inputEl.value = ''; // 입력칸 리셋
+        inputEl.value = '';
         renderOcThumbnails();
         checkOcFormChanges();
     } else {
@@ -997,7 +1247,7 @@ window.addOcPortraitImage = function() {
     if (filename) {
         const fullPath = `assets/images/ocs/${filename.replace(/\.[^/.]+$/, '')}.webp`;
         currentOcPortraits.push(fullPath);
-        inputEl.value = ''; // 입력칸 리셋
+        inputEl.value = '';
         renderOcPortraits();
         checkOcFormChanges();
     } else {
@@ -1025,25 +1275,12 @@ function renderOcPortraits() {
 
 window.addImagePath = function() {
     const category = document.getElementById('cardCategory').value;
-    const baseFolder = (category === '1차창작') ? 'ocs' : 'fanworks';
-    const selectedTags = Object.keys(activeTagFilters).filter(tag => activeTagFilters[tag] === 'include');
-    const firstTag = selectedTags.length > 0 ? selectedTags[0] : '';
-
-    let genreFolder = '';
-    if (firstTag) {
-        genreFolder = GENRE_FOLDER_MAP[firstTag] || firstTag.toLowerCase().replace(/\s+/g, '-');
-    }
-
     const filename = document.getElementById('newImgFilename').value.trim();
     
     if (filename) {
-        let fullPath = '';
-        if (baseFolder === 'fanworks' && genreFolder) {
-            fullPath = `assets/images/${baseFolder}/${genreFolder}/${filename}.webp`;
-        } else {
-            fullPath = `assets/images/${baseFolder}/${filename}.webp`;
-        }
-        currentImages.push(fullPath);
+        const cleanFilename = filename.replace(/\.[^/.]+$/, '');
+        const basePath = (category === '1차창작') ? 'assets/images/ocs/' : getResolvedGenreFolderPath();
+        currentImages.push(`${basePath}${cleanFilename}.webp`);
         document.getElementById('newImgFilename').value = '';
         renderImages();
     } else {
@@ -1055,6 +1292,58 @@ window.removeImage = function(idx) {
     currentImages.splice(idx, 1);
     renderImages();
 };
+
+window.addYumeImagePath = function() {
+    const inputEl = document.getElementById('yumeNewImgFilename');
+    const filename = inputEl ? inputEl.value.trim() : '';
+    
+    if (filename) {
+        const cleanFilename = filename.replace(/\.[^/.]+$/, '');
+        const basePath = getResolvedGenreFolderPath();
+        currentYumeImages.push(`${basePath}${cleanFilename}.webp`);
+        inputEl.value = '';
+        renderYumeImages();
+    } else {
+        alert('파일명을 입력해주세요.');
+    }
+};
+
+window.removeYumeImage = function(idx) {
+    currentYumeImages.splice(idx, 1);
+    renderYumeImages();
+};
+
+window.addWorldThumbnailImage = function() {
+    const inputEl = document.getElementById('worldNewThumbnailInput');
+    const filename = inputEl ? inputEl.value.trim() : '';
+    if (filename) {
+        const fullPath = `assets/images/worlds/${filename.replace(/\.[^/.]+$/, '')}.webp`;
+        currentWorldThumbnails.push(fullPath);
+        inputEl.value = '';
+        renderWorldThumbnails();
+        checkWorldFormChanges();
+    } else {
+        alert('파일명을 입력해주세요.');
+    }
+};
+
+window.removeWorldThumbnailImage = function(idx) {
+    currentWorldThumbnails.splice(idx, 1);
+    renderWorldThumbnails();
+    checkWorldFormChanges();
+};
+
+function renderWorldThumbnails() {
+    const listEl = document.getElementById('worldThumbnailList');
+    if (!listEl) return;
+    listEl.innerHTML = currentWorldThumbnails.map((img, idx) => `
+        <div class="image-item" style="position: relative;">
+            <div class="image-item-index">${idx + 1}</div>
+            <img src="${img}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="remove-btn" onclick="removeWorldThumbnailImage(${idx})">✕</div>
+        </div>
+    `).join('');
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
@@ -1091,7 +1380,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 라디오 버튼 수동 클릭 변경 감지 이벤트 추가
+    ['yumeStartDate', 'yumeWork', 'yumeCharacter', 'yumeDreamer', 'yumePrivate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', checkYumeFormChanges);
+            el.addEventListener('change', checkYumeFormChanges);
+        }
+    });
+
+    ['worldTitle', 'worldKeywords', 'worldDescription', 'worldPrivate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', checkWorldFormChanges);
+            el.addEventListener('change', checkWorldFormChanges);
+        }
+    });
+
     document.querySelectorAll('input[name="admin-rating"]').forEach(radio => {
         radio.addEventListener('change', () => {
             checkFormChanges();
@@ -1151,12 +1455,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (ocForm) {
         ocForm.onsubmit = (e) => {
             e.preventDefault();
-            const formatOcImgPath = (val) => {
-                if (!val) return '';
-                const cleanName = val.trim().replace(/^assets\/images\/ocs\//, '').replace(/\.[^/.]+$/, '');
-                return `assets/images/ocs/${cleanName}.webp`;
-            };
-
             const checkedOcRating = document.querySelector('input[name="oc-admin-rating"]:checked');
             const selectedOcRating = checkedOcRating ? checkedOcRating.value : 'all';
             const warningVal = document.getElementById('ocWarningContent') ? document.getElementById('ocWarningContent').value.trim() : '';
@@ -1182,6 +1480,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const existingIdx = profilesData.findIndex(p => p.id === ocData.id);
             if (existingIdx !== -1) {
+                ocData.order = profilesData[existingIdx].order;
                 profilesData[existingIdx] = ocData;
             } else {
                 profilesData.unshift(ocData);
@@ -1210,10 +1509,75 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const existingIdx = favsData.findIndex(p => p.id === favData.id);
             if (existingIdx !== -1) {
+                favData.order = favsData[existingIdx].order;
                 favsData[existingIdx] = favData;
             } else {
                 favsData.unshift(favData);
                 favsData.forEach((item, index) => {
+                    item.order = index;
+                });
+            }
+
+            window.editingTargetId = null;
+            closeEditor();
+            renderGrid();
+        };
+    }
+
+    const yumeForm = document.getElementById('yumeForm');
+    if (yumeForm) {
+        yumeForm.onsubmit = (e) => {
+            e.preventDefault();
+            const yumeData = {
+                id: window.editingTargetId !== null ? window.editingTargetId : (yumesData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
+                tags: document.getElementById('yumeTags').value.split(',').map(t => t.trim()).filter(Boolean),
+                startDate: document.getElementById('yumeStartDate').value,
+                work: document.getElementById('yumeWork').value.trim(),
+                character: document.getElementById('yumeCharacter').value.trim(),
+                dreamer: document.getElementById('yumeDreamer').value.trim(),
+                image: currentYumeImages.length > 0 ? currentYumeImages[0] : '',
+                images: [...currentYumeImages],
+                private: document.getElementById('yumePrivate').checked
+            };
+
+            const existingIdx = yumesData.findIndex(p => p.id === yumeData.id);
+            if (existingIdx !== -1) {
+                yumeData.order = yumesData[existingIdx].order;
+                yumesData[existingIdx] = yumeData;
+            } else {
+                yumesData.unshift(yumeData);
+                yumesData.forEach((item, index) => {
+                    item.order = index;
+                });
+            }
+
+            window.editingTargetId = null;
+            closeEditor();
+            renderGrid();
+        };
+    }
+
+    const worldForm = document.getElementById('worldForm');
+    if (worldForm) {
+        worldForm.onsubmit = (e) => {
+            e.preventDefault();
+            const worldData = {
+                id: window.editingTargetId !== null ? window.editingTargetId : (worldsData.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1),
+                title: document.getElementById('worldTitle').value,
+                keywords: document.getElementById('worldKeywords').value,
+                thumbnail: currentWorldThumbnails.length > 0 ? currentWorldThumbnails[0] : '',
+                thumbnails: currentWorldThumbnails,
+                description: document.getElementById('worldDescription').value,
+                private: document.getElementById('worldPrivate').checked
+            };
+
+            const existingIdx = worldsData.findIndex(p => p.id === worldData.id);
+            if (existingIdx !== -1) {
+                worldData.order = worldsData[existingIdx].order;
+                worldsData[existingIdx] = worldData;
+            } else {
+                worldsData.unshift(worldData);
+                worldsData.forEach((item, index) => {
                     item.order = index;
                 });
             }
@@ -1247,8 +1611,10 @@ window.addEventListener('beforeunload', (e) => {
     const isFanworkChanged = (document.getElementById('fanworkForm')?.style.display !== 'none') && (getFormState() !== initialFormState);
     const isOcChanged = (document.getElementById('ocForm')?.style.display !== 'none') && (getOcFormState() !== initialFormState);
     const isFavChanged = (document.getElementById('favForm')?.style.display !== 'none') && (getFavFormState() !== initialFormState);
+    const isYumeChanged = (document.getElementById('yumeForm')?.style.display !== 'none') && (getYumeFormState() !== initialFormState);
+    const isWorldChanged = (document.getElementById('worldForm')?.style.display !== 'none') && (getWorldFormState() !== initialFormState);
 
-    if (isFanworkChanged || isOcChanged || isFavChanged) {
+    if (isFanworkChanged || isOcChanged || isFavChanged || isYumeChanged || isWorldChanged) {
         e.preventDefault();
         e.returnValue = ''; 
     }
@@ -1260,6 +1626,10 @@ window.deleteCard = function(id) {
             profilesData = profilesData.filter(p => p.id !== id);
         } else if (currentSelectedCategory === '관심작품') {
             favsData = favsData.filter(p => p.id !== id);
+        } else if (currentSelectedCategory === '드림') {
+            yumesData = yumesData.filter(p => p.id !== id);
+        } else if (currentSelectedCategory === '세계관') {
+            worldsData = worldsData.filter(p => p.id !== id);
         } else {
             fanworksData.splice(fanworksData.findIndex(p => p.id === id), 1);
         }
@@ -1292,6 +1662,26 @@ window.downloadFavsJson = function() {
     const a = document.createElement('a');
     a.setAttribute("href", favsStr);
     a.setAttribute("download", "favs.json");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+};
+
+window.downloadYumesJson = function() {
+    const yumesStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(yumesData, null, 4));
+    const a = document.createElement('a');
+    a.setAttribute("href", yumesStr);
+    a.setAttribute("download", "yumes.json");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+};
+
+window.downloadWorldsJson = function() {
+    const worldsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(worldsData, null, 4));
+    const a = document.createElement('a');
+    a.setAttribute("href", worldsStr);
+    a.setAttribute("download", "worlds.json");
     document.body.appendChild(a);
     a.click();
     a.remove();

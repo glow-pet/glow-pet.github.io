@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 | 창작</title>
+    <title>관리자</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <script src="assets/js/admin.js" defer></script>
 </head>
@@ -14,6 +14,8 @@
             <button onclick="downloadJson()" class="btn-dark-short" title="fanworks.json 저장">fanworks.json 저장</button>
             <button onclick="downloadProfileJson()" class="btn-dark-short" title="profiles.json 저장">profiles.json 저장</button>
             <button onclick="downloadFavsJson()" class="btn-dark-short" title="favs.json 저장">favs.json 저장</button>
+            <button onclick="downloadYumesJson()" class="btn-dark-short" title="yumes.json 저장">yumes.json 저장</button>
+            <button onclick="downloadWorldsJson()" class="btn-dark-short" title="worlds.json 저장">worlds.json 저장</button>
         </div>
     </nav>
 
@@ -24,6 +26,8 @@
                 <button class="admin-menu-btn" onclick="selectCategory('1차창작')">1차 창작</button>
                 <button class="admin-menu-btn" onclick="selectCategory('2차창작')">2차 창작</button>
                 <button class="admin-menu-btn" onclick="selectCategory('관심작품')">관심 작품</button>
+                <button class="admin-menu-btn" onclick="selectCategory('드림')">드림</button>
+                <button class="admin-menu-btn" onclick="selectCategory('세계관')">세계관</button>
             </div>
         </aside>
 
@@ -32,7 +36,7 @@
                 <div class="admin-column-header">
                     <span id="currentTabTitle">목록</span>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <button onclick="openOrderModal('1차창작')" class="btn-dark-short" id="orderBtn">정렬</button>
+                        <button onclick="openOrderModal()" class="btn-dark-short" id="orderBtn">정렬</button>
                         <button onclick="openEditEditor(null)" class="btn-dark-short" id="addNewBtn">추가</button>
                     </div>
                 </div>
@@ -55,11 +59,13 @@
                         <button type="submit" form="fanworkForm" id="saveBtn" class="btn-dark-short" style="display: none;" disabled>적용</button>
                         <button type="submit" form="ocForm" id="ocSaveBtn" class="btn-dark-short" style="display: none;" disabled>적용</button>
                         <button type="submit" form="favForm" id="favSaveBtn" class="btn-dark-short" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="yumeForm" id="yumeSaveBtn" class="btn-dark-short" style="display: none;" disabled>적용</button>
+                        <button type="submit" form="worldForm" id="worldSaveBtn" class="btn-dark-short" style="display: none;" disabled>적용</button>
                     </div>
                 </div>
 
-                <!-- 1차 창작 수정 패널 -->
                 <div style="flex: 1; overflow-y: auto; padding-top: 0.5rem;">
+                    <!-- 1차 창작 수정 패널 -->
                     <form class="edit" id="ocForm">
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                             <div class="form-group">
@@ -118,25 +124,18 @@
                         
                         <div class="form-group">
                             <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
-                            
-                            <!-- CSS Grid 적용: [라디오/체크박스] [라벨] [입력칸] 3개 열로 세로선 고정 -->
                             <div style="display: grid; grid-template-columns: auto auto 1fr; row-gap: 8px; column-gap: 10px; align-items: center; width: 100%;">
-                                
-                                <!-- 1행: 비공개 -->
                                 <input type="checkbox" id="ocPrivate" style="width: auto; margin: 0; justify-self: center;">
                                 <label for="ocPrivate" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">비공개</label>
                                 <div></div>
 
-                                <!-- 2행: 전연령 -->
                                 <input type="radio" name="oc-admin-rating" value="all" checked id="ocRadioAll" style="width: auto; margin: 0; justify-self: center;">
                                 <label for="ocRadioAll" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">전연령</label>
                                 <div></div>
 
-                                <!-- 3행: 성인물(경고) -->
                                 <input type="radio" name="oc-admin-rating" value="warning" id="ocRadioWarning" style="width: auto; margin: 0; justify-self: center;">
                                 <label for="ocRadioWarning" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">성인물(경고)</label>
                                 <input type="text" id="ocWarningContent" placeholder="상세 콘텐츠" style="width: 100%; padding: 6px 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-
                             </div>
                         </div>
                     </form>
@@ -183,34 +182,25 @@
 
                         <div class="form-group">
                             <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
-                            
-                            <!-- 2차 창작 전용 ID 및 name이 적용된 그리드 레이아웃 -->
                             <div style="display: grid; grid-template-columns: auto auto 1fr; row-gap: 8px; column-gap: 10px; align-items: center; width: 100%;">
-                                
-                                <!-- 1행: 비공개 -->
                                 <input type="checkbox" id="cardPrivate" style="width: auto; margin: 0; justify-self: center;">
                                 <label for="cardPrivate" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">비공개</label>
                                 <div></div>
 
-                                <!-- 2행: 전연령 -->
                                 <input type="radio" name="admin-rating" value="all" checked id="cardRadioAll" style="width: auto; margin: 0; justify-self: center;">
                                 <label for="cardRadioAll" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">전연령</label>
                                 <div></div>
 
-                                <!-- 3행: 성인물(경고) -->
                                 <input type="radio" name="admin-rating" value="warning" id="cardRadioWarning" style="width: auto; margin: 0; justify-self: center;">
                                 <label for="cardRadioWarning" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">성인물(경고)</label>
                                 <input type="text" id="cardWarningContent" placeholder="상세 콘텐츠" style="width: 100%; padding: 6px 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
 
-                                <!-- 4행: 성인물(외부링크) -->
                                 <input type="radio" name="admin-rating" value="external" id="cardRadioExternal" style="width: auto; margin: 0; justify-self: center;">
                                 <label for="cardRadioExternal" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">성인물(외부링크)</label>
                                 <input type="text" id="cardExternalLink" placeholder="외부 링크" style="width: 100%; padding: 6px 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-
                             </div>
                         </div>
                     </form>
-
 
                     <!-- 관심 작품 수정 패널 -->
                     <form class="edit" id="favForm">
@@ -229,6 +219,97 @@
                         <div class="form-group">
                             <label>관계</label>
                             <input type="text" id="favRelation">
+                        </div>
+                    </form>
+
+                    <!-- 드림(Yumes) 수정 패널 -->
+                    <form class="edit" id="yumeForm">
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label style="margin-bottom: 0;">태그 (이미지 경로 자동화)</label>
+                            </div>
+                            <input type="text" id="yumeTags" readonly class="admin-tag-input-line" placeholder="여기에 선택한 태그가 나열됩니다.">
+                            <div id="yumeTagSelectorBox" class="admin-tag-selector-box" style="margin: 8px 0; padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 6px;"></div>
+                            <button type="button" class="btn-dark-short" onclick="openTagHierarchyModal()">태그 필터 편집</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>이미지 추가</label>
+                            <div id="yumeImagePathPreview" class="image-path-preview">assets/images/fanworks/</div>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="yumeNewImgFilename" placeholder="파일명(확장자 제외)" style="width: 50%;">
+                                <button type="button" onclick="addYumeImagePath()" class="btn-dark-short">추가</button>
+                            </div>
+                            <div id="yumeImageList" class="image-list"></div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <div class="form-group">
+                                <label>시작일 (D-Day 기준)</label>
+                                <input type="date" id="yumeStartDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>작품명</label>
+                                <input type="text" id="yumeWork" required>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <div class="form-group">
+                                <label>드림캐</label>
+                                <input type="text" id="yumeCharacter" required>
+                            </div>
+                            <div class="form-group">
+                                <label>드림주</label>
+                                <input type="text" id="yumeDreamer" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
+                            <div style="display: grid; grid-template-columns: auto auto 1fr; row-gap: 8px; column-gap: 10px; align-items: center; width: 100%;">
+                                <input type="checkbox" id="yumePrivate" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="yumePrivate" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">비공개</label>
+                                <div></div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- 세계관(Worlds) 수정 패널 (2열 구조, 태그 선택 없음) -->
+                    <form class="edit" id="worldForm">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <div class="form-group">
+                                <label>제목</label>
+                                <input type="text" id="worldTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label>키워드</label>
+                                <input type="text" id="worldKeywords" placeholder="콤마(,)로 구분">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>썸네일 이미지</label>
+                            <div class="image-path-preview">assets/images/worlds/</div>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="worldNewThumbnailInput" placeholder="파일명(확장자 제외)" style="flex: 1;">
+                                <button type="button" onclick="addWorldThumbnailImage()" class="btn-dark-short">추가</button>
+                            </div>
+                            <div id="worldThumbnailList" class="image-list"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>설명</label>
+                            <textarea id="worldDescription" rows="8" style="resize: none; height: 250px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; display: block;">표시 설정</label>
+                            <div style="display: grid; grid-template-columns: auto auto 1fr; row-gap: 8px; column-gap: 10px; align-items: center; width: 100%;">
+                                <input type="checkbox" id="worldPrivate" style="width: auto; margin: 0; justify-self: center;">
+                                <label for="worldPrivate" style="cursor: pointer; font-size: 0.9rem; font-weight: normal; margin: 0; white-space: nowrap;">비공개</label>
+                                <div></div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -285,9 +366,7 @@
                 ▲/▼ 버튼을 누르거나 목록 항목을 드래그하여 순서를 변경하세요.
             </div>
             <div id="orderListContainer" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;">
-                <!-- JS로 동적 생성됨 -->
             </div>
-            <!-- 모달 하단 적용 버튼 추가 -->
             <div style="display: flex; justify-content: flex-end; border-top: 1px solid #eaeaea; margin-top: 1rem; padding-top: 1rem;">
                 <button type="button" class="btn-dark-short" onclick="applyOrderChanges()">적용</button>
             </div>

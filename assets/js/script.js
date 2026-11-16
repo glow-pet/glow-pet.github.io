@@ -6,6 +6,8 @@ let currentPage = 1;
 const itemsPerPage = 12;
 let tagFilterModal = null;
 let profilesData = [];
+let yumesData = [];
+let worldsData = [];
 let isAppInitialized = false;
 
 function resolveAssetPath(src) {
@@ -23,6 +25,18 @@ function resolveAssetPath(src) {
 function updateScrollbarWidth() {
   const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
   document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+}
+
+function calculateDDay(startDateStr) {
+  if (!startDateStr) return '';
+  const parts = startDateStr.split('-');
+  if (parts.length !== 3) return '';
+  const start = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffTime = today.getTime() - start.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // 당일을 1일로 계산
+  return diffDays >= 1 ? `D+${diffDays}` : `D${diffDays - 1}`;
 }
 
 window.currentSortMode = 'latest';
@@ -66,6 +80,194 @@ function renderHeader() {
         if (tagFilterModal) tagFilterModal.open();
       });
     }
+  }
+}
+
+// Yumes(드림) 카드 생성
+function createYumeCardHTML(item) {
+  const rawSrc = item.image || (item.images && item.images[0]) || '';
+  const thumbSrc = resolveAssetPath(rawSrc);
+  const dDayStr = calculateDDay(item.startDate);
+
+  const thumbHTML = thumbSrc
+    ? `<div class="card-thumb"><img src="${thumbSrc}" alt="${item.work || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';"></div>`
+    : `<div class="card-thumb text-thumb placeholder-thumb"><span>이미지 준비 중</span></div>`;
+
+  return `
+    <article class="card yume-card">
+      ${thumbHTML}
+      <div class="yume-card-info">
+        <div class="yume-card-main">
+          <div class="yume-card-work">${item.work || ''}</div>
+          <div class="yume-card-pair">
+            <span>${item.character || ''}</span>
+            ${item.character && item.dreamer ? `<span class="yume-pair-sep">×</span>` : ''}
+            <span>${item.dreamer || ''}</span>
+          </div>
+        </div>
+        ${dDayStr ? `<div class="yume-card-dday">${dDayStr}</div>` : ''}
+      </div>
+    </article>
+  `;
+}
+
+async function initYumeApp() {
+  const yumeContainer = document.querySelector('.yumes-grid');
+  if (!yumeContainer) return;
+
+  try {
+    const isPagesFolder = window.location.pathname.includes('pages');
+    const jsonPath = isPagesFolder ? '../yumes.json' : 'yumes.json';
+    const res = await fetch(jsonPath);
+    if (res.ok) {
+      const rawData = await res.json();
+      yumesData = (rawData || [])
+        .filter(item => !item.private)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      if (yumesData.length === 0) {
+        yumeContainer.innerHTML = '<p class="empty-grid-message">등록된 데이터가 없습니다.</p>';
+        return;
+      }
+
+      yumeContainer.innerHTML = yumesData.map(item => createYumeCardHTML(item)).join('');
+    }
+  } catch (e) {
+    console.error('yumes.json 로드 실패', e);
+  }
+}
+
+// Worlds(세계관) 카드 생성
+function createWorldCardHTML(item) {
+  const rawSrc = item.thumbnail || (item.thumbnails && item.thumbnails[0]) || '';
+  const thumbSrc = resolveAssetPath(rawSrc);
+
+  const thumbHTML = thumbSrc
+    ? `<div class="card-thumb"><img src="${thumbSrc}" alt="${item.title || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';"></div>`
+    : `<div class="card-thumb text-thumb placeholder-thumb"><span>이미지 준비 중</span></div>`;
+
+  return `
+    <article class="card open-world-modal" data-world-id="${item.id}" style="cursor: pointer;">
+      ${thumbHTML}
+      <div class="world-card-info" style="margin-top: 10px;">
+        <div class="world-card-title" style="font-weight: 600; font-size: 1rem; color: #111;">${item.title || ''}</div>
+        <div class="world-card-keywords" style="font-size: 0.85rem; color: #666; margin-top: 2px;">${item.keywords || ''}</div>
+      </div>
+    </article>
+  `;
+}
+
+// Worlds 모달 제어
+function initWorldLightbox() {
+  let worldModal = document.querySelector('.world-modal');
+  if (!worldModal) {
+    worldModal = document.createElement('div');
+    worldModal.className = 'world-modal fanworks-modal';
+    worldModal.innerHTML = `
+      <button type="button" class="modal-close-btn" aria-label="닫기">✕</button>
+      <div class="modal-body-container">
+        <div class="modal-image-container" id="worldImageWrapper"></div>
+        <div class="modal-caption-container world-caption-container">
+          <div class="world-modal-basic-info">
+            <div class="oc-info-name" id="worldModalTitle"></div>
+            <div class="oc-info-foreign-name" id="worldModalKeywords"></div>
+          </div>
+          <p class="modal-caption-text" id="worldModalDescription" style="white-space: pre-wrap; margin-top: 1rem;"></p>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(worldModal);
+  }
+
+  const closeBtn = worldModal.querySelector('.modal-close-btn');
+
+  function closeWorldModal() {
+    worldModal.classList.remove('active');
+  }
+
+  function openWorldModal(item) {
+    updateScrollbarWidth();
+    closeWorldModal();
+
+    document.getElementById('worldModalTitle').innerText = item.title || '';
+    document.getElementById('worldModalKeywords').innerText = item.keywords || '';
+    document.getElementById('worldModalDescription').innerText = item.description || '';
+
+    const imageWrapper = document.getElementById('worldImageWrapper');
+    imageWrapper.innerHTML = '';
+
+    const thumbRaw = item.thumbnail || (item.thumbnails && item.thumbnails[0]) || '';
+    const imgUrl = resolveAssetPath(thumbRaw);
+
+    if (!thumbRaw) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'oc-portrait-placeholder text-thumb';
+      placeholder.innerHTML = '<span>이미지 준비 중</span>';
+      imageWrapper.appendChild(placeholder);
+    } else {
+      const thumbImg = document.createElement('img');
+      thumbImg.className = 'fanworks-modal-content';
+      thumbImg.src = imgUrl;
+      thumbImg.alt = '세계관 썸네일';
+      thumbImg.onerror = function() {
+        const fallback = document.createElement('div');
+        fallback.className = 'oc-portrait-placeholder text-thumb';
+        fallback.innerHTML = '<span>이미지 준비 중</span>';
+        this.replaceWith(fallback);
+      };
+      imageWrapper.appendChild(thumbImg);
+    }
+
+    worldModal.classList.add('active');
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = (e) => { e.stopPropagation(); closeWorldModal(); };
+  }
+  worldModal.onclick = (e) => { if (e.target === worldModal) closeWorldModal(); };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && worldModal.classList.contains('active')) closeWorldModal();
+  });
+
+  const gridContainer = document.querySelector('.worlds-grid');
+  if (gridContainer) {
+    gridContainer.onclick = (e) => {
+      const card = e.target.closest('.open-world-modal');
+      if (!card) return;
+      const worldId = parseInt(card.dataset.worldId, 10);
+      const targetWorld = worldsData.find(p => p.id === worldId);
+      if (targetWorld) openWorldModal(targetWorld);
+    };
+  }
+}
+
+async function initWorldApp() {
+  const worldContainer = document.querySelector('.worlds-grid');
+  if (!worldContainer) return;
+
+  renderHeader();
+
+  try {
+    const isPagesFolder = window.location.pathname.includes('pages');
+    const jsonPath = isPagesFolder ? '../worlds.json' : 'worlds.json';
+    const res = await fetch(jsonPath);
+    if (res.ok) {
+      const rawData = await res.json();
+      worldsData = (rawData || [])
+        .filter(item => !item.private)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      if (worldsData.length === 0) {
+        worldContainer.innerHTML = '<p class="empty-grid-message">등록된 데이터가 없습니다.</p>';
+        return;
+      }
+
+      worldContainer.innerHTML = worldsData.map(item => createWorldCardHTML(item)).join('');
+      initWorldLightbox();
+    }
+  } catch (e) {
+    console.error('worlds.json 로드 실패', e);
   }
 }
 
@@ -492,9 +694,21 @@ function initLightbox() {
 async function initApp() {
   const isProfileContainer = document.querySelector('.ocs-grid');
   const isFanworksContainer = document.querySelector('.fanworks-grid');
+  const isYumesContainer = document.querySelector('.yumes-grid');
+  const isWorldsContainer = document.querySelector('.worlds-grid');
 
   if (isProfileContainer) {
     await initOcApp();
+    return;
+  }
+
+  if (isYumesContainer) {
+    await initYumeApp();
+    return;
+  }
+
+  if (isWorldsContainer) {
+    await initWorldApp();
     return;
   }
 
