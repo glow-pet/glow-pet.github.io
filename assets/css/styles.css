@@ -153,6 +153,18 @@ common-layout {
   transition: color 0.2s ease;
 }
 
+/* 링크가 있는 부모 메뉴 (홈) */
+a.nav-parent-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+/* 링크가 없는 부모 메뉴 (1차 창작, 2차 창작) */
+span.nav-parent-link {
+    cursor: default;
+}
+
 .menu-toggle-btn {
   background: transparent;
   border: none;
@@ -235,9 +247,10 @@ common-layout {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 220px;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.9); /* 반투명한 흰색 배경 */
+  background-color: #fff; /* 반투명한 흰색 배경 */
+  border-right: 1px solid #ddd;
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
@@ -285,11 +298,11 @@ body.page-index .container {
 }
 
 body.page-fanworks .container {
-  max-width: 1050px;
+  max-width: 950px;
 }
 
 body.page-ocs .container {
-  max-width: 1000px; /* OCs 컨테이너 폭 좁게 설정 */
+  max-width: 850px; /* OCs 컨테이너 폭 좁게 설정 */
 }
 
 body.page-worlds .container {
@@ -297,7 +310,7 @@ body.page-worlds .container {
 }
 
 body.page-favs .container {
-  max-width: 800px;
+  max-width: 850px;
 }
 
 .container .pagination-container {
@@ -309,7 +322,7 @@ body.page-favs .container {
   border: 1px solid #ddd;
   position: relative;
   width: 100%;
-  max-width: 350px;
+  max-width: 340px;
   margin: 60px auto 20px auto;
   padding: 1.4rem 2rem;
   text-align: center;
@@ -359,8 +372,8 @@ body.page-favs .container {
 .fanworks-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
-  row-gap: 65px;
+  gap: 25px;
+  row-gap: 55px;
 }
 
 @media (min-width: 480px) {
@@ -391,8 +404,8 @@ body.page-favs .container {
 .ocs-grid {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 55px;
-  row-gap: 75px;
+  gap: 35px;
+  row-gap: 65px;
 }
 
 @media (min-width: 480px) {
@@ -683,10 +696,10 @@ body.page-ocs .crop-square .card-thumb {
 }
 
 .oc-modal .modal-caption-container.oc-caption-container {
-  width: 55vw;
+  width: 45vw;
   height: 100vh;
   max-height: 100vh;
-  padding: 80px 60px 40px 80px;
+  padding: 80px 60px 40px 50px;
   background: #fff;
   color: #333;
   font-size: 0.95rem;
@@ -874,8 +887,8 @@ body.page-ocs .crop-square .card-thumb {
 #favs-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 23px;
-  row-gap: 40px;
+  gap: 15px;
+  row-gap: 25px;
   margin-top: 80px;
   padding: 0 0px;
 }

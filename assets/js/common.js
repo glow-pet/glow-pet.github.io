@@ -34,7 +34,7 @@ class CommonLayout extends HTMLElement {
         const favsPath = isPagesFolder ? 'favs.html' : 'pages/favs.html';
 
         const navItems = [
-            { name: '홈', herf: indexPath },
+            { name: '홈', href: indexPath },
             {
                 name: '1차 창작',
                 children: [
@@ -58,7 +58,9 @@ class CommonLayout extends HTMLElement {
         const navLinksHTML = navItems.map(item => {
             const hasChildren = item.children && item.children.length > 0;
             const isChildActive = hasChildren && item.children.some(child => child.href.includes(currentFileName));
-            const isParentActive = isChildActive;
+            // 자식이 없더라도 현재 페이지가 본인 href와 일치하면 active 처리
+            const isSelfActive = !hasChildren && item.href && item.href.includes(currentFileName);
+            const isParentActive = isChildActive || isSelfActive;
 
             const childrenHTML = hasChildren ? `
                 <ul class="nav-sub-links">
@@ -73,9 +75,14 @@ class CommonLayout extends HTMLElement {
                 </ul>
             ` : '';
 
+            // item.href가 있으면 <a> 태그, 없으면 <span> 태그로 생성
+            const parentElementHTML = item.href
+                ? `<a href="${item.href}" class="nav-parent-link ${isParentActive ? 'active' : ''}">${item.name}</a>`
+                : `<span class="nav-parent-link ${isParentActive ? 'active' : ''}">${item.name}</span>`;
+
             return `
                 <li class="${hasChildren ? 'has-children' : ''} ${isParentActive ? 'active-parent' : ''}" data-name="${item.name}">
-                    <span class="nav-parent-link ${isParentActive ? 'active' : ''}">${item.name}</span>
+                    ${parentElementHTML}
                     ${childrenHTML}
                 </li>
             `;
