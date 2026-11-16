@@ -13,7 +13,7 @@ function resolveAssetPath(src) {
   if (src.startsWith('http') || src.startsWith('/') || src.startsWith('../') || src.startsWith('data:')) {
     return src;
   }
-  const isPagesFolder = window.location.pathname.includes('/pages/');
+  const isPagesFolder = window.location.pathname.includes('pages');
   if (isPagesFolder && src.startsWith('assets/')) {
     return '../' + src;
   }
@@ -52,9 +52,9 @@ function getFilteredAndProcessedData(rawData, activeFilters = {}) {
 
 function renderHeader() {
   const headerEl = document.querySelector('.header');
-  const cardCols = document.querySelector('.card-cols-4, .card-cols-5, .card-cols-3');
+  const gridEl = document.querySelector('.fanworks-grid, .ocs-grid, .worlds-grid');
 
-  if (headerEl && cardCols && !document.querySelector('.controls-wrapper')) {
+  if (headerEl && gridEl && !document.querySelector('.controls-wrapper')) {
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'controls-wrapper';
     controlsWrapper.innerHTML = `<button type="button" id="open-filter-modal-btn" class="btn-dark-long">필터</button>`;
@@ -69,7 +69,7 @@ function renderHeader() {
   }
 }
 
-// ocs.html 카드 생성 (민감 콘텐츠를 이미지 준비중과 동일한 스타일로 표시)
+// OCs 카드 생성
 function createOcCardHTML(item, showSensitiveOverride = false) {
   const isPrivate = item.private;
   const isSensitive = item.rating === 'warning' || item.rating === 'external' || item.sensitive;
@@ -78,46 +78,27 @@ function createOcCardHTML(item, showSensitiveOverride = false) {
 
   let thumbsHTML = '';
   if (isPrivate) {
-    thumbsHTML = `
-      <div class="card-thumb text-thumb private-thumb">
-        <span>비공개</span>
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb text-thumb private-thumb"><span>비공개</span></div>`;
   } else if (isSensitive && !showSensitiveOverride) {
-    thumbsHTML = `
-      <div class="card-thumb text-thumb sensitive-thumb">
-        <span>민감한 콘텐츠</span>
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb text-thumb sensitive-thumb"><span>민감한 콘텐츠</span></div>`;
   } else if (!thumbSrc) {
-    thumbsHTML = `
-      <div class="card-thumb text-thumb placeholder-thumb">
-        <span>이미지 준비 중</span>
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb text-thumb placeholder-thumb"><span>이미지 준비 중</span></div>`;
   } else {
-    thumbsHTML = `
-      <div class="card-thumb">
-        <img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';">
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb"><img src="${thumbSrc}" alt="${item.name || ''}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';"></div>`;
   }
-
-  const nameStr = item.name || '';
-  const foreignNameStr = item.foreignName || '';
 
   return `
     <article class="card open-oc-modal" data-oc-id="${item.id}">
       ${thumbsHTML}
       <div class="oc-card-info">
-        <div class="oc-card-name">${nameStr}</div>
-        ${foreignNameStr ? `<div class="oc-card-foreign-name">${foreignNameStr}</div>` : ''}
+        <div class="oc-card-name">${item.name || ''}</div>
+        ${item.foreignName ? `<div class="oc-card-foreign-name">${item.foreignName}</div>` : ''}
       </div>
     </article>
   `;
 }
 
-// ocs.html 모달 제어
+// OCs 모달 제어
 function initOcLightbox() {
   let ocModal = document.querySelector('.oc-modal');
   if (!ocModal) {
@@ -204,12 +185,9 @@ function initOcLightbox() {
       const mask = document.createElement('div');
       mask.className = 'oc-full-warning-mask';
 
-      let actionBtnHTML = '';
-      if (linkUrl) {
-        actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="btn-dark-long">외부 링크</a>`;
-      } else {
-        actionBtnHTML = `<button type="button" id="oc-reveal-btn" class="btn-dark-long">보기</button>`;
-      }
+      let actionBtnHTML = linkUrl 
+        ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="btn-dark-long">외부 링크</a>`
+        : `<button type="button" id="oc-reveal-btn" class="btn-dark-long">보기</button>`;
 
       mask.innerHTML = `
         <div class="oc-warning-title">콘텐츠 경고</div>
@@ -219,11 +197,8 @@ function initOcLightbox() {
 
       const revealBtn = mask.querySelector('#oc-reveal-btn');
       if (revealBtn) {
-        revealBtn.onclick = () => {
-          mask.remove();
-        };
+        revealBtn.onclick = () => { mask.remove(); };
       }
-
       imageWrapper.appendChild(mask);
     }
 
@@ -231,25 +206,15 @@ function initOcLightbox() {
   }
 
   if (closeBtn) {
-    closeBtn.onclick = (e) => {
-      e.stopPropagation();
-      closeOcModal();
-    };
+    closeBtn.onclick = (e) => { e.stopPropagation(); closeOcModal(); };
   }
-
-  ocModal.onclick = (e) => {
-    if (e.target === ocModal) {
-      closeOcModal();
-    }
-  };
+  ocModal.onclick = (e) => { if (e.target === ocModal) closeOcModal(); };
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && ocModal.classList.contains('active')) {
-      closeOcModal();
-    }
+    if (e.key === 'Escape' && ocModal.classList.contains('active')) closeOcModal();
   });
 
-  const gridContainer = document.querySelector('.card-cols-5');
+  const gridContainer = document.querySelector('.ocs-grid');
   if (gridContainer) {
     gridContainer.onclick = (e) => {
       const card = e.target.closest('.open-oc-modal');
@@ -262,33 +227,30 @@ function initOcLightbox() {
 }
 
 async function initOcApp() {
-  const isProfilePage = document.querySelector('.card-cols-5') && window.location.pathname.includes('ocs.html');
-  if (!isProfilePage) return;
+  const isProfileContainer = document.querySelector('.ocs-grid');
+  if (!isProfileContainer) return;
 
   renderHeader();
+
   try {
-    const jsonPath = window.location.pathname.includes('/pages/') ? '../profiles.json' : 'profiles.json';
+    const isPagesFolder = window.location.pathname.includes('pages');
+    const jsonPath = isPagesFolder ? '../profiles.json' : 'profiles.json';
     const res = await fetch(jsonPath);
     if (res.ok) {
       profilesData = await res.json();
       profilesData.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      const isProfileContainer = document.querySelector('.card-cols-5');
-      if (isProfileContainer) {
-        isProfileContainer.classList.add('crop-square');
-        const showSens = window.showSensitiveGlobal || false;
-
-        const activeOcData = getFilteredAndProcessedData(profilesData);
-        isProfileContainer.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
-        initOcLightbox();
-      }
+      const showSens = window.showSensitiveGlobal || false;
+      const activeOcData = getFilteredAndProcessedData(profilesData);
+      isProfileContainer.innerHTML = activeOcData.map(item => createOcCardHTML(item, showSens)).join('');
+      initOcLightbox();
     }
   } catch (e) {
     console.error('profiles.json 로드 실패', e);
   }
 }
 
-// fanworks.html 카드 생성 (민감 콘텐츠 블러 제거, text-thumb 통일)
+// Fanworks 카드 생성
 function createFanworksCardHTML(item, showSensitiveOverride = false) {
   const rawList = (item.images && Array.isArray(item.images) && item.images.length > 0)
     ? item.images
@@ -317,42 +279,18 @@ function createFanworksCardHTML(item, showSensitiveOverride = false) {
 
   let thumbsHTML = '';
   if (isPrivate) {
-    thumbsHTML = `
-      <div class="card-thumb text-thumb private-thumb">
-        <span>비공개</span>
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb text-thumb private-thumb"><span>비공개</span></div>`;
   } else if (isSensitive && !showSensitiveOverride) {
-    thumbsHTML = `
-      <div class="card-thumb text-thumb sensitive-thumb" ${modalAttrs}>
-        <span>민감한 콘텐츠</span>
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb text-thumb sensitive-thumb" ${modalAttrs}><span>민감한 콘텐츠</span></div>`;
   } else if (textThumb) {
-    thumbsHTML = `
-      <div class="card-thumb text-thumb" ${modalAttrs} role="img" aria-label="${textThumb}">
-        <span>${textThumb}</span>
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb text-thumb" ${modalAttrs} role="img" aria-label="${textThumb}"><span>${textThumb}</span></div>`;
   } else if (!thumbSrc) {
-    thumbsHTML = `
-      <div class="card-thumb text-thumb placeholder-thumb" ${modalAttrs}>
-        <span>이미지 준비 중</span>
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb text-thumb placeholder-thumb" ${modalAttrs}><span>이미지 준비 중</span></div>`;
   } else {
-    thumbsHTML = `
-      <div class="card-thumb" ${modalAttrs}>
-        <img src="${thumbSrc}" alt="" loading="lazy" srcset="${thumbSrc} 400w" sizes="(max-width: 600px) 100vw, 400px" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';">
-      </div>
-    `;
+    thumbsHTML = `<div class="card-thumb" ${modalAttrs}><img src="${thumbSrc}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'card-thumb text-thumb placeholder-thumb\\'><span>이미지 준비 중</span></div>';"></div>`;
   }
 
-  return `
-    <article class="card">
-      ${thumbsHTML}
-    </article>
-  `;
+  return `<article class="card">${thumbsHTML}</article>`;
 }
 
 function renderPagination(totalItems) {
@@ -388,35 +326,28 @@ function renderPagination(totalItems) {
 }
 
 function executeRender() {
-  const mainContainer = document.querySelector('.card-cols-4, .card-cols-5');
+  const mainContainer = document.querySelector('.fanworks-grid');
+  if (!mainContainer) return;
 
-  if (window.location.pathname.includes('worlds.html')) {
+  let dataList = filteredPosts.length > 0 || window.isFiltered ? filteredPosts : (window.galleryData || []);
+  dataList = getSortedData(dataList);
+
+  if (dataList.length === 0) {
+    mainContainer.innerHTML = '<p class="empty-grid-message">등록된 데이터가 없습니다.</p>';
+    renderPagination(0);
     return;
   }
 
-  if (mainContainer) {
-    let dataList = filteredPosts.length > 0 || window.isFiltered ? filteredPosts : (window.galleryData || []);
-    dataList = getSortedData(dataList);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const slicedData = dataList.slice(startIndex, startIndex + itemsPerPage);
 
-    if (dataList.length === 0) {
-      mainContainer.innerHTML = '<p class="empty-grid-message">등록된 데이터가 없습니다.</p>';
-      renderPagination(0);
-      return;
-    }
-
-    mainContainer.classList.add('crop-square');
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const slicedData = dataList.slice(startIndex, startIndex + itemsPerPage);
-
-    mainContainer.innerHTML = slicedData.map(item => createFanworksCardHTML(item, window.showSensitiveGlobal)).join('');
-    renderPagination(dataList.length);
-  }
+  mainContainer.innerHTML = slicedData.map(item => createFanworksCardHTML(item, window.showSensitiveGlobal)).join('');
+  renderPagination(dataList.length);
 }
 
 function initLightbox() {
-  const gridContainer = document.querySelector('.card-cols-4, .card-cols-5');
-  if (!gridContainer || window.location.pathname.includes('worlds.html')) return;
+  const gridContainer = document.querySelector('.fanworks-grid');
+  if (!gridContainer) return;
 
   let modal = document.querySelector('.fanworks-modal');
   if (!modal) {
@@ -495,7 +426,6 @@ function initLightbox() {
 
       if (currentImages.length > 0) {
         currentIndex = 0;
-
         const existingMask = modal.querySelector('.oc-full-warning-mask');
         if (existingMask) existingMask.remove();
 
@@ -504,18 +434,13 @@ function initLightbox() {
 
         if (isSensitive && !window.showSensitiveGlobal) {
           updateModalImage(true);
-
           const mask = document.createElement('div');
           mask.className = 'oc-full-warning-mask';
 
           const displayText = warningContent ? warningContent : '민감한 콘텐츠';
-          let actionBtnHTML = '';
-
-          if (linkUrl) {
-            actionBtnHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="btn-dark-long">외부 링크</a>`;
-          } else {
-            actionBtnHTML = `<button type="button" class="fanwork-reveal-btn btn-dark-long">보기</button>`;
-          }
+          let actionBtnHTML = linkUrl 
+            ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="btn-dark-long">외부 링크</a>`
+            : `<button type="button" class="fanwork-reveal-btn btn-dark-long">보기</button>`;
 
           mask.innerHTML = `
             <div class="oc-warning-title">콘텐츠 경고</div>
@@ -525,21 +450,16 @@ function initLightbox() {
 
           const revealBtn = mask.querySelector('.fanwork-reveal-btn');
           if (revealBtn) {
-            revealBtn.onclick = () => {
-              updateModalImage(false);
-              mask.remove();
-            };
+            revealBtn.onclick = () => { updateModalImage(false); mask.remove(); };
           }
-
           modal.appendChild(mask);
         }
 
-        const dateHtml = `<div class="modal-meta-date">${currentDate || '날짜 없음'}</div>`;
-        const tagsText = currentTags.length > 0 ? currentTags.map(t => `#${t}`).join(' ') : '태그 없음';
-        const tagsHtml = `<div class="modal-meta-tags">${tagsText}</div>`;
-        const pageCountHtml = `<div class="modal-meta-pages">${currentImages.length}쪽</div>`;
-
-        modalMetaTop.innerHTML = dateHtml + tagsHtml + pageCountHtml;
+        modalMetaTop.innerHTML = `
+          <div class="modal-meta-date">${currentDate || '날짜 없음'}</div>
+          <div class="modal-meta-tags">${currentTags.length > 0 ? currentTags.map(t => `#${t}`).join(' ') : '태그 없음'}</div>
+          <div class="modal-meta-pages">${currentImages.length}쪽</div>
+        `;
 
         if (currentCaption.trim()) {
           captionTextEl.innerText = currentCaption;
@@ -556,68 +476,38 @@ function initLightbox() {
     }
   };
 
-  prevBtn.onclick = (e) => {
-    e.stopPropagation();
-    if (currentImages.length > 1 && currentIndex > 0) {
-      currentIndex--;
-      updateModalImage(false);
-    }
-  };
-
-  nextBtn.onclick = (e) => {
-    e.stopPropagation();
-    if (currentImages.length > 1 && currentIndex < currentImages.length - 1) {
-      currentIndex++;
-      updateModalImage(false);
-    }
-  };
-
-  closeBtn.onclick = (e) => {
-    e.stopPropagation();
-    closeModal();
-  };
-
-  modal.onclick = (e) => {
-    if (e.target === modal) {
-      closeModal();
-    }
-  };
+  prevBtn.onclick = (e) => { e.stopPropagation(); if (currentImages.length > 1 && currentIndex > 0) { currentIndex--; updateModalImage(false); } };
+  nextBtn.onclick = (e) => { e.stopPropagation(); if (currentImages.length > 1 && currentIndex < currentImages.length - 1) { currentIndex++; updateModalImage(false); } };
+  closeBtn.onclick = (e) => { e.stopPropagation(); closeModal(); };
+  modal.onclick = (e) => { if (e.target === modal) closeModal(); };
 
   document.addEventListener('keydown', (e) => {
     if (!modal.classList.contains('active')) return;
-    if (e.key === 'Escape') {
-      closeModal();
-    } else if (e.key === 'ArrowLeft' && currentImages.length > 1 && currentIndex > 0) {
-      currentIndex--;
-      updateModalImage(false);
-    } else if (e.key === 'ArrowRight' && currentImages.length > 1 && currentIndex < currentImages.length - 1) {
-      currentIndex++;
-      updateModalImage(false);
-    }
+    if (e.key === 'Escape') closeModal();
+    else if (e.key === 'ArrowLeft' && currentImages.length > 1 && currentIndex > 0) { currentIndex--; updateModalImage(false); }
+    else if (e.key === 'ArrowRight' && currentImages.length > 1 && currentIndex < currentImages.length - 1) { currentIndex++; updateModalImage(false); }
   });
 }
 
 async function initApp() {
-  if (isAppInitialized) return;
-  isAppInitialized = true;
+  const isProfileContainer = document.querySelector('.ocs-grid');
+  const isFanworksContainer = document.querySelector('.fanworks-grid');
 
-  const path = window.location.pathname;
-  const isIndexPage = path.endsWith('/') || path.endsWith('index.html');
-  const isWorldsPage = path.includes('worlds.html');
-  const isProfilePage = document.querySelector('.card-cols-5') && path.includes('ocs.html');
-
-  if (isIndexPage || isWorldsPage) {
-    return;
-  }
-
-  if (isProfilePage) {
+  if (isProfileContainer) {
     await initOcApp();
     return;
   }
 
+  if (!isFanworksContainer) {
+    return;
+  }
+
+  if (isAppInitialized) return;
+  isAppInitialized = true;
+
   renderHeader();
 
-  const isPagesFolder = path.includes('/pages/');
+  const isPagesFolder = window.location.pathname.includes('pages');
   const jsonPath = isPagesFolder ? '../fanworks.json' : 'fanworks.json';
 
   try {
@@ -627,7 +517,7 @@ async function initApp() {
       window.galleryData = getFilteredAndProcessedData(data);
     }
   } catch (e) {
-    console.error('데이터 로드 실패', e);
+    console.error('fanworks.json 로드 실패', e);
   }
 
   window.showSensitiveGlobal = false;

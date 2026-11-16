@@ -36,7 +36,6 @@ body {
 html:has(.fanworks-modal.active),
 html:has(.oc-modal.active) {
   overflow: hidden;
-  /* 동적 스크롤바 너비 보정 변수 활용 */
   padding-right: var(--scrollbar-width, 0px); 
 }
 
@@ -47,7 +46,7 @@ a {
 
 
 /* ==========================================================================
-   2. 공통 레이아웃 (전체 화면 본문 + 좌측 상단 오버레이 Sticky Navbar)
+   2. 공통 레이아웃 및 페이지별 독립 컨테이너 폭 관리
    ========================================================================== */
 common-layout {
   display: flex;
@@ -63,7 +62,6 @@ common-layout {
   position: relative;
 }
 
-/* 좌측 세로형 오버레이 Navbar (우측으로 갈수록 투명해지는 반투명 흰색 배경) */
 .navbar {
   position: fixed;
   top: 0;
@@ -74,23 +72,12 @@ common-layout {
   display: flex;
   flex-direction: column;
   z-index: 1001;
-  pointer-events: none; /* 투명 여백 아래 본문 클릭 통과 */
+  pointer-events: none;
 }
 
 .sidebar-top,
 .nav-links-wrapper {
-  pointer-events: auto; /* 실제 메뉴 텍스트 영역은 클릭 가능 */
-}
-
-.admin-navbar {
-  width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #ccc;
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  flex-shrink: 0;
+  pointer-events: auto;
 }
 
 .sidebar-top {
@@ -100,7 +87,6 @@ common-layout {
   padding: 0 23px;
 }
 
-/* 로고 영역 스타일 */
 .logo a {
   display: inline-block;
 }
@@ -112,7 +98,6 @@ common-layout {
   object-fit: contain;
 }
 
-/* 이미지를 불러오지 못했을 때 노출되는 대체 텍스트 스타일 */
 .logo-fallback-text {
   display: none;
   font-weight: 700;
@@ -125,7 +110,6 @@ common-layout {
   width: 100%;
 }
 
-/* 1차 상위 목차 */
 .nav-links {
   display: flex;
   flex-direction: column;
@@ -146,14 +130,14 @@ common-layout {
   padding: 6px 23px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: default; /* 마우스 커서를 기본 모양으로 고정 */
+  cursor: default;
 }
 
 .nav-sub-links {
   display: flex;
   flex-direction: column;
   list-style: none;
-  padding-left: 45px; /* 탭 들여쓰기 */
+  padding-left: 45px;
   margin-top: 2px;
   margin-bottom: 6px;
   gap: 2px;
@@ -169,7 +153,6 @@ common-layout {
   transition: color 0.2s ease;
 }
 
-/* 화면 전체를 차지하는 본문 및 푸터 영역 */
 .main-wrapper {
   width: 100%;
   min-height: 100vh;
@@ -184,6 +167,7 @@ common-layout {
   width: 100%;
 }
 
+/* 컨테이너 기본 및 페이지별 개별 최대 폭 관리 */
 .container {
   position: relative;
   max-width: 1000px;
@@ -191,23 +175,37 @@ common-layout {
   padding: 20px;
 }
 
+body.page-index .container {
+  max-width: 900px;
+}
+
+body.page-fanworks .container {
+  max-width: 900px;
+}
+
+body.page-ocs .container {
+  max-width: 750px; /* OCs 컨테이너 폭 좁게 설정 */
+}
+
+body.page-worlds .container {
+  max-width: 1000px;
+}
+
+body.page-favs .container {
+  max-width: 800px;
+}
+
 .container .pagination-container {
   margin-top: 50px;
 }
 
-.admin-content-pane .pagination-container {
-  margin-top: 0;
-  border-top: 1px solid #eee;
-}
-
-/* 헤더: 본문 가운데 정렬 및 가로 너비 축소 */
 .header {
   background: #fafafa;
-  border: 1px solid #eaeaea;
+  border: 1px solid #ddd;
   position: relative;
   width: 100%;
   max-width: 350px;
-  margin: 70px auto 20px auto;
+  margin: 60px auto 20px auto;
   padding: 1.4rem 2rem;
   text-align: center;
   color: #555;
@@ -228,7 +226,6 @@ common-layout {
   padding: 2rem 0;
 }
 
-/* 푸터 스타일 */
 .footer {
   position: sticky;
   bottom: 0;
@@ -236,8 +233,8 @@ common-layout {
   background-color: none;
   z-index: 200;
   text-align: left;
-  padding: 23px;
-  color: #777;
+  padding: 20px;
+  color: #999;
   font-size: 0.8rem;
   margin-top: 80px;
   box-sizing: border-box;
@@ -245,7 +242,7 @@ common-layout {
 
 
 /* ==========================================================================
-   3. 공통 그리드 스타일 (.grid)
+   2. 페이지별 독립 그리드 체계
    ========================================================================== */
 .grid {
   width: 100%;
@@ -253,78 +250,105 @@ common-layout {
   margin-top: 80px;
 }
 
-.card-cols-4 {
-  gap: 15px;
-  grid-template-columns: repeat(1, 1fr);
+/* Fanworks 그리드: 정확한 3열 정렬 (우측 빈 공간 문제 해결) 및 직각 모서리 */
+.fanworks-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  row-gap: 65px;
 }
 
-@media (min-width: 600px) {
-  .card-cols-4 {
-    gap: 30px;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+@media (min-width: 480px) {
+  .fanworks-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-.card-cols-5 {
-  gap: 50px;
+@media (min-width: 1024px) {
+  .fanworks-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.fanworks-grid .card-thumb {
+  border-radius: 0px;
+  aspect-ratio: 1 / 1;
+}
+
+.fanworks-grid .card-thumb img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+
+/* OCs 그리드: 최대 3열 제한 및 50% 원형 스타일 */
+.ocs-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 60px;
+  row-gap: 80px;
+}
+
+@media (min-width: 480px) {
+  .ocs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .ocs-grid {
+    grid-template-columns: repeat(3, 1fr); /* 최대 3열 */
+  }
+}
+
+.ocs-grid .card-thumb,
+.ocs-grid .card-thumb.text-thumb {
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1;
+}
+
+.ocs-grid .card-thumb img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+
+/* Worlds 그리드: 5열 반응형 체계 */
+.worlds-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 40px;
   row-gap: 60px;
 }
 
 @media (min-width: 480px) {
-  .card-cols-5 {
-    gap: 50px;
-    row-gap: 60px;
+  .worlds-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 }
 
 @media (min-width: 1200px) {
-  .card-cols-5 {
-    gap: 50px;
-    row-gap: 60px;
+  .worlds-grid {
     grid-template-columns: repeat(5, 1fr);
   }
 }
 
-.card-cols-3 {
-  display: block;
-  column-count: 1;
-  column-gap: 12px;
+.worlds-grid .card-thumb {
+  border-radius: 0px;
+  aspect-ratio: 1 / 1;
 }
 
-.card-cols-3 .card {
-  break-inside: avoid;
-  margin-bottom: 12px;
-}
-
-.card-cols-3 .card-thumb img {
-  height: auto;
-  cursor: pointer;
-}
-
-@media (min-width: 480px) {
-  .card-cols-3 {
-    column-count: 2;
-    column-gap: 16px;
-  }
-  .card-cols-3 .card {
-    margin-bottom: 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .card-cols-3 {
-    column-count: 3;
-    column-gap: 20px;
-  }
-  .card-cols-3 .card {
-    margin-bottom: 20px;
-  }
+.worlds-grid .card-thumb img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 
 /* ==========================================================================
-   4. 공통 카드 및 텍스트 썸네일 스타일 (.card)
+   4. 카드 및 Border-radius 분기 설정 (Fanworks: 0, OCs: 50%)
    ========================================================================== */
 .card {
   background: transparent;
@@ -339,12 +363,13 @@ common-layout {
 
 .card .card-thumb {
   background: #fff;
-  border: 1px solid  #eee;
+  border: 1px solid #ddd;
   position: relative;
   width: 100%;
   overflow: hidden;
   min-height: 100px;
   cursor: pointer;
+  border-radius: 0px;
 }
 
 .card-thumb img {
@@ -353,16 +378,16 @@ common-layout {
   opacity: 1;
 }
 
-/* 텍스트 썸네일 공통 (이미지 준비 중, 민감한 콘텐츠, 비공개 등 통일) */
 .card-thumb.text-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #eaeaea;
-  color: #777;
+  background-color: #ffedae;
+  color: #56403e;
   font-size: 0.95rem;
   letter-spacing: 0.03em;
   aspect-ratio: 1 / 1;
+  border-radius: 0px; /* 기본 0 */
   padding: 1rem;
   text-align: center;
   word-break: keep-all;
@@ -371,11 +396,16 @@ common-layout {
   cursor: pointer;
 }
 
+/* OCs 페이지 전용 텍스트 썸네일 원형 처리 */
+body.page-ocs .card-thumb.text-thumb {
+  border-radius: 50%;
+}
+
 .card-thumb.text-thumb.private-thumb,
 .card-thumb.text-thumb.sensitive-thumb,
 .card-thumb.text-thumb.placeholder-thumb {
-  background-color: #eaeaea;
-  color: #777;
+  background-color: #ffedae;
+  color: #56403e;
 }
 
 .card-thumb.text-thumb span {
@@ -385,6 +415,7 @@ common-layout {
 
 .crop-square .card-thumb {
   aspect-ratio: 1 / 1;
+  border-radius: 0px;
 }
 
 .crop-square .card-thumb img {
@@ -392,9 +423,13 @@ common-layout {
   object-fit: cover;
 }
 
-/* OC 카드 하단 이름 영역 */
+/* OCs 전용 50% 원형 처리 */
+body.page-ocs .crop-square .card-thumb {
+  border-radius: 50%;
+}
+
 .oc-card-info {
-  margin-top: 13px;
+  margin-top: 15px;
   text-align: center;
 }
 
@@ -416,7 +451,7 @@ common-layout {
 
 
 /* ==========================================================================
-   5. 모달 및 팝업 통합 스타일 (.fanworks-modal, .oc-modal, .image-modal)
+   5. 모달 및 팝업 통합 스타일
    ========================================================================== */
 .fanworks-modal,
 .oc-modal,
@@ -691,7 +726,6 @@ common-layout {
 .modal-prev svg { left: -1px; }
 .modal-next svg { left: 1px; }
 
-/* 모달 내부 민감 콘텐츠 단색 경고 마스크 (블러/글래스모피즘 미사용) */
 .oc-warning-overlay,
 .oc-full-warning-mask {
   position: absolute;
@@ -735,10 +769,10 @@ common-layout {
 #favs-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 18px;
-  row-gap: 38px;
+  gap: 23px;
+  row-gap: 40px;
   margin-top: 80px;
-  padding: 0 100px;
+  padding: 0 0px;
 }
 
 @media (min-width: 768px) {
@@ -749,21 +783,22 @@ common-layout {
 
 .favs-block {
   background: #fff;
-  border: 1px solid #eaeaea;
+  border: 2px solid #ffedae;
   border-radius: 0px;
-  padding: 15px 18px 17px;
+  padding: 15px 20px 17px;
 }
 
 .favs-block .title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #000;
-  margin-bottom: 0.7rem;
+  line-height: 1.4;
+  color: #111;
+  margin-bottom: 11px;
 }
 
 .favs-block .line {
   font-size: 0.9rem;
-  color: #666;
+  color: #555;
   line-height: 1.6;
 }
 
@@ -890,8 +925,8 @@ common-layout {
 .btn-dark-long,
 .filter-open-btn,
 .filter-apply-btn {
-  background-color: #ccc;
-  color: #111;
+  color: #ffedae;
+  background-color: #56403e;
   border: 1px solid #bbb;
   border-radius: 0px;
   cursor: pointer;
@@ -905,7 +940,7 @@ common-layout {
 
 .btn-dark-long,
 .filter-open-btn {
-  padding: 8px 21px 10px;
+  padding: 6px 21px 8px;
   font-size: 0.9rem;
 }
 
@@ -981,11 +1016,11 @@ input:checked + .slider:before {
   min-width: 32px;
   height: 32px;
   padding: 0 6px;
-  background: #ddd;
-  border: 1px solid #ccc;
+  background-color: #ffedae;
+  color: #56403e;
+  border: 1px solid #ddd;
   border-radius: 0%;
   font-size: 0.9rem;
-  color: #888;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -993,457 +1028,12 @@ input:checked + .slider:before {
 }
 
 .pagination-container button.active {
-  background-color: #111;
-  color: #fff;
+  color: #ffedae;
+  background-color: #56403e;
   font-weight: 500;
 }
 
 .pagination-container button:disabled {
   opacity: 0;
   cursor: default;
-}
-
-
-/* ==========================================================================
-   8. 관리자 페이지 (Admin Page 3-Column Layout & Modals)
-   ========================================================================== */
-html:has(.fanworks-modal.active),
-html:has(.oc-modal.active) {
-  overflow: hidden;
-  padding-right: var(--scrollbar-width, 0px); 
-}
-
-.admin-layout-wrapper {
-  display: grid;
-  grid-template-columns: 200px 480px 1fr;
-  width: 100%;
-  height: calc(100vh - 61px);
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.admin-sidebar,
-.admin-content-pane,
-.admin-editor-pane {
-  height: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-
-.admin-sidebar {
-  background: #111;
-  border-right: 1px solid #333;
-}
-
-.admin-content-pane {
-  background: #111;
-  border-right: 1px solid #333;
-}
-
-.admin-editor-pane {
-  background: #111;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.admin-column-header {
-  height: 43px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #eee;
-  border-bottom: 1px solid #333;
-  padding: 0 1.3rem;
-  margin-bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.admin-sidebar-menu-list {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem;
-  padding: 0rem 0.8rem;
-}
-
-.admin-menu-btn {
-  width: 100%;
-  text-align: left;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: none;
-  border-radius: 0px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #999;
-  cursor: pointer;
-}
-
-.admin-menu-btn.active {
-  background-color: #222;
-  color: #fff;
-}
-
-.admin-thumb-preview {
-  width: 80px;
-  height: 80px;
-  aspect-ratio: 1 / 1;
-  border: 1px solid #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-  border-radius: 0px;
-}
-
-.admin-thumb-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.admin-card-list {
-  flex: 1;
-  overflow-y: scroll;
-}
-
-.admin-card-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  padding: 1rem 1.3rem;
-  background: #111;
-  border-bottom: 1px solid #222;
-  position: relative;
-}
-
-.admin-card-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding-top: 0;
-  gap: 4px;
-  overflow: hidden;
-  text-align: left;
-  color: #eee;
-}
-
-.admin-card-meta {
-  font-size: 0.8rem;
-  color: #888;
-  margin-bottom: 2px;
-  font-weight: 500;
-}
-
-.admin-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  row-gap: 0.2rem;
-}
-
-.admin-tag-input-line {
-  border-bottom: 1px solid #444;
-  padding: 6px 2px;
-  font-size: 0.9rem;
-  width: 100%;
-  background: transparent;
-  color: #fff;
-}
-
-.admin-tag-selector-box {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
-  padding: 8px;
-  background: #161616;
-  border: 1px solid #333;
-  border-radius: 0px;
-  min-height: 200px;
-}
-
-.image-path-preview {
-  font-size: 0.8rem;
-  color: #888;
-  margin-bottom: 0.4rem;
-  font-family: monospace;
-}
-
-.edit {
-  padding: 1rem 2rem 50px 2rem;
-  gap: 12px;
-  display: none;
-  flex-direction: column;
-  margin-bottom: 100px;
-}
-
-.form-group {
-  margin-bottom: 23px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #ddd;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 8px;
-  background: #1a1a1a;
-  color: #fff;
-  border: 1px solid #444;
-  border-radius: 0px;
-  font-size: 0.9rem;
-}
-
-.image-list {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-.image-item {
-  width: 70px;
-  height: 70px;
-  border: 1px solid #444;
-  border-radius: 0px;
-  overflow: hidden;
-  position: relative;
-}
-
-.image-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.image-item-index {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: #333;
-  color: #fff;
-  font-size: 0.65rem;
-  padding: 1px 7px 1px 6px;
-  border-radius: 0px;
-  font-weight: bold;
-  z-index: 2;
-}
-
-.image-item .remove-btn {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background: #333;
-  color: #fff;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  cursor: pointer;
-  z-index: 3;
-}
-
-.filter-col-header-dark {
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: #2a2a2a;
-  color: #fff;
-  padding: 5px 8px;
-  border-radius: 0px;
-  margin-bottom: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.filter-col-scrollable {
-  height: 250px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.tag-add-modal-overlay,
-.tag-edit-modal-overlay,
-.work-delete-modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  justify-content: center;
-  align-items: center;
-}
-
-.tag-add-modal-overlay.active,
-.tag-edit-modal-overlay.active,
-.work-delete-modal-overlay.active {
-  display: flex;
-}
-
-.tag-add-modal-overlay { z-index: 5000; }
-.tag-edit-modal-overlay { z-index: 5000; }
-.work-delete-modal-overlay { z-index: 6000; }
-
-.tag-edit-modal-content {
-  background: #111;
-  border: 1px solid #444;
-  width: 800px;
-  max-width: 90vw;
-  height: 75vh;
-  border-radius: 0px;
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  box-sizing: border-box;
-}
-
-.tag-edit-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #333;
-  padding-bottom: 0.8rem;
-  margin-bottom: 1rem;
-}
-
-.tag-edit-modal-header h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #eee;
-}
-
-.tag-edit-columns-wrapper {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  overflow-y: scroll;
-  flex-grow: 1;
-  padding-right: 4px;
-}
-
-.tag-edit-col {
-  background: #161616;
-  border: 1px solid #333;
-  border-radius: 0px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 55vh;
-  overflow-y: scroll;
-}
-
-.tag-edit-col h4 {
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: #2a2a2a;
-  color: #fff;
-  padding: 5px 8px;
-  border-radius: 0px;
-  margin-bottom: 6px;
-  text-align: center;
-}
-
-.tag-edit-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #111;
-  border: 1px solid #333;
-  color: #eee;
-  padding: 6px 8px;
-  border-radius: 0px;
-  font-size: 0.85rem;
-}
-
-.tag-edit-actions {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.eye-btn {
-  background: #2a2a2a;
-  border: none;
-  cursor: pointer;
-  font-size: 0.85rem;
-  padding: 2px 6px;
-  color: #eee;
-}
-
-.eye-btn.closed {
-  background: #1a1a1a;
-  color: #666;
-  text-decoration: line-through;
-}
-
-.tag-delete-btn {
-  background: none;
-  border: none;
-  color: #e74c3c;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0 4px;
-}
-
-.work-delete-modal-card {
-  background: #111;
-  border: 1px solid #444;
-  padding: 1.5rem;
-  border-radius: 0px;
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  text-align: center;
-}
-
-.work-delete-modal-text {
-  font-size: 0.9rem;
-  color: #ccc;
-  line-height: 1.5;
-}
-
-.tag-add-btn-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #222;
-  border: 1px dashed #555;
-  height: 36px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #ccc;
-  cursor: pointer;
-  margin-top: 6px;
-}
-
-.tag-add-input {
-  width: 100%;
-  box-sizing: border-box;
-  background: #111;
-  border: 1px solid #eee;
-  color: #fff;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  outline: none;
-  margin-top: 6px;
 }

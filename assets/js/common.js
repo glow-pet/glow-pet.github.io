@@ -26,8 +26,6 @@ class CommonLayout extends HTMLElement {
         const isPagesFolder = window.location.pathname.includes('/pages/');
 
         const indexPath = isPagesFolder ? '../index.html' : 'index.html';
-        
-        // 폴더 위치에 따른 로고 이미지 경로 분기 처리
         const logoPath = isPagesFolder ? '../assets/images/banana.gif' : 'assets/images/banana.gif';
 
         const worldsPath = isPagesFolder ? 'worlds.html' : 'pages/worlds.html';
@@ -53,11 +51,13 @@ class CommonLayout extends HTMLElement {
         ];
         
         const currentFileName = window.location.pathname.split('/').pop() || 'index.html';
+        const pageSlug = currentFileName.replace('.html', '') || 'index';
+        document.body.classList.add(`page-${pageSlug}`);
 
         const navLinksHTML = navItems.map(item => {
             const hasChildren = item.children && item.children.length > 0;
             const isChildActive = hasChildren && item.children.some(child => child.href.includes(currentFileName));
-            const isParentActive = isChildActive; // 상위 카테고리는 하위 메뉴가 활성화되었을 때만 활성화
+            const isParentActive = isChildActive;
 
             const childrenHTML = hasChildren ? `
                 <ul class="nav-sub-links">
@@ -118,6 +118,7 @@ class CommonLayout extends HTMLElement {
             headerH1.remove();
         }
 
+        // 웹 컴포넌트 마운트 완료 후 앱 초기화 함수 호출 안전장치
         if (typeof window.loadGallery === 'function') {
             window.loadGallery();
         }
