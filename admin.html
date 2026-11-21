@@ -11,11 +11,8 @@
 
     <nav class="admin-navbar">
         <div style="display: flex; gap: 8px;">
-            <button onclick="downloadJson()" class="btn-dark-short" title="fanworks.json 저장">fanworks.json 저장</button>
-            <button onclick="downloadProfileJson()" class="btn-dark-short" title="profiles.json 저장">profiles.json 저장</button>
-            <button onclick="downloadFavsJson()" class="btn-dark-short" title="favs.json 저장">favs.json 저장</button>
-            <button onclick="downloadYumesJson()" class="btn-dark-short" title="yumes.json 저장">yumes.json 저장</button>
-            <button onclick="downloadWorldsJson()" class="btn-dark-short" title="worlds.json 저장">worlds.json 저장</button>
+            <button type="button" onclick="downloadUnifiedJson()" class="btn-dark-short" title="통합 JSON 저장">JSON 저장</button>
+            <button type="button" id="gitPushBtn" onclick="triggerGitPush()" class="btn-dark-short" title="GitHub 푸시">푸시</button>
         </div>
     </nav>
 

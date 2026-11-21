@@ -1,11 +1,19 @@
 [
     {
+        "id": 14,
+        "title": "마더 3",
+        "media": "게임",
+        "character": "쿠마토라",
+        "relation": "",
+        "order": 0
+    },
+    {
         "id": 13,
         "title": "Z.A.T.O",
         "media": "게임",
         "character": "이라",
         "relation": "아샤x이라",
-        "order": 0
+        "order": 1
     },
     {
         "id": 12,
@@ -13,7 +21,7 @@
         "media": "게임",
         "character": "-",
         "relation": "-",
-        "order": 1
+        "order": 2
     },
     {
         "id": 11,
@@ -21,7 +29,7 @@
         "media": "애니(TVA, 신극장판)",
         "character": "나나",
         "relation": "-",
-        "order": 2
+        "order": 3
     },
     {
         "id": 10,
@@ -29,7 +37,7 @@
         "media": "애니",
         "character": "리사",
         "relation": "드림주x리사",
-        "order": 3
+        "order": 4
     },
     {
         "id": 7,
@@ -37,7 +45,7 @@
         "media": "애니",
         "character": "-",
         "relation": "-",
-        "order": 4
+        "order": 5
     },
     {
         "id": 6,
@@ -45,7 +53,7 @@
         "media": "애니",
         "character": "야치요",
         "relation": "-",
-        "order": 5
+        "order": 6
     },
     {
         "id": 5,
@@ -53,7 +61,7 @@
         "media": "애니(1기) / 만화",
         "character": "레이",
         "relation": "-",
-        "order": 6
+        "order": 7
     },
     {
         "id": 4,
@@ -61,7 +69,7 @@
         "media": "만화",
         "character": "히토미",
         "relation": "-",
-        "order": 7
+        "order": 8
     },
     {
         "id": 3,
@@ -69,7 +77,7 @@
         "media": "게임",
         "character": "마틀렛",
         "relation": "-",
-        "order": 8
+        "order": 9
     },
     {
         "id": 2,
@@ -77,7 +85,7 @@
         "media": "게임(2004)",
         "character": "-",
         "relation": "-",
-        "order": 9
+        "order": 10
     },
     {
         "id": 1,
@@ -85,6 +93,6 @@
         "media": "원작",
         "character": "테레지",
         "relation": "테레지x드림주",
-        "order": 10
+        "order": 11
     }
 ]

@@ -10,15 +10,18 @@ let currentWorldThumbnails = [];
 let currentImages = [];
 let currentYumeImages = [];
 let initialFormState = '';
-let activeTagFilters = {}; 
+let activeTagFilters = {};
 let currentSelectedCategory = null;
 let currentAdminPage = 1;
 const adminItemsPerPage = 10;
 
-let editingWorks = []; 
-let modalWorkEyeStates = {}; 
-let modalCharEyeStates = {}; 
+let editingWorks = [];
+let modalWorkEyeStates = {};
+let modalCharEyeStates = {};
 let workToDelete = null;
+
+const UNIFIED_DB_FILENAME = 'db.json';
+const GIT_PUSH_ENDPOINT = 'http://127.0.0.1:8000/api/git-push';
 
 const GENRE_FOLDER_MAP = {
     "델타룬": "deltarune",
@@ -28,27 +31,106 @@ const GENRE_FOLDER_MAP = {
     "언더테일": "undertale"
 };
 
+function getUnifiedDatabaseObject() {
+    return {
+        fanworks: fanworksData,
+        profiles: profilesData,
+        favs: favsData,
+        yumes: yumesData,
+        worlds: worldsData
+    };
+}
+
+function getUnifiedDatabaseObject() {
+    return {
+        fanworks: fanworksData,
+        profiles: profilesData,
+        favs: favsData,
+        yumes: yumesData,
+        worlds: worldsData
+    };
+}
+
 async function loadData() {
     try {
-        const [fanworksRes, profilesRes, favsRes, yumesRes, worldsRes, tagsRes] = await Promise.all([
-            fetch('fanworks.json'),
+        const tagsRes = await fetch('tags.json');
+        if (tagsRes.ok) tagsData = await tagsRes.json();
+
+        const unifiedRes = await fetch(`${UNIFIED_DB_FILENAME}?t=${Date.now()}`).catch(() => null);
+        if (unifiedRes && unifiedRes.ok) {
+            const unified = await unifiedRes.json();
+            fanworksData = Array.isArray(unified.fanworks) ? unified.fanworks : [];
+            profilesData = Array.isArray(unified.profiles) ? unified.profiles : [];
+            favsData = Array.isArray(unified.favs) ? unified.favs : [];
+            yumesData = Array.isArray(unified.yumes) ? unified.yumes : [];
+            worldsData = Array.isArray(unified.worlds) ? unified.worlds : [];
+            return;
+        }
+
+        const [fanworksRes, profilesRes, favsRes, yumesRes, worldsRes] = await Promise.all([
+            fetch('fanworks.json').catch(() => ({ ok: false })),
             fetch('profiles.json').catch(() => ({ ok: false })),
             fetch('favs.json').catch(() => ({ ok: false })),
             fetch('yumes.json').catch(() => ({ ok: false })),
-            fetch('worlds.json').catch(() => ({ ok: false })),
-            fetch('tags.json')
+            fetch('worlds.json').catch(() => ({ ok: false }))
         ]);
-        if (fanworksRes.ok) fanworksData = await fanworksRes.json();
+        if (fanworksRes && fanworksRes.ok) fanworksData = await fanworksRes.json();
         if (profilesRes && profilesRes.ok) profilesData = await profilesRes.json();
         if (favsRes && favsRes.ok) favsData = await favsRes.json();
         if (yumesRes && yumesRes.ok) yumesData = await yumesRes.json();
         if (worldsRes && worldsRes.ok) worldsData = await worldsRes.json();
-        if (tagsRes.ok) tagsData = await tagsRes.json();
     } catch (e) {
         console.error('데이터 로드 실패', e);
-        alert('데이터 파일을 불러오지 못했습니다. Live Server 환경을 확인해주세요.');
+        alert('데이터 파일을 불러오지 못했습니다. 로컬 서버 환경을 확인해주세요.');
     }
 }
+
+window.downloadUnifiedJson = function() {
+    const payload = JSON.stringify(getUnifiedDatabaseObject(), null, 4);
+    const blob = new Blob([payload], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = UNIFIED_DB_FILENAME;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+};
+
+window.triggerGitPush = async function() {
+    const pushBtn = document.getElementById('gitPushBtn');
+
+    if (pushBtn) {
+        pushBtn.disabled = true;
+        pushBtn.textContent = '푸시 중...';
+    }
+
+    try {
+        const res = await fetch(GIT_PUSH_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fileName: UNIFIED_DB_FILENAME,
+                data: getUnifiedDatabaseObject()
+            })
+        });
+
+        const result = await res.json().catch(() => ({}));
+        if (!res.ok || result.ok === false) {
+            throw new Error(result.error || `HTTP ${res.status}`);
+        }
+
+        alert(result.message || '푸시가 완료되었습니다.');
+    } catch (err) {
+        alert(`푸시 실행 실패: ${err.message}`);
+    } finally {
+        if (pushBtn) {
+            pushBtn.disabled = false;
+            pushBtn.textContent = '푸시';
+        }
+    }
+};
 
 function calculateDDay(startDateStr) {
     if (!startDateStr) return '';
@@ -58,7 +140,7 @@ function calculateDDay(startDateStr) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const diffTime = today.getTime() - start.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // 당일을 1일로 계산
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
     return diffDays >= 1 ? `D+${diffDays}` : `D${diffDays - 1}`;
 }
 
@@ -76,7 +158,7 @@ window.selectCategory = function(category) {
     });
 
     document.getElementById('currentTabTitle').innerText = `목록`;
-    
+
     document.getElementById('contentPaneInner').style.display = 'flex';
     document.getElementById('contentPanePlaceholder').style.display = 'none';
 
@@ -228,7 +310,7 @@ function renderGrid() {
             const badge = images.length > 1 ? `<div class="admin-badge">${images.length}p</div>` : '';
             const tagsHtml = (post.tags || []).map(t => `<span style="font-size: 0.8rem; color: #666; margin-right: 6px;">#${t}</span>`).join('');
             const dateText = post.date || '';
-            
+
             const statusBadges = [];
             if (post.private) statusBadges.push('비공개');
             if (post.rating === 'warning') statusBadges.push('성인물(경고)');
@@ -288,7 +370,7 @@ function getFormState() {
     const externalLinkInput = document.getElementById('cardExternalLink');
     const warningVal = warningContentInput ? warningContentInput.value.trim() : '';
     const linkVal = externalLinkInput ? externalLinkInput.value.trim() : '';
-    
+
     const checkedRating = document.querySelector('input[name="admin-rating"]:checked');
     const ratingVal = checkedRating ? checkedRating.value : 'all';
 
@@ -309,7 +391,7 @@ function getOcFormState() {
     const privateEl = document.getElementById('ocPrivate');
     const warningContentInput = document.getElementById('ocWarningContent');
     const warningVal = warningContentInput ? warningContentInput.value.trim() : '';
-    
+
     const checkedRating = document.querySelector('input[name="oc-admin-rating"]:checked');
     const ratingVal = checkedRating ? checkedRating.value : 'all';
 
@@ -449,7 +531,7 @@ window.openEditEditor = function(id) {
             document.getElementById('editorTitle').innerText = `수정`;
             if (idDisplay) idDisplay.innerText = `(ID: ${id})`;
             window.editingTargetId = item.id;
-            
+
             document.getElementById('ocName').value = item.name || '';
             document.getElementById('ocForeignName').value = item.foreignName || '';
             document.getElementById('ocTitle').value = item.title || '';
@@ -465,7 +547,7 @@ window.openEditEditor = function(id) {
 
             const warningInput = document.getElementById('ocWarningContent');
             if (warningInput) warningInput.value = item.warningContent || '';
-            
+
             const ratingToSelect = item.rating || 'all';
             const targetRadio = document.querySelector(`input[name="oc-admin-rating"][value="${ratingToSelect}"]`);
             if (targetRadio) targetRadio.checked = true;
@@ -569,7 +651,7 @@ window.openEditEditor = function(id) {
             document.getElementById('editorTitle').innerText = `수정`;
             if (idDisplay) idDisplay.innerText = `(ID: ${id})`;
             window.editingTargetId = item.id;
-            
+
             document.getElementById('worldTitle').value = item.title || '';
             document.getElementById('worldKeywords').value = item.keywords || '';
             currentWorldThumbnails = item.thumbnails ? [...item.thumbnails] : (item.thumbnail ? [item.thumbnail] : []);
@@ -612,10 +694,10 @@ window.openEditEditor = function(id) {
             document.getElementById('cardAlt').value = post.alt || '';
             document.getElementById('cardDate').value = post.date || '';
             if (cardPrivateEl) cardPrivateEl.checked = !!post.private;
-            
+
             if (warningContentInput) warningContentInput.value = post.warningContent || '';
             if (externalLinkInput) externalLinkInput.value = post.link || '';
-            
+
             const ratingToSelect = post.rating || (post.sensitive ? 'warning' : 'all');
             const targetRadio = document.querySelector(`input[name="admin-rating"][value="${ratingToSelect}"]`);
             if (targetRadio) {
@@ -649,7 +731,7 @@ window.openEditEditor = function(id) {
         initialFormState = getFormState();
         checkFormChanges();
     }
-    
+
     const editorInner = document.getElementById('editorPaneInner');
     const editorPlaceholder = document.getElementById('editorPanePlaceholder');
     if (editorInner) editorInner.style.display = 'flex';
@@ -672,7 +754,7 @@ function renderAdminTagSelector() {
     const works = tagsData.works.map(w => w.name);
     const sortedWorks = Array.from(new Set(works)).sort((a, b) => a.localeCompare(b, 'ko'));
 
-    const includedWorks = Object.keys(activeTagFilters).filter(tag => 
+    const includedWorks = Object.keys(activeTagFilters).filter(tag =>
         sortedWorks.includes(tag) && activeTagFilters[tag] === 'include'
     );
 
@@ -748,12 +830,12 @@ function renderAdminTagSelector() {
 }
 
 let currentOrderCategory = null;
-let tempOrderData = []; 
+let tempOrderData = [];
 
 window.openOrderModal = function() {
     const activeCategory = currentSelectedCategory ? currentSelectedCategory.replace(/\s+/g, '') : '';
     if (activeCategory === '2차창작' || !activeCategory) return;
-    
+
     currentOrderCategory = activeCategory;
     let targetData = [];
     if (currentOrderCategory === '1차창작') targetData = profilesData;
@@ -871,15 +953,15 @@ window.applyOrderChanges = function() {
         worldsData = updatedData;
     }
 
-    renderGrid(); 
-    closeOrderModal(); 
+    renderGrid();
+    closeOrderModal();
 };
 
 window.openTagHierarchyModal = function() {
     editingWorks = JSON.parse(JSON.stringify(tagsData.works));
 
-    editingWorks.forEach(w => { 
-        if (modalWorkEyeStates[w.name] === undefined) modalWorkEyeStates[w.name] = false; 
+    editingWorks.forEach(w => {
+        if (modalWorkEyeStates[w.name] === undefined) modalWorkEyeStates[w.name] = false;
         w.characters.forEach(c => {
             if (modalCharEyeStates[c.name] === undefined) modalCharEyeStates[c.name] = false;
         });
@@ -1115,7 +1197,7 @@ function renderTagRow(tag) {
 window.toggleAdminTag = function(tag) {
     if (activeTagFilters[tag] === 'include') {
         delete activeTagFilters[tag];
-        
+
         const allWorks = new Set(tagsData.works.map(w => w.name));
         if (allWorks.has(tag)) {
             const targetWork = tagsData.works.find(w => w.name === tag);
@@ -1276,7 +1358,7 @@ function renderOcPortraits() {
 window.addImagePath = function() {
     const category = document.getElementById('cardCategory').value;
     const filename = document.getElementById('newImgFilename').value.trim();
-    
+
     if (filename) {
         const cleanFilename = filename.replace(/\.[^/.]+$/, '');
         const basePath = (category === '1차창작') ? 'assets/images/ocs/' : getResolvedGenreFolderPath();
@@ -1296,7 +1378,7 @@ window.removeImage = function(idx) {
 window.addYumeImagePath = function() {
     const inputEl = document.getElementById('yumeNewImgFilename');
     const filename = inputEl ? inputEl.value.trim() : '';
-    
+
     if (filename) {
         const cleanFilename = filename.replace(/\.[^/.]+$/, '');
         const basePath = getResolvedGenreFolderPath();
@@ -1616,7 +1698,7 @@ window.addEventListener('beforeunload', (e) => {
 
     if (isFanworkChanged || isOcChanged || isFavChanged || isYumeChanged || isWorldChanged) {
         e.preventDefault();
-        e.returnValue = ''; 
+        e.returnValue = '';
     }
 });
 
@@ -1637,52 +1719,54 @@ window.deleteCard = function(id) {
     }
 };
 
-window.downloadJson = function() {
-    const fanworksStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fanworksData, null, 4));
+window.downloadUnifiedJson = function() {
+    const payload = JSON.stringify(getUnifiedDatabaseObject(), null, 4);
+    const blob = new Blob([payload], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.setAttribute("href", fanworksStr);
-    a.setAttribute("download", "fanworks.json");
+    a.href = url;
+    a.download = UNIFIED_DB_FILENAME;
     document.body.appendChild(a);
     a.click();
     a.remove();
+    URL.revokeObjectURL(url);
 };
 
-window.downloadProfileJson = function() {
-    const profilesStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(profilesData, null, 4));
-    const a = document.createElement('a');
-    a.setAttribute("href", profilesStr);
-    a.setAttribute("download", "profiles.json");
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-};
+window.triggerGitPush = async function() {
+    const pushBtn = document.getElementById('gitPushBtn');
+    const messageInput = prompt('커밋 메시지를 입력하세요.', `chore: update ${UNIFIED_DB_FILENAME}`);
+    if (messageInput === null) return;
 
-window.downloadFavsJson = function() {
-    const favsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(favsData, null, 4));
-    const a = document.createElement('a');
-    a.setAttribute("href", favsStr);
-    a.setAttribute("download", "favs.json");
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-};
+    const commitMessage = messageInput.trim() || `chore: update ${UNIFIED_DB_FILENAME}`;
 
-window.downloadYumesJson = function() {
-    const yumesStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(yumesData, null, 4));
-    const a = document.createElement('a');
-    a.setAttribute("href", yumesStr);
-    a.setAttribute("download", "yumes.json");
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-};
+    if (pushBtn) {
+        pushBtn.disabled = true;
+        pushBtn.textContent = '푸시 중...';
+    }
 
-window.downloadWorldsJson = function() {
-    const worldsStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(worldsData, null, 4));
-    const a = document.createElement('a');
-    a.setAttribute("href", worldsStr);
-    a.setAttribute("download", "worlds.json");
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    try {
+        const res = await fetch(GIT_PUSH_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fileName: UNIFIED_DB_FILENAME,
+                data: getUnifiedDatabaseObject(),
+                message: commitMessage
+            })
+        });
+
+        const result = await res.json().catch(() => ({}));
+        if (!res.ok || result.ok === false) {
+            throw new Error(result.error || `HTTP ${res.status}`);
+        }
+
+        alert(result.message || '푸시가 완료되었습니다.');
+    } catch (err) {
+        alert(`푸시 실행 실패: ${err.message}\n로컬 서버에 ${GIT_PUSH_ENDPOINT} 라우트가 떠 있는지 확인하세요.`);
+    } finally {
+        if (pushBtn) {
+            pushBtn.disabled = false;
+            pushBtn.textContent = '푸시';
+        }
+    }
 };
